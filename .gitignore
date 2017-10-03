@@ -114,3 +114,10 @@ local.properties
 # Code Recommenders
 .recommenders/
 
+Eclipse_Console_Output
+00000000.jdb
+je.config.csv
+je.info.0
+je.lck
+je.stat.csv
+output.txt
