@@ -66,7 +66,7 @@ public class BasicCrawlController {
      * You can set the maximum crawl depth here. The default value is -1 for
      * unlimited depth
      */
-        config.setMaxDepthOfCrawling(2);
+        config.setMaxDepthOfCrawling(1);
 
     /*
      * You can set the maximum number of pages to crawl. The default value
@@ -112,8 +112,8 @@ public class BasicCrawlController {
      * which are found in these pages
      */
         controller.addSeed("http://www.ics.uci.edu/");
-        controller.addSeed("http://www.ics.uci.edu/~lopes/");
-        controller.addSeed("http://www.ics.uci.edu/~welling/");
+        /*controller.addSeed("http://www.ics.uci.edu/~lopes/");
+        controller.addSeed("http://www.ics.uci.edu/~welling/");*/
 
     /*
      * Start the crawl. This is a blocking operation, meaning that your code
