@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.2.1" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="false" dependencies="true" nesting-relationships="true" router="FAN">  
+  <class id="1" language="java" name="edu.uci.ics.crawler4j.crawler.CrawlController.DefaultWebCrawlerFactory" 
+    project="crawler4j" file="/crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/CrawlController.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="119" width="233" x="41" y="931"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="edu.uci.ics.crawler4j.crawler.Configurable" project="crawler4j" 
+    file="/crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/Configurable.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="101" width="173" x="585" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="edu.uci.ics.crawler4j.crawler.CrawlController" project="crawler4j" 
+    file="/crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/CrawlController.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="713" width="351" x="295" y="178"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="edu.uci.ics.crawler4j.crawler.WebCrawler" project="crawler4j" 
+    file="/crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/WebCrawler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="641" width="322" x="113" y="1213"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="edu.uci.ics.crawler4j.crawler.Page" project="crawler4j" 
+    file="/crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/Page.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="767" width="256" x="113" y="1894"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="edu.uci.ics.crawler4j.crawler.CrawlConfig" project="crawler4j" 
+    file="/crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/CrawlConfig.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="1811" width="302" x="456" y="1894"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <interface id="7" language="java" name="edu.uci.ics.crawler4j.crawler.CrawlController.WebCrawlerFactory" 
+    project="crawler4j" file="/crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/CrawlController.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="83" width="182" x="113" y="1090"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <dependency id="8">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
+  <dependency id="9">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="6"/>  
+  </dependency>  
+  <nesting id="10">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="1"/>  
+  </nesting>  
+  <association id="11">    
+    <bendpoint x="676" y="178"/>    
+    <bendpoint x="676" y="931"/>    
+    <bendpoint x="676" y="1090"/>    
+    <bendpoint x="676" y="1213"/>    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="12" name="config"/>      
+      <multiplicity id="13" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="14">    
+    <bendpoint x="325" y="1090"/>    
+    <bendpoint x="325" y="931"/>    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="15" name="myController"/>      
+      <multiplicity id="16" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="17">    
+    <bendpoint x="304" y="931"/>    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="7"/>  
+  </nesting>  
+  <realization id="18">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="7"/>  
+  </realization>  
+  <generalization id="19">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <dependency id="20">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="4"/>  
+  </dependency>  
+  <dependency id="21">    
+    <bendpoint x="465" y="931"/>    
+    <bendpoint x="465" y="1090"/>    
+    <bendpoint x="465" y="1213"/>    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="6"/>  
+  </dependency>  
+  <dependency id="22">    
+    <bendpoint x="82" y="1090"/>    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="4"/>  
+  </dependency>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
