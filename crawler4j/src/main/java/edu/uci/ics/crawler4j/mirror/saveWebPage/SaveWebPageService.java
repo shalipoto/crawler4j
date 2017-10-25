@@ -1,4 +1,6 @@
-package edu.uci.ics.crawler4j.crawler.mirror.saveWebPage;
+package edu.uci.ics.crawler4j.mirror.saveWebPage;
+
+import edu.uci.ics.crawler4j.DTO.CompleteWebPageDTO;
 
 /**
  * This interface provides the services for 
@@ -10,7 +12,7 @@ package edu.uci.ics.crawler4j.crawler.mirror.saveWebPage;
  */
 public interface SaveWebPageService {
 
-	void SaveCompleteWebPage();
+	void SaveCompleteWebPage(CompleteWebPageDTO pageDTO);
 	
 	void SaveHtmlOnly();
 }
