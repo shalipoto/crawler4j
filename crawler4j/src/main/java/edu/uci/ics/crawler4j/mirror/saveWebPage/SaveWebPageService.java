@@ -12,7 +12,7 @@ import edu.uci.ics.crawler4j.DTO.CompleteWebPageDTO;
  */
 public interface SaveWebPageService {
 
-	void SaveCompleteWebPage(CompleteWebPageDTO pageDTO);
+	void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location);
 	
 	void SaveHtmlOnly();
 }
