@@ -18,13 +18,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	 */
 	@Override
 	public void SaveCompleteWebPage(CompleteWebPageDTO pageDTO) {
-		
-		// Create a new instance of the CompleteWebPage object
-		
-		// Get the CompleteWebPage name attribute
-		
-		// Get the CompleteWebPage html file contents
-		
+
 		// Save the html file to the local file system
 		
 		// Get the list of support files for the CompleteWebPage

@@ -27,7 +27,7 @@ public class SaveWebPageSeviceImplUnitTest {
 	}
 
 	@Test
-	public void test() {
+	public void htmlFileSavedtoFileSystem() {
 		fail("Not yet implemented");
 	}
 
