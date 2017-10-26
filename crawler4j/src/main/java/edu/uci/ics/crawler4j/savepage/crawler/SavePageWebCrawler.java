@@ -22,13 +22,16 @@ import java.util.regex.Pattern;
 
 import org.apache.http.Header;
 
+import edu.uci.ics.crawler4j.DTO.CompleteWebPageDTO;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 
 /**
- * This crawler adapts the original webcrawler behavior to handle the 
+ * This crawler's supeclass implements Runnable() and it's 
+ * thread is created and managed by the crawlcontroller.
+ * This crawler also adapts the original webcrawler behavior to handle the 
  * "save web page" use case rather than mining various files for specific data.
  * 
  * @author Saleem Halipoto
@@ -39,7 +42,18 @@ import edu.uci.ics.crawler4j.url.WebURL;
  */
 public class SavePageWebCrawler extends WebCrawler {
 
+    /*
+     * This DTO holds the information needed to save the
+     * complete web page for persistence via the data layer.
+     * It handles the "save web page" use case and is 
+     * passed back to the controller before this instance's
+     * thread is terminated. 
+     */
+    CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
+    
     private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
+    
+    
 
     /**
      * You should implement this function to specify whether the given url
