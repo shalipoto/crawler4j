@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package edu.uci.ics.crawler4j.examples.basic;
+package edu.uci.ics.crawler4j.savepage.crawler;
 
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -28,9 +28,16 @@ import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 
 /**
- * @author Yasser Ganjisaffar
+ * This crawler adapts the original webcrawler behavior to handle the 
+ * "save web page" use case rather than mining various files for specific data.
+ * 
+ * @author Saleem Halipoto
+ * 
+ * Yasser Ganjisaffar coded the superclass: WebCrawler and 
+ * subclass: BasicCrawlController from which this controller gets its
+ * starting code base.
  */
-public class BasicCrawler extends WebCrawler {
+public class SavePageWebCrawler extends WebCrawler {
 
     private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
 
