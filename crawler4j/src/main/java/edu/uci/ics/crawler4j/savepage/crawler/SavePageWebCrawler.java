@@ -23,9 +23,11 @@ import java.util.regex.Pattern;
 import org.apache.http.Header;
 
 import edu.uci.ics.crawler4j.DTO.CompleteWebPageDTO;
+import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
+import edu.uci.ics.crawler4j.parser.Parser;
 import edu.uci.ics.crawler4j.url.WebURL;
 
 /**
@@ -40,21 +42,30 @@ import edu.uci.ics.crawler4j.url.WebURL;
  * subclass: BasicCrawlController from which this controller gets its
  * starting code base.
  */
-public class SavePageWebCrawler extends WebCrawler {
-
-    /*
-     * This DTO holds the information needed to save the
-     * complete web page for persistence via the data layer.
-     * It handles the "save web page" use case and is 
-     * passed back to the controller before this instance's
-     * thread is terminated. 
+public class SavePageWebCrawler extends WebCrawler {	
+    /**
+     * Initializes the current instance of the crawler
+     *
+     * @param id the id of this crawler instance
+     *            
+     * @param crawlController the controller that manages this crawling session
+     *            
+     * @throws IllegalAccessException
+     * @throws InstantiationException
      */
-    CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
-    
+	@Override
+    public void init(int id, CrawlController crawlController) throws InstantiationException, IllegalAccessException {
+    	super.init(id, crawlController);
+    	
+    	/* 
+    	 *  This DTO holds the information needed to save the
+         *  complete web page for persistence via the data layer.
+         */
+	    CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();   	
+    }
+	
     private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
     
-    
-
     /**
      * You should implement this function to specify whether the given url
      * should be crawled or not (based on your crawling logic).
