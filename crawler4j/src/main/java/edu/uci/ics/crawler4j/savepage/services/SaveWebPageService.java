@@ -1,4 +1,4 @@
-package edu.uci.ics.crawler4j.mirror.saveWebPage;
+package edu.uci.ics.crawler4j.savepage.services;
 
 import edu.uci.ics.crawler4j.DTO.CompleteWebPageDTO;
 
