@@ -74,7 +74,7 @@ public class WebCrawler implements Runnable {
     /**
      * The fetcher that is used by this crawler instance to fetch the content of pages from the web.
      */
-    private PageFetcher pageFetcher;
+    protected PageFetcher pageFetcher;
 
     /**
      * The RobotstxtServer instance that is used by this crawler instance to
@@ -114,12 +114,12 @@ public class WebCrawler implements Runnable {
         throws InstantiationException, IllegalAccessException {
         this.myId = id;
         this.pageFetcher = crawlController.getPageFetcher();
-        this.robotstxtServer = crawlController.getRobotstxtServer();
-        this.docIdServer = crawlController.getDocIdServer();
-        this.frontier = crawlController.getFrontier();
-        this.parser = new Parser(crawlController.getConfig());
+        this.setRobotstxtServer(crawlController.getRobotstxtServer());
+        this.setDocIdServer(crawlController.getDocIdServer());
+        this.setFrontier(crawlController.getFrontier());
+        this.setParser(new Parser(crawlController.getConfig()));
         this.myController = crawlController;
-        this.isWaitingForNewURLs = false;
+        this.setWaitingForNewURLs(false);
     }
 
     /**
@@ -270,11 +270,11 @@ public class WebCrawler implements Runnable {
         onStart();
         while (true) {
             List<WebURL> assignedURLs = new ArrayList<>(50);
-            isWaitingForNewURLs = true;
-            frontier.getNextURLs(50, assignedURLs);
-            isWaitingForNewURLs = false;
+            setWaitingForNewURLs(true);
+            getFrontier().getNextURLs(50, assignedURLs);
+            setWaitingForNewURLs(false);
             if (assignedURLs.isEmpty()) {
-                if (frontier.isFinished()) {
+                if (getFrontier().isFinished()) {
                     return;
                 }
                 try {
@@ -291,7 +291,7 @@ public class WebCrawler implements Runnable {
                     if (curURL != null) {
                         curURL = handleUrlBeforeProcess(curURL);
                         processPage(curURL);
-                        frontier.setProcessed(curURL);
+                        getFrontier().setProcessed(curURL);
                     }
                 }
             }
@@ -356,7 +356,7 @@ public class WebCrawler implements Runnable {
         // Sub-classed should override this to add their custom functionality
     }
 
-    private void processPage(WebURL curURL) {
+    protected void processPage(WebURL curURL) {
         PageFetchResult fetchResult = null;
         try {
             if (curURL == null) {
@@ -395,7 +395,7 @@ public class WebCrawler implements Runnable {
                     onRedirectedStatusCode(page);
 
                     if (myController.getConfig().isFollowRedirects()) {
-                        int newDocId = docIdServer.getDocId(movedToUrl);
+                        int newDocId = getDocIdServer().getDocId(movedToUrl);
                         if (newDocId > 0) {
                             logger.debug("Redirect page: {} is already seen", curURL);
                             return;
@@ -409,9 +409,9 @@ public class WebCrawler implements Runnable {
                         webURL.setDocid(-1);
                         webURL.setAnchor(curURL.getAnchor());
                         if (shouldVisit(page, webURL)) {
-                            if (!shouldFollowLinksIn(webURL) || robotstxtServer.allows(webURL)) {
-                                webURL.setDocid(docIdServer.getNewDocID(movedToUrl));
-                                frontier.schedule(webURL);
+                            if (!shouldFollowLinksIn(webURL) || getRobotstxtServer().allows(webURL)) {
+                                webURL.setDocid(getDocIdServer().getNewDocID(movedToUrl));
+                                getFrontier().schedule(webURL);
                             } else {
                                 logger.debug(
                                     "Not visiting: {} as per the server's \"robots.txt\" policy",
@@ -436,12 +436,12 @@ public class WebCrawler implements Runnable {
 
             } else { // if status code is 200
                 if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) {
-                    if (docIdServer.isSeenBefore(fetchResult.getFetchedUrl())) {
+                    if (getDocIdServer().isSeenBefore(fetchResult.getFetchedUrl())) {
                         logger.debug("Redirect page: {} has already been seen", curURL);
                         return;
                     }
                     curURL.setURL(fetchResult.getFetchedUrl());
-                    curURL.setDocid(docIdServer.getNewDocID(fetchResult.getFetchedUrl()));
+                    curURL.setDocid(getDocIdServer().getNewDocID(fetchResult.getFetchedUrl()));
                 }
 
                 if (!fetchResult.fetchContent(page,
@@ -456,7 +456,7 @@ public class WebCrawler implements Runnable {
                         myController.getConfig().getMaxDownloadSize(), curURL.getURL());
                 }
 
-                parser.parse(page, curURL.getURL());
+                getParser().parse(page, curURL.getURL());
 
                 if (shouldFollowLinksIn(page.getWebURL())) {
                     ParseData parseData = page.getParseData();
@@ -465,7 +465,7 @@ public class WebCrawler implements Runnable {
                     for (WebURL webURL : parseData.getOutgoingUrls()) {
                         webURL.setParentDocid(curURL.getDocid());
                         webURL.setParentUrl(curURL.getURL());
-                        int newdocid = docIdServer.getDocId(webURL.getURL());
+                        int newdocid = getDocIdServer().getDocId(webURL.getURL());
                         if (newdocid > 0) {
                             // This is not the first time that this Url is visited. So, we set the
                             // depth to a negative number.
@@ -476,8 +476,8 @@ public class WebCrawler implements Runnable {
                             webURL.setDepth((short) (curURL.getDepth() + 1));
                             if ((maxCrawlDepth == -1) || (curURL.getDepth() < maxCrawlDepth)) {
                                 if (shouldVisit(page, webURL)) {
-                                    if (robotstxtServer.allows(webURL)) {
-                                        webURL.setDocid(docIdServer.getNewDocID(webURL.getURL()));
+                                    if (getRobotstxtServer().allows(webURL)) {
+                                        webURL.setDocid(getDocIdServer().getNewDocID(webURL.getURL()));
                                         toSchedule.add(webURL);
                                     } else {
                                         logger.debug(
@@ -492,7 +492,7 @@ public class WebCrawler implements Runnable {
                             }
                         }
                     }
-                    frontier.scheduleAll(toSchedule);
+                    getFrontier().scheduleAll(toSchedule);
                 } else {
                     logger.debug("Not looking for links in page {}, "
                                  + "as per your \"shouldFollowLinksInPage\" policy",
@@ -538,6 +538,46 @@ public class WebCrawler implements Runnable {
     }
 
     public boolean isNotWaitingForNewURLs() {
-        return !isWaitingForNewURLs;
+        return !isWaitingForNewURLs();
     }
+
+	public RobotstxtServer getRobotstxtServer() {
+		return robotstxtServer;
+	}
+
+	public void setRobotstxtServer(RobotstxtServer robotstxtServer) {
+		this.robotstxtServer = robotstxtServer;
+	}
+
+	public DocIDServer getDocIdServer() {
+		return docIdServer;
+	}
+
+	public void setDocIdServer(DocIDServer docIdServer) {
+		this.docIdServer = docIdServer;
+	}
+
+	public Frontier getFrontier() {
+		return frontier;
+	}
+
+	public void setFrontier(Frontier frontier) {
+		this.frontier = frontier;
+	}
+
+	public Parser getParser() {
+		return parser;
+	}
+
+	public void setParser(Parser parser) {
+		this.parser = parser;
+	}
+
+	public boolean isWaitingForNewURLs() {
+		return isWaitingForNewURLs;
+	}
+
+	public void setWaitingForNewURLs(boolean isWaitingForNewURLs) {
+		this.isWaitingForNewURLs = isWaitingForNewURLs;
+	}
 }
