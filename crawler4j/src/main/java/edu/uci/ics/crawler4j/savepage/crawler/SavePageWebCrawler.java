@@ -54,6 +54,13 @@ import edu.uci.ics.crawler4j.url.WebURL;
  * starting code base.
  */
 public class SavePageWebCrawler extends WebCrawler {	
+	
+	/* 
+	 *  This DTO holds the information needed to save the
+     *  complete web page for persistence via the data layer.
+     */
+	CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
+			
     /**
      * Initializes the current instance of the crawler
      *
@@ -79,13 +86,7 @@ public class SavePageWebCrawler extends WebCrawler {
         this.setFrontier(crawlController.getFrontier());
         this.setParser(new Parser(crawlController.getConfig()));
         this.myController = crawlController;
-        this.setWaitingForNewURLs(false);
-    	
-    	/* 
-    	 *  This DTO holds the information needed to save the
-         *  complete web page for persistence via the data layer.
-         */
-	    CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();   	
+        this.setWaitingForNewURLs(false);	
     }
 	
     private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
@@ -274,6 +275,11 @@ public class SavePageWebCrawler extends WebCrawler {
                                     if (getRobotstxtServer().allows(webURL)) {
                                         webURL.setDocid(getDocIdServer().getNewDocID(webURL.getURL()));
                                         toSchedule.add(webURL);
+                                        
+                                        // After scheduling this URL now save its HTML contents to memeory
+                                        // converting a byte[] to a String
+                                        String htmlContents = new String(page.getContentData());
+                                        completeWebPageDTO.setHtmlContents(htmlContents);
                                     } else {
                                         logger.debug(
                                             "Not visiting: {} as per the server's \"robots.txt\" " +

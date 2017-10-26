@@ -16,4 +16,30 @@ public class CompleteWebPageDTO {
 	String htmlContents = null; // the contents of the original html file
 	
 	List <String> webPageFiles = null; // a list of support files needed for offline viewing
+
+	public String getWebPageName() {
+		return webPageName;
+	}
+
+	public void setWebPageName(String webPageName) {
+		this.webPageName = webPageName;
+	}
+
+	public String getHtmlContents() {
+		return htmlContents;
+	}
+
+	public void setHtmlContents(String htmlContents) {
+		this.htmlContents = htmlContents;
+	}
+
+	public List<String> getWebPageFiles() {
+		return webPageFiles;
+	}
+
+	public void setWebPageFiles(List<String> webPageFiles) {
+		this.webPageFiles = webPageFiles;
+	}
+	
+	
 }
