@@ -276,8 +276,10 @@ public class SavePageWebCrawler extends WebCrawler {
                                         webURL.setDocid(getDocIdServer().getNewDocID(webURL.getURL()));
                                         toSchedule.add(webURL);
                                         
-                                        // After scheduling this URL now save its HTML contents to memeory
-                                        // converting a byte[] to a String
+                                        /*
+                                         *  After scheduling this URL now save its HTML contents to memory,
+                                         *  converting array byte[] ContentData to a String for local storage
+                                         */ 
                                         String htmlContents = new String(page.getContentData());
                                         completeWebPageDTO.setHtmlContents(htmlContents);
                                     } else {
