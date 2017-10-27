@@ -39,6 +39,7 @@ import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.parser.NotAllowedContentException;
 import edu.uci.ics.crawler4j.parser.ParseData;
 import edu.uci.ics.crawler4j.parser.Parser;
+import edu.uci.ics.crawler4j.savepage.services.SaveWebPageServiceImpl;
 import edu.uci.ics.crawler4j.url.WebURL;
 
 /**
@@ -282,6 +283,8 @@ public class SavePageWebCrawler extends WebCrawler {
                                          */ 
                                         String htmlContents = new String(page.getContentData());
                                         completeWebPageDTO.setHtmlContents(htmlContents);
+                                        SaveWebPageServiceImpl saveService = new SaveWebPageServiceImpl();
+                                        saveService.SaveCompleteWebPage(completeWebPageDTO, null);
                                     } else {
                                         logger.debug(
                                             "Not visiting: {} as per the server's \"robots.txt\" " +

@@ -14,5 +14,5 @@ public interface SaveWebPageService {
 
 	void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location);
 	
-	void SaveHtmlOnly();
+	void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location);
 }
