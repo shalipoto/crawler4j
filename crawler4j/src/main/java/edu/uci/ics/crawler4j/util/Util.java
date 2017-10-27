@@ -79,4 +79,11 @@ public class Util {
         return typeStr.contains("text") && !typeStr.contains("html");
     }
 
+    /**
+     * @param byteArray
+     * @return a String version of the byte[]
+     */
+    public static String byteArray2String(byte[] byteArray) {    	
+		return new String(byteArray);   	
+    }
 }
