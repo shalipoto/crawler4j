@@ -1,4 +1,4 @@
-package edu.uci.ics.crawler4j.mirror.saveWebPage.tests;
+package edu.uci.ics.crawler4j.saveWebPage.tests;
 
 import static org.junit.Assert.*;
 
