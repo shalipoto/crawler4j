@@ -1,4 +1,4 @@
-package SaveWebPageSeviceImplUnitTest;
+package edu.uci.ics.crawler4j.saveWebPage.tests;
 
 import static org.junit.Assert.*;
 
