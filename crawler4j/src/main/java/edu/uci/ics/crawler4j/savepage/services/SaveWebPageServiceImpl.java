@@ -47,21 +47,22 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	@Override
 	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location) {
 				
-        File folder = new File("savedpagesfolder");
+        File folder = new File("savedpagesfolder");	// relative to crawler project root
         
         if (!folder.exists()) {
-            if (folder.mkdirs()) 
-                logger.debug("Created folder: " + folder.getAbsolutePath());
+            if (folder.mkdirs())
+                logger.debug("Created folder: " + folder.getPath());
         } else {
         	logger.debug("Folder already exists at path: " + folder.getAbsolutePath());
         }
 		try {
-			FileOutputStream file = new FileOutputStream("tempfolder/tempfile.html");
-            logger.debug("Created file: " + "/tempfolder/tempfile.html");
+			File saveHtmlOnlyFile = new File(folder.getPath() + "/tempfile2.html");
+			FileOutputStream fileOutputStream = new FileOutputStream(new File(saveHtmlOnlyFile.getPath()));
+            logger.debug("Created file: " + saveHtmlOnlyFile.getPath());
             
-			ObjectOutputStream objStream = new ObjectOutputStream(file); // writes a serializable object to a file
+			ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); // writes a serializable object to a file
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
-            logger.debug("Saved html contents to file: " + "/tempfolder/tempfile.html");
+            logger.debug("Saved html contents to file: " + saveHtmlOnlyFile.getPath());
 
 		} catch (IOException e) {
 			e.printStackTrace();
