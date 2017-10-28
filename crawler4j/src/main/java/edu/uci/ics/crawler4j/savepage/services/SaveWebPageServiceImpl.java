@@ -47,7 +47,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	@Override
 	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location) {
 				
-        File folder = new File("savedpagesfolder");	// relative to crawler project root
+        File folder = new File(pageDTO.getWebPageSaveLocation());	// relative to crawler project root
         
         if (!folder.exists()) {
             if (folder.mkdirs())

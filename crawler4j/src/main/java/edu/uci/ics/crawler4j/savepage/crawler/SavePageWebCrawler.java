@@ -61,7 +61,7 @@ import edu.uci.ics.crawler4j.url.WebURL;
  */
 public class SavePageWebCrawler extends WebCrawler {	
 	
-    static final Logger logger = LoggerFactory.getLogger(SaveWebPageServiceImpl.class);
+    static final Logger logger = LoggerFactory.getLogger(SavePageWebCrawler.class);
     
 	/* 
 	 *  This DTO holds the information needed to save the
@@ -192,6 +192,8 @@ public class SavePageWebCrawler extends WebCrawler {
     
     @Override
 	protected void processPage(WebURL curURL) {
+    	
+    	
         PageFetchResult fetchResult = null;
         try {
             if (curURL == null) {
