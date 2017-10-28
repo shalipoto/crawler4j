@@ -41,13 +41,13 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		// Save the list of support files to the local file system
 	}
 
+	/**
+	 * Saves the html file to the local file system
+	 */
 	@Override
 	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location) {
-		
-		// Save the html file to the local file system,  in the crawlStorageFolder
-		
-		
-        File folder = new File("tempfolder");
+				
+        File folder = new File("savedpagesfolder");
         
         if (!folder.exists()) {
             if (folder.mkdirs()) 
@@ -59,7 +59,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			FileOutputStream file = new FileOutputStream("tempfolder/tempfile.html");
             logger.debug("Created file: " + "/tempfolder/tempfile.html");
             
-			ObjectOutputStream objStream = new ObjectOutputStream(file);
+			ObjectOutputStream objStream = new ObjectOutputStream(file); // writes a serializable object to a file
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
             logger.debug("Saved html contents to file: " + "/tempfolder/tempfile.html");
 
