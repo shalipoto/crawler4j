@@ -95,7 +95,6 @@ public class SavePageWebCrawler extends WebCrawler {
         this.setWaitingForNewURLs(false);
         
         // Initialize the CompleteWebPageDTO location member variable
-        // *********************************************************
         Properties prop = new Properties();
         FileInputStream input = null;
 
@@ -123,8 +122,7 @@ public class SavePageWebCrawler extends WebCrawler {
     		}
     	}
 
-      }
-        // ********************************************************
+    }
 	
     private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
     
