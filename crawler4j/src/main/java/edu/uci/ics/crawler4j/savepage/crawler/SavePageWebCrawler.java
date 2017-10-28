@@ -17,15 +17,20 @@
 
 package edu.uci.ics.crawler4j.savepage.crawler;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.crawler4j.DTO.CompleteWebPageDTO;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
@@ -56,6 +61,8 @@ import edu.uci.ics.crawler4j.url.WebURL;
  */
 public class SavePageWebCrawler extends WebCrawler {	
 	
+    static final Logger logger = LoggerFactory.getLogger(SaveWebPageServiceImpl.class);
+    
 	/* 
 	 *  This DTO holds the information needed to save the
      *  complete web page for persistence via the data layer.
@@ -87,8 +94,39 @@ public class SavePageWebCrawler extends WebCrawler {
         this.setFrontier(crawlController.getFrontier());
         this.setParser(new Parser(crawlController.getConfig()));
         this.myController = crawlController;
-        this.setWaitingForNewURLs(false);	
-    }
+        this.setWaitingForNewURLs(false);
+        
+        // Initialize the CompleteWebPageDTO location member variable
+        // *********************************************************
+        Properties prop = new Properties();
+        FileInputStream input = null;
+
+    	try {
+
+    		input = new FileInputStream("savewebpage.properties");
+
+    		// load a properties file
+    		prop.load(input);
+
+    		// get the property value and save it to the DTO
+    		completeWebPageDTO.setWebPageSaveLocation(prop.getProperty("pagestoragelocation"));
+            logger.debug("Set the pagestoragelocation property in the completeWebPageDTO" + completeWebPageDTO.getWebPageSaveLocation());
+            System.out.println("The CompleteWebPageDTO now has the location member set to : " + completeWebPageDTO.getWebPageSaveLocation());
+
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+    	} finally {
+    		if (input != null) {
+    			try {
+    				input.close();
+    			} catch (IOException e) {
+    				e.printStackTrace();
+    			}
+    		}
+    	}
+
+      }
+        // ********************************************************
 	
     private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
     
