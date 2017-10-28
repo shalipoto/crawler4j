@@ -35,7 +35,10 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	public void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location) {
 		
 		SaveHtmlOnly(pageDTO, location);	// delegate html page saving to existing method
-
+		
+		// Get the list of support files for the CompleteWebPage
+		
+		// Save the list of support files to the local file system
 	}
 
 	@Override
@@ -50,7 +53,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
             if (folder.mkdirs()) 
                 logger.debug("Created folder: " + folder.getAbsolutePath());
         } else {
-        	logger.debug("Foolder already exists at path: " + folder.getAbsolutePath());
+        	logger.debug("Folder already exists at path: " + folder.getAbsolutePath());
         }
 		try {
 			FileOutputStream file = new FileOutputStream("tempfolder/tempfile.html");
@@ -58,17 +61,11 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
             
 			ObjectOutputStream objStream = new ObjectOutputStream(file);
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
+            logger.debug("Saved html contents to file: " + "/tempfolder/tempfile.html");
 
 		} catch (IOException e) {
 			e.printStackTrace();
 			
-		}
-
-		
-		// Get the list of support files for the CompleteWebPage
-		
-		// Save the list of support files to the local file system
-		
+		}		
 	}
-
 }

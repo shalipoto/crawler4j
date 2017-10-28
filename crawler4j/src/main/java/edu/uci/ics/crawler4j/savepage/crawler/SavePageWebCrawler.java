@@ -277,14 +277,7 @@ public class SavePageWebCrawler extends WebCrawler {
                                         webURL.setDocid(getDocIdServer().getNewDocID(webURL.getURL()));
                                         toSchedule.add(webURL);
                                         
-                                        /*
-                                         *  After scheduling this URL now save its HTML contents to memory,
-                                         *  converting array byte[] ContentData to a String for local storage
-                                         */ 
-                                        String htmlContents = new String(page.getContentData());
-                                        completeWebPageDTO.setHtmlContents(htmlContents);
-                                        SaveWebPageServiceImpl saveService = new SaveWebPageServiceImpl();
-                                        saveService.SaveCompleteWebPage(completeWebPageDTO, null);
+
                                     } else {
                                         logger.debug(
                                             "Not visiting: {} as per the server's \"robots.txt\" " +
@@ -298,6 +291,14 @@ public class SavePageWebCrawler extends WebCrawler {
                             }
                         }
                     }
+                    /*
+                     *  After scheduling this URL now save its HTML contents to memory,
+                     *  converting array byte[] ContentData to a String for local storage
+                     */ 
+                    String htmlContents = new String(page.getContentData());
+                    completeWebPageDTO.setHtmlContents(htmlContents);
+                    SaveWebPageServiceImpl saveService = new SaveWebPageServiceImpl();
+                    saveService.SaveCompleteWebPage(completeWebPageDTO, null);
                     getFrontier().scheduleAll(toSchedule);
                 } else {
                     logger.debug("Not looking for links in page {}, "
