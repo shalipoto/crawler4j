@@ -32,8 +32,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	 * @param location the crawlStorageFolder named by an argument to main()
 	 */
 	@Override
-	public void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location) {
-		
+	public void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location) {	
 		SaveHtmlOnly(pageDTO, location);	// delegate html page saving to existing method
 		
 		// Get the list of support files for the CompleteWebPage
@@ -45,8 +44,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	 * Saves the html file to the local file system
 	 */
 	@Override
-	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location) {
-				
+	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location) {		
         File folder = new File(pageDTO.getWebPageSaveLocation());	// relative to crawler project root
         
         if (!folder.exists()) {
@@ -56,19 +54,19 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
         	logger.debug("Folder already exists at path: " + folder.getAbsolutePath());
         }
 		try {
-			//File saveHtmlOnlyFile = new File(folder.getPath() + "/tempfile2.html");
+			// generate filename with directory as parent
 			File saveHtmlOnlyFile = new File(folder.getPath() + "/" + pageDTO.getHtmlFileName());
-
+			
+			// Create the empty file with filename generated as above
 			FileOutputStream fileOutputStream = new FileOutputStream(new File(saveHtmlOnlyFile.getPath()));
             logger.debug("Created file: " + saveHtmlOnlyFile.getPath());
             
-			ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); // writes a serializable object to a file
+	        // writes a serializable object to a file
+			ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
             logger.debug("Saved html contents to file: " + saveHtmlOnlyFile.getPath());
-
 		} catch (IOException e) {
-			e.printStackTrace();
-			
+			e.printStackTrace();			
 		}		
 	}
 }

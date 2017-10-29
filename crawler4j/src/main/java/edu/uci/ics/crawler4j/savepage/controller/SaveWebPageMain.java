@@ -119,7 +119,9 @@ public class SaveWebPageMain {
      * URLs that are fetched and then the crawler starts following links
      * which are found in these pages
      */
-        controller.addSeed("http://www.ics.uci.edu/");
+        
+        controller.addSeed("https://www.scifigeeks.com/");
+        //controller.addSeed("http://www.ics.uci.edu/");
         //controller.addSeed("http://www.ics.uci.edu/~lopes/");
         //controller.addSeed("http://www.ics.uci.edu/~welling/");
 
