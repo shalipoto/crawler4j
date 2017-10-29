@@ -64,6 +64,8 @@ import edu.uci.ics.crawler4j.util.Util;
  */
 public class SavePageWebCrawler extends WebCrawler {	
 	
+	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
+	
 	/* 
 	 *  This DTO holds the information needed to save the
      *  complete web page for persistence via the data layer.
@@ -72,6 +74,13 @@ public class SavePageWebCrawler extends WebCrawler {
 	
 	Parser saveWebPageParser = null;
 	SaveWebPageCrawlConfig saveWebPageCrawlConfig = null;
+	
+	/*
+	 * A list of the URLs of the support files needed to display 
+	 * a web page being saved to the local file system
+	 * eg. css, js, png, bmp etc
+	 */
+	List <WebURL> listOfPageSupportFileURLs = new ArrayList<WebURL>();
 			
     /**
      * Initializes the current instance of the crawler
@@ -84,8 +93,7 @@ public class SavePageWebCrawler extends WebCrawler {
      * @throws InstantiationException
      */
 	@Override
-    public void init(int id, CrawlController crawlController) throws InstantiationException, IllegalAccessException {
-		
+    public void init(int id, CrawlController crawlController) throws InstantiationException, IllegalAccessException {		
     	super.init(id, crawlController);
         
     	myId = id;
@@ -104,7 +112,6 @@ public class SavePageWebCrawler extends WebCrawler {
         FileInputStream input = null;
 
     	try {
-
     		input = new FileInputStream("savewebpage.properties");
 
     		// load a properties file
@@ -126,19 +133,7 @@ public class SavePageWebCrawler extends WebCrawler {
     			}
     		}
     	}
-
-    }
-	
-    public Parser getSaveWebPageParser() {
-		return saveWebPageParser;
-	}
-
-	public void setSaveWebPageParser(Parser saveWebPageParser) {
-		this.saveWebPageParser = saveWebPageParser;
-	}
-
-	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
-    
+    }   
     /**
      * You should implement this function to specify whether the given url
      * should be crawled or not (based on your crawling logic).
@@ -148,6 +143,8 @@ public class SavePageWebCrawler extends WebCrawler {
         String href = url.getURL().toLowerCase();
         // Ignore the url if it has an extension that matches our defined set of image extensions.
         if (IMAGE_EXTENSIONS.matcher(href).matches()) {
+        	// Add this URL to the list of support file urls
+        	listOfPageSupportFileURLs.add(url);
             return false;
         }
 
@@ -208,7 +205,6 @@ public class SavePageWebCrawler extends WebCrawler {
             if (curURL == null) {
                 return;
             }
-
             fetchResult = pageFetcher.fetchPage(curURL);
             int statusCode = fetchResult.getStatusCode();
             handlePageStatusCode(curURL, statusCode,
@@ -246,7 +242,6 @@ public class SavePageWebCrawler extends WebCrawler {
                             logger.debug("Redirect page: {} is already seen", curURL);
                             return;
                         }
-
                         WebURL webURL = new WebURL();
                         webURL.setURL(movedToUrl);
                         webURL.setParentDocid(curURL.getParentDocid());
@@ -279,7 +274,6 @@ public class SavePageWebCrawler extends WebCrawler {
                     onUnexpectedStatusCode(curURL.getURL(), fetchResult.getStatusCode(),
                                            contentType, description);
                 }
-
             } else { // if status code is 200
                 if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) {
                     if (getDocIdServer().isSeenBefore(fetchResult.getFetchedUrl())) {
@@ -301,14 +295,13 @@ public class SavePageWebCrawler extends WebCrawler {
                         "({}), at URL: {}",
                         myController.getConfig().getMaxDownloadSize(), curURL.getURL());
                 }
-
                 getParser().parse(page, curURL.getURL());
 
                 if (shouldFollowLinksIn(page.getWebURL())) {
                     ParseData parseData = page.getParseData();
                     List<WebURL> toSchedule = new ArrayList<>();
                     int maxCrawlDepth = myController.getConfig().getMaxDepthOfCrawling();
-                    for (WebURL webURL : parseData.getOutgoingUrls()) {
+                    for (WebURL webURL : parseData.getOutgoingUrls()) { // OutgoingUrls includes links, css/js/png files etc
                         webURL.setParentDocid(curURL.getDocid());
                         webURL.setParentUrl(curURL.getURL());
                         int newdocid = getDocIdServer().getDocId(webURL.getURL());
@@ -396,4 +389,12 @@ public class SavePageWebCrawler extends WebCrawler {
             }
         }
     }
+    
+    public Parser getSaveWebPageParser() {
+		return saveWebPageParser;
+	}
+
+	public void setSaveWebPageParser(Parser saveWebPageParser) {
+		this.saveWebPageParser = saveWebPageParser;
+	}
 }

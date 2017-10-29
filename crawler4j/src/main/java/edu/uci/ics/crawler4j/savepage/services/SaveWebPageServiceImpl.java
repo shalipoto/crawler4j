@@ -61,7 +61,9 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			FileOutputStream fileOutputStream = new FileOutputStream(new File(saveHtmlOnlyFile.getPath()));
             logger.debug("Created file: " + saveHtmlOnlyFile.getPath());
             
-	        // writes a serializable object to a file
+	        /*
+	         * Writes a serializable object to a file
+	         */
 			ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
             logger.debug("Saved html contents to file: " + saveHtmlOnlyFile.getPath());
