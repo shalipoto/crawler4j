@@ -48,6 +48,7 @@ import edu.uci.ics.crawler4j.savepage.crawlconfig.SaveWebPageCrawlConfig;
 import edu.uci.ics.crawler4j.savepage.parser.SaveWebPageParser;
 import edu.uci.ics.crawler4j.savepage.services.SaveWebPageServiceImpl;
 import edu.uci.ics.crawler4j.url.WebURL;
+import edu.uci.ics.crawler4j.util.Util;
 
 /**
  * This crawler's supeclass implements Runnable() and it's 
@@ -68,7 +69,9 @@ public class SavePageWebCrawler extends WebCrawler {
      *  complete web page for persistence via the data layer.
      */
 	CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
+	
 	Parser saveWebPageParser = null;
+	SaveWebPageCrawlConfig saveWebPageCrawlConfig = null;
 			
     /**
      * Initializes the current instance of the crawler
@@ -93,8 +96,8 @@ public class SavePageWebCrawler extends WebCrawler {
         myController = crawlController;
         setWaitingForNewURLs(false);
     	
-    	SaveWebPageCrawlConfig someConfig = (SaveWebPageCrawlConfig) crawlController.getConfig();        
-        setParser(new SaveWebPageParser(someConfig));
+    	saveWebPageCrawlConfig = (SaveWebPageCrawlConfig) crawlController.getConfig();        
+        setParser(new SaveWebPageParser(saveWebPageCrawlConfig));
         
         // Initialize the CompleteWebPageDTO location member variable
         Properties prop = new Properties();
@@ -343,6 +346,18 @@ public class SavePageWebCrawler extends WebCrawler {
                      */ 
                     String htmlContents = new String(page.getContentData());
                     completeWebPageDTO.setHtmlContents(htmlContents);
+                    
+                    /* 
+                     * Get the filename generated in the parsing process
+                     * and saved in the config object, and pass it to the DTO.
+                     * A Util method is needed to remove bad characters before 
+                     * using as a filename
+                     */
+                    StringBuilder sb = new StringBuilder(Util.NormalizeStringForFilename(saveWebPageCrawlConfig.getSavePageFileName()));
+                    sb.append(".html");	// adds the file extension
+                    completeWebPageDTO.setHtmlFileName(sb.toString());
+                    logger.debug("HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
+                    
                     SaveWebPageServiceImpl saveService = new SaveWebPageServiceImpl();
                     saveService.SaveCompleteWebPage(completeWebPageDTO, null);
                     getFrontier().scheduleAll(toSchedule);

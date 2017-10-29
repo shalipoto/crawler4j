@@ -56,7 +56,9 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
         	logger.debug("Folder already exists at path: " + folder.getAbsolutePath());
         }
 		try {
-			File saveHtmlOnlyFile = new File(folder.getPath() + "/tempfile2.html");
+			//File saveHtmlOnlyFile = new File(folder.getPath() + "/tempfile2.html");
+			File saveHtmlOnlyFile = new File(folder.getPath() + "/" + pageDTO.getHtmlFileName());
+
 			FileOutputStream fileOutputStream = new FileOutputStream(new File(saveHtmlOnlyFile.getPath()));
             logger.debug("Created file: " + saveHtmlOnlyFile.getPath());
             
