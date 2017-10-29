@@ -80,7 +80,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	 * a web page being saved to the local file system
 	 * eg. css, js, png, bmp etc
 	 */
-	List <WebURL> listOfPageSupportFileURLs = new ArrayList<WebURL>();
+	List <WebURL> listOfPageSupportFileURLs = null;
 			
     /**
      * Initializes the current instance of the crawler
@@ -140,14 +140,15 @@ public class SavePageWebCrawler extends WebCrawler {
      * 
      * Here if a URL matches the IMAGE_EXTENSIONS pattern then it is also
      * added to a list of URLs for support files of the parent page.
+     * @param listOfPageSupportFileURLs2 
      */
-    @Override
-    public boolean shouldVisit(Page referringPage, WebURL url) {
+    public boolean shouldVisit(Page referringPage, WebURL url, List<WebURL> listOfPageSupportFileURLs) {
         String href = url.getURL().toLowerCase();
         
         // Ignore the url if it has an extension that matches our defined set of image extensions.
         if (IMAGE_EXTENSIONS.matcher(href).matches()) {
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
+        	logger.debug("Added a URL to the listOfPageSupportFileURLs");
             return false;
         }
 
@@ -198,7 +199,11 @@ public class SavePageWebCrawler extends WebCrawler {
 
         logger.debug("=============");
     }
-    
+    /*
+     * Called from the WebCrawler.run() method
+     * (non-Javadoc)
+     * @see edu.uci.ics.crawler4j.crawler.WebCrawler#processPage(edu.uci.ics.crawler4j.url.WebURL)
+     */
     @Override
 	protected void processPage(WebURL curURL) {
     	
@@ -278,6 +283,7 @@ public class SavePageWebCrawler extends WebCrawler {
                                            contentType, description);
                 }
             } else { // if status code is 200
+            	List <WebURL> listOfPageSupportFileURLs = new ArrayList<WebURL>();
                 if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) {
                     if (getDocIdServer().isSeenBefore(fetchResult.getFetchedUrl())) {
                         logger.debug("Redirect page: {} has already been seen", curURL);
@@ -317,7 +323,7 @@ public class SavePageWebCrawler extends WebCrawler {
                             webURL.setDocid(-1);
                             webURL.setDepth((short) (curURL.getDepth() + 1));
                             if ((maxCrawlDepth == -1) || (curURL.getDepth() < maxCrawlDepth)) {
-                                if (shouldVisit(page, webURL)) {
+                                if (shouldVisit(page, webURL, listOfPageSupportFileURLs)) {
                                     if (getRobotstxtServer().allows(webURL)) {
                                         webURL.setDocid(getDocIdServer().getNewDocID(webURL.getURL()));
                                         toSchedule.add(webURL);
