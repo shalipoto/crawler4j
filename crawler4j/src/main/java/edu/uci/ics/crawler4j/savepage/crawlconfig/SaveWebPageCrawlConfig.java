@@ -180,8 +180,22 @@ public class SaveWebPageCrawlConfig extends CrawlConfig {
      * Whether to honor "noindex" flag
      */
     private boolean respectNoIndex = true;
-
+    
     /**
+     * The parser can store the filename
+     * for the saved web page in this variable
+     */
+    private String savePageFileName = null;
+    
+    public String getSavePageFileName() {
+		return savePageFileName;
+	}
+
+	public void setSavePageFileName(String savePageFileName) {
+		this.savePageFileName = savePageFileName;
+	}
+
+	/**
      * DNS resolver to use, #{@link SystemDefaultDnsResolver()} is default.
      */
     public void setDnsResolver(final DnsResolver dnsResolver) {

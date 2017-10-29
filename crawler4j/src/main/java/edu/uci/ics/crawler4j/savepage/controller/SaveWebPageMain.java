@@ -25,11 +25,11 @@ import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
+import edu.uci.ics.crawler4j.savepage.crawlconfig.SaveWebPageCrawlConfig;
 import edu.uci.ics.crawler4j.savepage.crawler.SavePageWebCrawler;
 
 /**
- * This controller manages a crawling session, creates the
- * crawler threads, and monitors their progress.
+ * This is the main entry point for the crawler application
  * 
  * @author Saleem Halipoto
  * 
@@ -37,8 +37,8 @@ import edu.uci.ics.crawler4j.savepage.crawler.SavePageWebCrawler;
  * This class starts with the codebase of BasicCrawlController, 
  * also authored by Yasser Ganjisaffar
  */
-public class SavePageCrawlController {
-    private static final Logger logger = LoggerFactory.getLogger(SavePageCrawlController.class);
+public class SaveWebPageMain {
+    private static final Logger logger = LoggerFactory.getLogger(SaveWebPageMain.class);
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
@@ -60,7 +60,7 @@ public class SavePageCrawlController {
      */
         int numberOfCrawlers = Integer.parseInt(args[1]);
 
-        CrawlConfig config = new CrawlConfig();
+        SaveWebPageCrawlConfig config = new SaveWebPageCrawlConfig();
 
         config.setCrawlStorageFolder(crawlStorageFolder);
 

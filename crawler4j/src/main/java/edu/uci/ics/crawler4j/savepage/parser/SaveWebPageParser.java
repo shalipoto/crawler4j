@@ -42,6 +42,7 @@ import edu.uci.ics.crawler4j.parser.ExtractedUrlAnchorPair;
 import edu.uci.ics.crawler4j.parser.HtmlContentHandler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.parser.NotAllowedContentException;
+import edu.uci.ics.crawler4j.parser.Parser;
 import edu.uci.ics.crawler4j.parser.TextParseData;
 import edu.uci.ics.crawler4j.savepage.crawlconfig.SaveWebPageCrawlConfig;
 import edu.uci.ics.crawler4j.url.URLCanonicalizer;
@@ -55,20 +56,23 @@ import edu.uci.ics.crawler4j.util.Util;
  * Yasser Ganjisaffar authored Parser.java which supplies
  * the code base for this file
  */
-public class SaveWebPageParser extends Configurable {
+public class SaveWebPageParser extends Parser {
 	
 	protected static final Logger logger = LoggerFactory.getLogger(SaveWebPageParser.class);
 	
+	private SaveWebPageCrawlConfig saveWebPageCrawlConfig = new SaveWebPageCrawlConfig();
     private final HtmlParser htmlParser;
     private final ParseContext parseContext;
     
 	public SaveWebPageParser(SaveWebPageCrawlConfig config) throws InstantiationException, IllegalAccessException {
 		super(config);
+		this.saveWebPageCrawlConfig = config;
         htmlParser = new HtmlParser();
         parseContext = new ParseContext();
         parseContext.set(HtmlMapper.class, AllTagMapper.class.newInstance());
 	}
-
+	
+	@Override
     public void parse(Page page, String contextURL)
         throws NotAllowedContentException, ParseException {
         if (Util.hasBinaryContent(page.getContentType())) { // BINARY
@@ -127,6 +131,7 @@ public class SaveWebPageParser extends Configurable {
             Set<WebURL> outgoingUrls = new HashSet<>();
 
             String baseURL = contentHandler.getBaseUrl();
+            logger.debug("In the HTML section of the SaveWebPageParser with the URL " + page.getWebURL().toString());
             if (baseURL != null) {
                 contextURL = baseURL;
             }
@@ -157,6 +162,11 @@ public class SaveWebPageParser extends Configurable {
                     }
                 }
             }
+            // Set the filename for the html file in the configuration class SavePageCrawlConfig.class
+            saveWebPageCrawlConfig.setSavePageFileName(parseData.getTitle());
+            logger.debug("The savePageFileName has been set to: " + saveWebPageCrawlConfig.getSavePageFileName());
+
+            
             parseData.setOutgoingUrls(outgoingUrls);
 
             try {

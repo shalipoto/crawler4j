@@ -44,6 +44,8 @@ import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.parser.NotAllowedContentException;
 import edu.uci.ics.crawler4j.parser.ParseData;
 import edu.uci.ics.crawler4j.parser.Parser;
+import edu.uci.ics.crawler4j.savepage.crawlconfig.SaveWebPageCrawlConfig;
+import edu.uci.ics.crawler4j.savepage.parser.SaveWebPageParser;
 import edu.uci.ics.crawler4j.savepage.services.SaveWebPageServiceImpl;
 import edu.uci.ics.crawler4j.url.WebURL;
 
@@ -66,6 +68,7 @@ public class SavePageWebCrawler extends WebCrawler {
      *  complete web page for persistence via the data layer.
      */
 	CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
+	Parser saveWebPageParser = null;
 			
     /**
      * Initializes the current instance of the crawler
@@ -79,20 +82,19 @@ public class SavePageWebCrawler extends WebCrawler {
      */
 	@Override
     public void init(int id, CrawlController crawlController) throws InstantiationException, IllegalAccessException {
+		
     	super.init(id, crawlController);
+        
+    	myId = id;
+        pageFetcher = crawlController.getPageFetcher();
+        setRobotstxtServer(crawlController.getRobotstxtServer());
+        setDocIdServer(crawlController.getDocIdServer());
+        setFrontier(crawlController.getFrontier());
+        myController = crawlController;
+        setWaitingForNewURLs(false);
     	
-    	/* 
-    	 * The following setters are needed because the 
-    	 * corresponding superclass members are private
-    	 */
-        this.myId = id;
-        this.pageFetcher = crawlController.getPageFetcher();
-        this.setRobotstxtServer(crawlController.getRobotstxtServer());
-        this.setDocIdServer(crawlController.getDocIdServer());
-        this.setFrontier(crawlController.getFrontier());
-        this.setParser(new Parser(crawlController.getConfig()));
-        this.myController = crawlController;
-        this.setWaitingForNewURLs(false);
+    	SaveWebPageCrawlConfig someConfig = (SaveWebPageCrawlConfig) crawlController.getConfig();        
+        setParser(new SaveWebPageParser(someConfig));
         
         // Initialize the CompleteWebPageDTO location member variable
         Properties prop = new Properties();
@@ -124,7 +126,15 @@ public class SavePageWebCrawler extends WebCrawler {
 
     }
 	
-    private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
+    public Parser getSaveWebPageParser() {
+		return saveWebPageParser;
+	}
+
+	public void setSaveWebPageParser(Parser saveWebPageParser) {
+		this.saveWebPageParser = saveWebPageParser;
+	}
+
+	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
     
     /**
      * You should implement this function to specify whether the given url
