@@ -96,19 +96,25 @@ public class Util {
     public static String NormalizeStringForFilename(String stringNotGoodForFileName) {
     	char fileSep = '/'; // ... or do this portably.
     	char escape = '%'; // ... or some other legal char.
+    	char atSign = '@';
+    	char apostrophe = ',';
     	//String s = ...
     	int len = stringNotGoodForFileName.length();
     	StringBuilder sb = new StringBuilder(len);
     	for (int i = 0; i < len; i++) {
     	    char ch = stringNotGoodForFileName.charAt(i);
-    	    if (ch < ' ' || ch >= 0x7F || ch == fileSep ||  // add other illegal chars right here
-    	        (ch == '.' && i == 0) // we don't want to collide with "." or ".."!
+    	    if (ch < ' ' || ch >= 0x7F || ch == fileSep   // add other illegal chars right here
+    	        || (ch == '.' && i == 0) // we don't want to collide with "." or ".."!
+    	        || ch == atSign
+    	        || ch == apostrophe
     	        || ch == escape) {
-    	        sb.append(escape);
+    	    	sb.append(escape);
     	        if (ch < 0x10) {
-    	            sb.append('0');
+    	        	sb.append('0');
     	        }
-    	        sb.append(Integer.toHexString(ch));
+    	        //sb.append(Integer.toHexString(ch));
+    	    } else if (ch == ' '){
+    	    	sb.append('_');
     	    } else {
     	        sb.append(ch);
     	    }
