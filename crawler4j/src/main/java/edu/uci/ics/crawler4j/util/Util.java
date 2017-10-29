@@ -86,4 +86,35 @@ public class Util {
     public static String byteArray2String(byte[] byteArray) {    	
 		return new String(byteArray);   	
     }
+    
+    /**
+     * @see https://stackoverflow.com/questions/1184176/how-can-i-safely-encode-a-string-in-java-to-use-as-a-filename
+     * 
+     * @param stringNotGoodForFileName
+     * @return
+     */
+    public static String NormalizeStringForFilename(String stringNotGoodForFileName) {
+    	char fileSep = '/'; // ... or do this portably.
+    	char escape = '%'; // ... or some other legal char.
+    	//String s = ...
+    	int len = stringNotGoodForFileName.length();
+    	StringBuilder sb = new StringBuilder(len);
+    	for (int i = 0; i < len; i++) {
+    	    char ch = stringNotGoodForFileName.charAt(i);
+    	    if (ch < ' ' || ch >= 0x7F || ch == fileSep ||  // add other illegal chars right here
+    	        (ch == '.' && i == 0) // we don't want to collide with "." or ".."!
+    	        || ch == escape) {
+    	        sb.append(escape);
+    	        if (ch < 0x10) {
+    	            sb.append('0');
+    	        }
+    	        sb.append(Integer.toHexString(ch));
+    	    } else {
+    	        sb.append(ch);
+    	    }
+    	}
+    	System.out.println("The normalized filename is :" + sb.toString());
+		return sb.toString();
+    	
+    }
 }

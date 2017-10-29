@@ -165,7 +165,7 @@ public class SaveWebPageParser extends Parser {
             // Set the filename for the html file in the configuration class SavePageCrawlConfig.class
             saveWebPageCrawlConfig.setSavePageFileName(parseData.getTitle());
             logger.debug("The savePageFileName has been set to: " + saveWebPageCrawlConfig.getSavePageFileName());
-
+            Util.NormalizeStringForFilename(saveWebPageCrawlConfig.getSavePageFileName());
             
             parseData.setOutgoingUrls(outgoingUrls);
 
