@@ -137,14 +137,17 @@ public class SavePageWebCrawler extends WebCrawler {
     /**
      * You should implement this function to specify whether the given url
      * should be crawled or not (based on your crawling logic).
+     * 
+     * Here if a URL matches the IMAGE_EXTENSIONS pattern then it is also
+     * added to a list of URLs for support files of the parent page.
      */
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String href = url.getURL().toLowerCase();
+        
         // Ignore the url if it has an extension that matches our defined set of image extensions.
         if (IMAGE_EXTENSIONS.matcher(href).matches()) {
-        	// Add this URL to the list of support file urls
-        	listOfPageSupportFileURLs.add(url);
+        	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
             return false;
         }
 
