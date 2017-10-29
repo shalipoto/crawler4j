@@ -64,7 +64,7 @@ import edu.uci.ics.crawler4j.util.Util;
  */
 public class SavePageWebCrawler extends WebCrawler {	
 	
-	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png)$");
+	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png|css|svg)$");
 	
 	/* 
 	 *  This DTO holds the information needed to save the
