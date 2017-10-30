@@ -17,10 +17,17 @@
 
 package edu.uci.ics.crawler4j.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.uci.ics.crawler4j.crawler.WebCrawler;
+
 /**
  * @author Yasser Ganjisaffar
  */
 public class Util {
+	
+    protected static final Logger logger = LoggerFactory.getLogger(Util.class);
 
     public static byte[] long2ByteArray(long l) {
         byte[] array = new byte[8];
@@ -89,6 +96,7 @@ public class Util {
     
     /**
      * @see https://stackoverflow.com/questions/1184176/how-can-i-safely-encode-a-string-in-java-to-use-as-a-filename
+     * Added by Saleem Halipoto
      * 
      * @param stringNotGoodForFileName
      * @return
@@ -105,6 +113,14 @@ public class Util {
     	    char ch = stringNotGoodForFileName.charAt(i);
     	    if (ch < ' ' || ch >= 0x7F || ch == fileSep   // add other illegal chars right here
     	        || (ch == '.' && i == 0) // we don't want to collide with "." or ".."!
+    	        || ch == '\\'	//  the backslash character has to be escaped
+    	        || ch == '*'
+    	        || ch == '"'
+    	        || ch == '?'
+    	        || ch == '|'
+    	        || ch == '!'
+    	        || ch == '<'
+    	        || ch == '>'
     	        || ch == atSign
     	        || ch == apostrophe
     	        || ch == escape) {
@@ -120,7 +136,13 @@ public class Util {
     	    }
     	}
     	System.out.println("The normalized filename is :" + sb.toString());
-		return sb.toString();
-    	
+		return sb.toString();  	
+    }
+    
+    public static StringBuilder AppendExtensionToFilename(StringBuilder filename, String extension) {
+    	filename.append(".");
+    	filename.append(extension);	
+    	logger.debug("The filename has the extension added: " + filename.toString());
+		return filename;
     }
 }

@@ -148,12 +148,13 @@ public class SavePageWebCrawler extends WebCrawler {
         // Ignore the url if it has an extension that matches our defined set of image extensions.
         if (IMAGE_EXTENSIONS.matcher(href).matches()) {
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
-        	logger.debug("Added a URL to the listOfPageSupportFileURLs");
+        	//logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href + referringPage.getWebURL().getPath());
+        	logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href);
             return false;
         }
 
-        // Only accept the url if it is in the "www.ics.uci.edu" domain and protocol is "http".
-        return href.startsWith("http://www.ics.uci.edu/");
+        // Only accept the url if it is in the "www.scifigeeks.com/" domain and protocol is "https".
+        return href.startsWith("https://www.scifigeeks.com/");
     }
 
     /**
@@ -283,7 +284,9 @@ public class SavePageWebCrawler extends WebCrawler {
                                            contentType, description);
                 }
             } else { // if status code is 200
+            	// Holds a list of media and support file URLs for offline page viewing
             	List <WebURL> listOfPageSupportFileURLs = new ArrayList<WebURL>();
+            	
                 if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) {
                     if (getDocIdServer().isSeenBefore(fetchResult.getFetchedUrl())) {
                         logger.debug("Redirect page: {} has already been seen", curURL);
