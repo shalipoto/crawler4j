@@ -32,7 +32,8 @@ public class Util {
     public static enum FileContentType {
     	BINARY,
     	TEXT,
-    	HTML
+    	HTML,
+    	UNKNOWN
     }
 
     public static byte[] long2ByteArray(long l) {

@@ -104,7 +104,7 @@ public class SaveWebPageParser extends Parser {
                 }
                 parseData.setOutgoingUrls(Net.extractUrls(parseData.getTextContent()));
                 page.setParseData(parseData);
-                return FileContentType.BINARY;
+                return FileContentType.TEXT;
             } catch (Exception e) {
                 logger.error("{}, while parsing: {}", e.getMessage(), page.getWebURL().getURL());
                 throw new ParseException();
@@ -175,7 +175,7 @@ public class SaveWebPageParser extends Parser {
                 }
 
                 page.setParseData(parseData);
-                return FileContentType.BINARY;
+                return FileContentType.HTML;
             } catch (UnsupportedEncodingException e) {
                 logger.error("error parsing the html: " + page.getWebURL().getURL(), e);
                 throw new ParseException();
