@@ -56,7 +56,7 @@ public class Parser extends Configurable {
         super(config);
         htmlParser = new HtmlParser();
         parseContext = new ParseContext();
-        parseContext.set(HtmlMapper.class, AllTagMapper.class.newInstance());
+        getParseContext().set(HtmlMapper.class, AllTagMapper.class.newInstance());
     }
 
     public void parse(Page page, String contextURL)
@@ -96,7 +96,7 @@ public class Parser extends Configurable {
             Metadata metadata = new Metadata();
             HtmlContentHandler contentHandler = new HtmlContentHandler();
             try (InputStream inputStream = new ByteArrayInputStream(page.getContentData())) {
-                htmlParser.parse(inputStream, contentHandler, metadata, parseContext);
+                htmlParser.parse(inputStream, contentHandler, metadata, getParseContext());
             } catch (Exception e) {
                 logger.error("{}, while parsing: {}", e.getMessage(), page.getWebURL().getURL());
                 throw new ParseException();
@@ -163,4 +163,12 @@ public class Parser extends Configurable {
             }
         }
     }
+    // This is needed in order to set the HtmlParser in the subclass
+	protected HtmlParser getHtmlParser() {
+		return htmlParser;
+	}
+
+	public ParseContext getParseContext() {
+		return parseContext;
+	}
 }
