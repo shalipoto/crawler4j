@@ -62,19 +62,24 @@ public class SaveWebPageParser extends Parser {
 	protected static final Logger logger = LoggerFactory.getLogger(SaveWebPageParser.class);
 	
 	private SaveWebPageCrawlConfig saveWebPageCrawlConfig = new SaveWebPageCrawlConfig();
-    private final HtmlParser htmlParser;
-    private final ParseContext parseContext;
     
 	public SaveWebPageParser(SaveWebPageCrawlConfig config) throws InstantiationException, IllegalAccessException {
 		super(config);
 		this.saveWebPageCrawlConfig = config;
-        htmlParser = new HtmlParser();
-        parseContext = new ParseContext();
-        parseContext.set(HtmlMapper.class, AllTagMapper.class.newInstance());
 	}
-	
-	@Override
-    public FileContentType parse(Page page, String contextURL)
+	/**
+	 * This method is an overloaded version of the superclass parse() method.
+	 * The contentType return type is needed because the parsing process does
+	 * not explicitly state the page's content type in certain cases.
+	 * 
+	 * @param page
+	 * @param contextURL
+	 * @param contentType
+	 * @return the enum value representing the page's data type
+	 * @throws NotAllowedContentException
+	 * @throws ParseException
+	 */
+    public FileContentType parse(Page page, String contextURL, FileContentType contentType)
         throws NotAllowedContentException, ParseException {
         if (Util.hasBinaryContent(page.getContentType())) { // BINARY
             BinaryParseData parseData = new BinaryParseData();
@@ -113,7 +118,7 @@ public class SaveWebPageParser extends Parser {
             Metadata metadata = new Metadata();
             HtmlContentHandler contentHandler = new HtmlContentHandler();
             try (InputStream inputStream = new ByteArrayInputStream(page.getContentData())) {
-                htmlParser.parse(inputStream, contentHandler, metadata, parseContext);
+                getHtmlParser().parse(inputStream, contentHandler, metadata, getParseContext());
             } catch (Exception e) {
                 logger.error("{}, while parsing: {}", e.getMessage(), page.getWebURL().getURL());
                 throw new ParseException();

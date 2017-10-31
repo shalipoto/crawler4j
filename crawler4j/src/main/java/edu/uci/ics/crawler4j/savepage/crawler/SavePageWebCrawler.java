@@ -49,6 +49,7 @@ import edu.uci.ics.crawler4j.savepage.parser.SaveWebPageParser;
 import edu.uci.ics.crawler4j.savepage.services.SaveWebPageServiceImpl;
 import edu.uci.ics.crawler4j.url.WebURL;
 import edu.uci.ics.crawler4j.util.Util;
+import edu.uci.ics.crawler4j.util.Util.FileContentType;
 
 /**
  * This crawler's supeclass implements Runnable() and it's 
@@ -65,14 +66,9 @@ import edu.uci.ics.crawler4j.util.Util;
 public class SavePageWebCrawler extends WebCrawler {	
 	
 	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png|css|svg)$");
+    SaveWebPageParser saveWebPageParser = null;
 	
-	/* 
-	 *  This DTO holds the information needed to save the
-     *  complete web page for persistence via the data layer.
-     */
-	CompleteWebPageDTO completeWebPageDTO = null;
-	
-	Parser saveWebPageParser = null;
+	//Parser saveWebPageParser = null;
 	SaveWebPageCrawlConfig saveWebPageCrawlConfig = null;
 	
 	/*
@@ -94,8 +90,7 @@ public class SavePageWebCrawler extends WebCrawler {
      */
 	@Override
     public void init(int id, CrawlController crawlController) throws InstantiationException, IllegalAccessException {		
-    	super.init(id, crawlController);
-        
+		logger.debug("In the init method of the SavePageWebCrawler");
     	myId = id;
         pageFetcher = crawlController.getPageFetcher();
         setRobotstxtServer(crawlController.getRobotstxtServer());
@@ -103,36 +98,15 @@ public class SavePageWebCrawler extends WebCrawler {
         setFrontier(crawlController.getFrontier());
         myController = crawlController;
         setWaitingForNewURLs(false);
-    	
+
+        /* 
+         * Bring in the crawlconfig subclass and 
+         * set the parser to the SaveWebPageParser subclass
+         */
     	saveWebPageCrawlConfig = (SaveWebPageCrawlConfig) crawlController.getConfig();        
         setParser(new SaveWebPageParser(saveWebPageCrawlConfig));
-        
-        // Initialize the CompleteWebPageDTO location member variable
-        Properties prop = new Properties();
-        FileInputStream input = null;
+        saveWebPageParser = (SaveWebPageParser) getParser();
 
-    	try {
-    		input = new FileInputStream("savewebpage.properties");
-
-    		// load a properties file
-    		prop.load(input);
-
-    		// get the property value and save it to the DTO
-    		completeWebPageDTO.setWebPageSaveLocation(prop.getProperty("pagestoragelocation"));
-            logger.debug("Set the pagestoragelocation property in the completeWebPageDTO" + completeWebPageDTO.getWebPageSaveLocation());
-            System.out.println("The CompleteWebPageDTO now has the location member set to : " + completeWebPageDTO.getWebPageSaveLocation());
-
-    	} catch (IOException ex) {
-    		ex.printStackTrace();
-    	} finally {
-    		if (input != null) {
-    			try {
-    				input.close();
-    			} catch (IOException e) {
-    				e.printStackTrace();
-    			}
-    		}
-    	}
     }   
     /**
      * You should implement this function to specify whether the given url
@@ -159,10 +133,10 @@ public class SavePageWebCrawler extends WebCrawler {
 
     /**
      * This function is called when a page is fetched and ready to be processed
-     * by your program.
+     * by your program. This is an overload of the superclass visit() method
+     * @param listOfPageSupportFileURLs2 
      */
-    @Override
-    public void visit(Page page) {
+    public void visit(Page page, List<WebURL> listOfPageSupportFileURLs2) {
         int docid = page.getWebURL().getDocid();
         String url = page.getWebURL().getURL();
         String domain = page.getWebURL().getDomain();
@@ -178,6 +152,7 @@ public class SavePageWebCrawler extends WebCrawler {
         logger.debug("Path: '{}'", path);
         logger.debug("Parent page: {}", parentUrl);
         logger.debug("Anchor text: {}", anchor);
+        logger.debug("In the visit() method of the SavePageWebCrawler");
 
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
@@ -197,6 +172,61 @@ public class SavePageWebCrawler extends WebCrawler {
                 logger.debug("\t{}: {}", header.getName(), header.getValue());
             }
         }
+    	/* 
+    	 *  This DTO holds the information needed to save the
+         *  complete web page for persistence via the data layer.
+         */
+    	CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
+    	
+        Properties prop = new Properties();
+        FileInputStream input = null;
+    	try {
+    		input = new FileInputStream("savewebpage.properties");
+
+    		// load a properties file
+    		prop.load(input);
+    		
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+    	} finally {
+    		if (input != null) {
+    			try {
+    				input.close();
+    			} catch (IOException e) {
+    				e.printStackTrace();
+    			}
+    		}
+    	}
+		// get the property value and save it to the DTO
+		completeWebPageDTO.setWebPageSaveLocation(prop.getProperty("pagestoragelocation"));
+        logger.debug("Set the pagestoragelocation property in the completeWebPageDTO" + completeWebPageDTO.getWebPageSaveLocation());
+        System.out.println("The CompleteWebPageDTO now has the location member set to : " + completeWebPageDTO.getWebPageSaveLocation());
+        
+        // Get the web page title
+        HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
+        
+        /* 
+         * Get the filename generated in the parsing
+         * process and pass it to the DTO.
+         * A Util method is needed to remove bad characters 
+         * before using as a filename
+         */
+        StringBuilder sb = new StringBuilder(Util.NormalizeStringForFilename(htmlParseData.getTitle()));
+        sb.append(".html");	// adds the file extension
+        completeWebPageDTO.setHtmlFileName(sb.toString());
+        logger.debug("HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
+        
+        /*
+         *  Save its HTML contents of the web page to the DTO, first must
+         *  convert array byte[] ContentData to a String for local storage
+         */ 
+        String htmlContents = new String(page.getContentData());
+        completeWebPageDTO.setHtmlContents(htmlContents);
+        // Set the page (parent page) URL in the DTO
+        
+        // Call the save page service and send the properly initialized DTO as a parameter
+        SaveWebPageServiceImpl saveService = new SaveWebPageServiceImpl();
+        saveService.SaveCompleteWebPage(completeWebPageDTO, null);
 
         logger.debug("=============");
     }
@@ -222,6 +252,8 @@ public class SavePageWebCrawler extends WebCrawler {
             // Finds the status reason for all known statuses
 
             Page page = new Page(curURL);
+	        // To hold the list of page support files (css, js ...)
+            final List<WebURL> listOfPageSupportFileURLs = new ArrayList<>();
             page.setFetchResponseHeaders(fetchResult.getResponseHeaders());
             page.setStatusCode(statusCode);
             if (statusCode < 200 ||
@@ -283,10 +315,7 @@ public class SavePageWebCrawler extends WebCrawler {
                     onUnexpectedStatusCode(curURL.getURL(), fetchResult.getStatusCode(),
                                            contentType, description);
                 }
-            } else { // if status code is 200
-            	// Holds a list of media and support file URLs for offline page viewing
-            	List <WebURL> listOfPageSupportFileURLs = new ArrayList<WebURL>();
-            	
+            } else { // if status code is 200      	
                 if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) {
                     if (getDocIdServer().isSeenBefore(fetchResult.getFetchedUrl())) {
                         logger.debug("Redirect page: {} has already been seen", curURL);
@@ -307,8 +336,12 @@ public class SavePageWebCrawler extends WebCrawler {
                         "({}), at URL: {}",
                         myController.getConfig().getMaxDownloadSize(), curURL.getURL());
                 }
-                getParser().parse(page, curURL.getURL());
-
+                /* 
+                 * Parsing is done at this point and all file types 
+                 * (binary, text, html etc) can arrive here   
+                 */
+                FileContentType contentType = saveWebPageParser.parse(page, curURL.getURL(), FileContentType.UNKNOWN);
+                             
                 if (shouldFollowLinksIn(page.getWebURL())) {
                     ParseData parseData = page.getParseData();
                     List<WebURL> toSchedule = new ArrayList<>();
@@ -345,26 +378,11 @@ public class SavePageWebCrawler extends WebCrawler {
                             }
                         }
                     }
-                    /*
-                     *  After scheduling this URL now save its HTML contents to memory,
-                     *  converting array byte[] ContentData to a String for local storage
-                     */ 
-                    String htmlContents = new String(page.getContentData());
-                    completeWebPageDTO.setHtmlContents(htmlContents);
+
                     
-                    /* 
-                     * Get the filename generated in the parsing process
-                     * and saved in the config object, and pass it to the DTO.
-                     * A Util method is needed to remove bad characters before 
-                     * using as a filename
-                     */
-                    StringBuilder sb = new StringBuilder(Util.NormalizeStringForFilename(saveWebPageCrawlConfig.getSavePageFileName()));
-                    sb.append(".html");	// adds the file extension
-                    completeWebPageDTO.setHtmlFileName(sb.toString());
-                    logger.debug("HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
+
                     
-                    SaveWebPageServiceImpl saveService = new SaveWebPageServiceImpl();
-                    saveService.SaveCompleteWebPage(completeWebPageDTO, null);
+
                     getFrontier().scheduleAll(toSchedule);
                 } else {
                     logger.debug("Not looking for links in page {}, "
@@ -380,7 +398,7 @@ public class SavePageWebCrawler extends WebCrawler {
                         contains("noindex");
 
                 if (!noIndex) {
-                    visit(page);
+                    visit(page, listOfPageSupportFileURLs);
                 }
             }
         } catch (PageBiggerThanMaxSizeException e) {
@@ -402,11 +420,11 @@ public class SavePageWebCrawler extends WebCrawler {
         }
     }
     
-    public Parser getSaveWebPageParser() {
+/*    public Parser getSaveWebPageParser() {
 		return saveWebPageParser;
 	}
 
 	public void setSaveWebPageParser(Parser saveWebPageParser) {
 		this.saveWebPageParser = saveWebPageParser;
-	}
+	}*/
 }
