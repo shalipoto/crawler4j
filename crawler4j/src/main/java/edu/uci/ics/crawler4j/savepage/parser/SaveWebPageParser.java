@@ -49,6 +49,7 @@ import edu.uci.ics.crawler4j.url.URLCanonicalizer;
 import edu.uci.ics.crawler4j.url.WebURL;
 import edu.uci.ics.crawler4j.util.Net;
 import edu.uci.ics.crawler4j.util.Util;
+import edu.uci.ics.crawler4j.util.Util.FileContentType;
 
 /**
  * @author Saleem Halipoto
@@ -73,7 +74,7 @@ public class SaveWebPageParser extends Parser {
 	}
 	
 	@Override
-    public void parse(Page page, String contextURL)
+    public FileContentType parse(Page page, String contextURL)
         throws NotAllowedContentException, ParseException {
         if (Util.hasBinaryContent(page.getContentType())) { // BINARY
             BinaryParseData parseData = new BinaryParseData();
@@ -88,6 +89,7 @@ public class SaveWebPageParser extends Parser {
                     throw new ParseException();
                 }
                 parseData.setOutgoingUrls(Net.extractUrls(parseData.getHtml()));
+                return FileContentType.BINARY;
             } else {
                 throw new NotAllowedContentException();
             }
@@ -102,6 +104,7 @@ public class SaveWebPageParser extends Parser {
                 }
                 parseData.setOutgoingUrls(Net.extractUrls(parseData.getTextContent()));
                 page.setParseData(parseData);
+                return FileContentType.BINARY;
             } catch (Exception e) {
                 logger.error("{}, while parsing: {}", e.getMessage(), page.getWebURL().getURL());
                 throw new ParseException();
@@ -161,12 +164,7 @@ public class SaveWebPageParser extends Parser {
                         }
                     }
                 }
-            }
-            // Set the filename for the html file in the configuration class SavePageCrawlConfig.class
-            saveWebPageCrawlConfig.setSavePageFileName(parseData.getTitle());
-            logger.debug("The savePageFileName has been set to: " + saveWebPageCrawlConfig.getSavePageFileName());
-            Util.NormalizeStringForFilename(saveWebPageCrawlConfig.getSavePageFileName());
-            
+            }            
             parseData.setOutgoingUrls(outgoingUrls);
 
             try {
@@ -177,10 +175,11 @@ public class SaveWebPageParser extends Parser {
                 }
 
                 page.setParseData(parseData);
+                return FileContentType.BINARY;
             } catch (UnsupportedEncodingException e) {
                 logger.error("error parsing the html: " + page.getWebURL().getURL(), e);
                 throw new ParseException();
             }
         }
-    }
+	}
 }

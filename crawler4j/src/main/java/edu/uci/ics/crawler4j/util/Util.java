@@ -28,6 +28,12 @@ import edu.uci.ics.crawler4j.crawler.WebCrawler;
 public class Util {
 	
     protected static final Logger logger = LoggerFactory.getLogger(Util.class);
+    
+    public static enum FileContentType {
+    	BINARY,
+    	TEXT,
+    	HTML
+    }
 
     public static byte[] long2ByteArray(long l) {
         byte[] array = new byte[8];
