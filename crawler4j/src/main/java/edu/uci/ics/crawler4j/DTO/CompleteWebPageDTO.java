@@ -30,7 +30,7 @@ public class CompleteWebPageDTO {
 	
 	String webPageHtmlContents = null; // the contents of the original html file
 	
-	List <String> webPageFiles = null; // a list of support files needed for offline viewing
+	List <String> webPageSupportFiles = null; // a list of support files needed for offline viewing
 	
 	String webPageFolder = null;	// the folder where support files are saved
 	
@@ -68,12 +68,12 @@ public class CompleteWebPageDTO {
 		this.webPageHtmlContents = htmlContents;
 	}
 
-	public List<String> getWebPageFiles() {
-		return webPageFiles;
+	public List<String> getWebPageSupportFiles() {
+		return webPageSupportFiles;
 	}
 
-	public void setWebPageFiles(List<String> webPageFiles) {
-		this.webPageFiles = webPageFiles;
+	public void setWebPageSupportFiles(List<String> webPageFiles) {
+		this.webPageSupportFiles = webPageFiles;
 	}
 	
 	

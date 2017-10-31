@@ -70,7 +70,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	 *  This DTO holds the information needed to save the
      *  complete web page for persistence via the data layer.
      */
-	CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
+	CompleteWebPageDTO completeWebPageDTO = null;
 	
 	Parser saveWebPageParser = null;
 	SaveWebPageCrawlConfig saveWebPageCrawlConfig = null;
