@@ -17,6 +17,10 @@
 
 package edu.uci.ics.crawler4j.savepage.controller;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +67,32 @@ public class SaveWebPageMain {
         SaveWebPageCrawlConfig config = new SaveWebPageCrawlConfig();
 
         config.setCrawlStorageFolder(crawlStorageFolder);
+        
+    /* 
+     * The savePageFolderName in the SaveWebPageCrawlConfig file
+     * holds the folder name where saved web pages will be stored.
+     * The name is set in a properties file located at the project root
+     */
+        Properties prop = new Properties();
+        FileInputStream input = null;
+    	try {
+    		input = new FileInputStream("savewebpage.properties");
+
+    		// load a properties file
+    		prop.load(input);
+    		
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+    	} finally {
+    		if (input != null) {
+    			try {
+    				input.close();
+    			} catch (IOException e) {
+    				e.printStackTrace();
+    			}
+    		}
+    	}
+    	config.setSavePageFolderName(prop.getProperty("pagestoragelocation"));
 
     /*
      * Be polite: Make sure that we don't send more than 1 request per
