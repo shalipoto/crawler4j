@@ -187,7 +187,21 @@ public class SaveWebPageCrawlConfig extends CrawlConfig {
      */
     private String savePageFileName = null;
     
-    public String getSavePageFileName() {
+    /**
+     * The parser can store the folder's name
+     * where saved web pages will be stored
+     */
+    private String savePageFolderName = null;
+    
+    public String getSavePageFolderName() {
+		return savePageFolderName;
+	}
+
+	public void setSavePageFolderName(String savePageFolderName) {
+		this.savePageFolderName = savePageFolderName;
+	}
+
+	public String getSavePageFileName() {
 		return savePageFileName;
 	}
 
