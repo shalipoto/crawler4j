@@ -202,24 +202,20 @@ public class SavePageWebCrawler extends WebCrawler {
         logger.debug("Set the pagestoragelocation property in the completeWebPageDTO" + completeWebPageDTO.getWebPageSaveLocation());
         System.out.println("The CompleteWebPageDTO now has the location member set to : " + completeWebPageDTO.getWebPageSaveLocation());
         
-        // Get the web page title
+        // Get the web page parse data
         HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
         
         /* 
-         * Get the filename generated in the parsing
-         * process and pass it to the DTO.
-         * A Util method is needed to remove bad characters 
-         * before using as a filename
+         * Generate the filename for the html file.
+         * Process and pass it to the DTO.
+         * A Util method filters bad characters from the title string 
          */
         StringBuilder sb = new StringBuilder(Util.NormalizeStringForFilename(htmlParseData.getTitle()));
         sb.append(".html");	// adds the file extension
         completeWebPageDTO.setHtmlFileName(sb.toString());
         logger.debug("HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
         
-        /*
-         *  Save its HTML contents of the web page to the DTO, first must
-         *  convert array byte[] ContentData to a String for local storage
-         */ 
+        // Save the HTML contents of the web page to the DTO
         String htmlContents = new String(page.getContentData());
         completeWebPageDTO.setHtmlContents(htmlContents);
         // Set the page (parent page) URL in the DTO
