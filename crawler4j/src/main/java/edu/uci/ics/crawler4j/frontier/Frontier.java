@@ -53,6 +53,8 @@ public class Frontier extends Configurable {
 
     public Frontier(Environment env, CrawlConfig config) {
         super(config);
+        logger.debug("Frontier constructor executing");
+
         this.counters = new Counters(env, config);
         try {
             workQueues = new WorkQueues(env, DATABASE_NAME, config.isResumableCrawling());

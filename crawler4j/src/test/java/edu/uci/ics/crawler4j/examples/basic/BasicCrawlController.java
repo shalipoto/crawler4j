@@ -96,7 +96,7 @@ public class BasicCrawlController {
      * want to start a fresh crawl, you need to delete the contents of
      * rootFolder manually.
      */
-        config.setResumableCrawling(false);
+        //config.setResumableCrawling(false);
 
     /*
      * Instantiate the controller for this crawl.
@@ -115,6 +115,7 @@ public class BasicCrawlController {
         controller.addSeed("http://www.ics.uci.edu/");
         //controller.addSeed("http://www.ics.uci.edu/~lopes/");
         //controller.addSeed("http://www.ics.uci.edu/~welling/");
+        logger.debug("The resumeCrawling is set to: ", config.isResumableCrawling());
 
     /*
      * Start the crawl. This is a blocking operation, meaning that your code

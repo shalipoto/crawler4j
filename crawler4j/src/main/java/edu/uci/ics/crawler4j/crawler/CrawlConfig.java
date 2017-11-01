@@ -42,7 +42,7 @@ public class CrawlConfig {
      * If this feature is enabled, you would be able to resume a previously
      * stopped/crashed crawl. However, it makes crawling slightly slower
      */
-    private boolean resumableCrawling = false;
+    private boolean resumableCrawling = true;
 
     /**
      * Maximum depth of crawling For unlimited depth this parameter should be

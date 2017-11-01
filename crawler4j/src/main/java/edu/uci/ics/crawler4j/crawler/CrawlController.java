@@ -20,6 +20,7 @@ package edu.uci.ics.crawler4j.crawler;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,8 @@ public class CrawlController extends Configurable {
         envConfig.setAllowCreate(true);
         envConfig.setTransactional(resumable);
         envConfig.setLocking(resumable);
+        envConfig.setLockTimeout(3000L, TimeUnit.MILLISECONDS);
+        logger.debug("The DB lock timeout has been set to 3000ms");
 
         File envHome = new File(config.getCrawlStorageFolder() + "/frontier");
         if (!envHome.exists()) {
