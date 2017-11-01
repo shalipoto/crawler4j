@@ -177,31 +177,10 @@ public class SavePageWebCrawler extends WebCrawler {
          *  complete web page for persistence via the data layer.
          */
     	CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
-    	
-        Properties prop = new Properties();
-        FileInputStream input = null;
-    	try {
-    		input = new FileInputStream("savewebpage.properties");
 
-    		// load a properties file
-    		prop.load(input);
-    		
-    	} catch (IOException ex) {
-    		ex.printStackTrace();
-    	} finally {
-    		if (input != null) {
-    			try {
-    				input.close();
-    			} catch (IOException e) {
-    				e.printStackTrace();
-    			}
-    		}
-    	}
-		// get the property value and save it to the DTO
-		completeWebPageDTO.setWebPageSaveLocation(prop.getProperty("pagestoragelocation"));
-        logger.debug("Set the pagestoragelocation property in the completeWebPageDTO" + completeWebPageDTO.getWebPageSaveLocation());
+        logger.debug("The pagestoragelocation property is: " + saveWebPageCrawlConfig.getSavePageFolderName());
         System.out.println("The CompleteWebPageDTO now has the location member set to : " + completeWebPageDTO.getWebPageSaveLocation());
-        
+
         // Get the web page parse data
         HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
         
@@ -222,7 +201,7 @@ public class SavePageWebCrawler extends WebCrawler {
         
         // Call the save page service and send the properly initialized DTO as a parameter
         SaveWebPageServiceImpl saveService = new SaveWebPageServiceImpl();
-        saveService.SaveCompleteWebPage(completeWebPageDTO, null);
+        saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName());
 
         logger.debug("=============");
     }
