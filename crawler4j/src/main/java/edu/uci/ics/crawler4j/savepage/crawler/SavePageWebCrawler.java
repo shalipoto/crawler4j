@@ -67,6 +67,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	
 	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png|css|svg)$");
     SaveWebPageParser saveWebPageParser = null;
+    SaveWebPageServiceImpl saveService = null;
 	
 	//Parser saveWebPageParser = null;
 	SaveWebPageCrawlConfig saveWebPageCrawlConfig = null;
@@ -106,6 +107,8 @@ public class SavePageWebCrawler extends WebCrawler {
     	saveWebPageCrawlConfig = (SaveWebPageCrawlConfig) crawlController.getConfig();        
         setParser(new SaveWebPageParser(saveWebPageCrawlConfig));
         saveWebPageParser = (SaveWebPageParser) getParser();
+        
+        saveService = new SaveWebPageServiceImpl();
 
     }   
     /**
@@ -197,10 +200,8 @@ public class SavePageWebCrawler extends WebCrawler {
         // Save the HTML contents of the web page to the DTO
         String htmlContents = new String(page.getContentData());
         completeWebPageDTO.setHtmlContents(htmlContents);
-        // Set the page (parent page) URL in the DTO
         
-        // Call the save page service and send the properly initialized DTO as a parameter
-        SaveWebPageServiceImpl saveService = new SaveWebPageServiceImpl();
+        // Save the web page html file to the configured folder onto the file system
         saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName());
 
         logger.debug("=============");
