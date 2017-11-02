@@ -254,7 +254,16 @@ public class PageFetcher extends Configurable {
                 lastFetchTime = (new Date()).getTime();
             }
 
-            CloseableHttpResponse response = httpClient.execute(request);
+            CloseableHttpResponse response = null;
+            try {
+            response = httpClient.execute(request);
+            } catch (UnknownHostException e) {
+            	logger.debug("***************************************************************************************");
+            	logger.debug("Internet is not available, cannot proceed with crawling");
+            	logger.debug("Stacktrace", e);
+            	logger.debug("End of stacktrace");
+            	logger.debug("***************************************************************************************");
+            }
             fetchResult.setEntity(response.getEntity());
             fetchResult.setResponseHeaders(response.getAllHeaders());
 
