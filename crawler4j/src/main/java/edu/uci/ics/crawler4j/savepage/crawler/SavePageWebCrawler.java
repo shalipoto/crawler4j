@@ -201,16 +201,15 @@ public class SavePageWebCrawler extends WebCrawler {
         
         // Save the HTML contents of the web page to the DTO
         String htmlContents = new String(page.getContentData());
-        completeWebPageDTO.setHtmlContents(htmlContents);
+        completeWebPageDTO.setWebPageHtmlContents(htmlContents);
         
         List<SupportFileWithURL<byte[], String>> listOfSupportFileBinaryData = new ArrayList<>(); 
         List<SupportFileWithURL<String, String>> listOfSupportFileTextData = new ArrayList<>();
         List<SupportFileWithURL<String, String>> listOfSupportFileUnknownType = new ArrayList<>();
-        List<SupportFileWithURL<byte[], String>> listOfSupportFileDefaultCaseSwitchType = new ArrayList<>();
-        List<SupportFileWithURL<String, String>> listOfUrls = new ArrayList<>();
-        List<ParsedPageSupportFiles> listOfParsedPageSupportFiles = new ArrayList<>();
+        List<SupportFileWithURL<String, String>> listOfSupportFileDefaultCaseSwitchType = new ArrayList<>();
+        ParsedPageSupportFiles parsedPageSupportFiles = null;
         
-        for (WebURL webURL : listOfPageSupportFileURLs) {
+        for (WebURL webURL : listOfPageSupportFileURLs) { // Each URL here is a support file, not a complete page
             PageFetchResult fetchResult = null;
 			try {
 				fetchResult = pageFetcher.fetchPage(webURL);
@@ -246,43 +245,52 @@ public class SavePageWebCrawler extends WebCrawler {
 	        	    }
 	        	    case TEXT		: {
 											logger.debug("The URL " + webURL.getURL() + " was found to be a TEXT");
-											listOfSupportFileTextData.add(new String(supportFilePage.getContentData()));
-	        	    						listOfUrls.add(webURL.getURL()); break;
+	        	    						SupportFileWithURL<String, String> sfUrl = new SupportFileWithURL<String, String>();
+	        	    						sfUrl.setDataFile(new String(supportFilePage.getContentData()));
+	        	    						sfUrl.setUrlString(webURL.getURL());
+											listOfSupportFileTextData.add(sfUrl); break;
 	        	    }
 	        	    case UNKNOWN	: {
 											logger.debug("The URL " + webURL.getURL() + " was found to be an UNKNOWN");
-	        	    						listOfSupportFileUnknownType.add(new String(supportFilePage.getContentData()));
 	        	    						logger.debug("The parser did not assign the content type for this file");
-	        	    						listOfUrls.add(webURL.getURL()); break;
+	        	    						SupportFileWithURL<String, String> sfUrl = new SupportFileWithURL<String, String>();
+											sfUrl.setDataFile(new String(supportFilePage.getContentData()));
+	        	    						sfUrl.setUrlString(webURL.getURL());
+											listOfSupportFileUnknownType.add(sfUrl); break;
 	        	    }
 	        	    default			: {
-	        	    						listOfSupportFileDefaultCaseSwitchType.add(supportFilePage.getContentData());
 	        	    						logger.debug("switch statement placed this file into the listOfSupportFileDefaultCaseSwitchType list");
-	        	    						listOfUrls.add(webURL.getURL());
+	        	    						SupportFileWithURL<String, String> sfUrl = new SupportFileWithURL<String, String>();
+											sfUrl.setDataFile(new String(supportFilePage.getContentData()));
+	        	    						sfUrl.setUrlString(webURL.getURL());
+											listOfSupportFileUnknownType.add(sfUrl);
 	        	    }
 	        	  }	        	
-	        	    // Create and populqte the support file data object here
-	        	    ParsedPageSupportFiles parsedPageSupportFiles = new ParsedPageSupportFiles(
-	        	    			 listOfSupportFileBinaryData, 
-								 listOfSupportFileTextData,  
-								 listOfSupportFileUnknownType, 
-								 listOfSupportFileDefaultCaseSwitchType, 
-								 webURL);
+
 	        	    
 	        	    // Now add it to the a list
-	        	    listOfParsedPageSupportFiles.add(parsedPageSupportFiles);
+	        	    //listOfParsedPageSupportFiles.add(parsedPageSupportFiles);
             } else { // handle non successful statuses here
             	logger.debug("The support file URL: " + webURL.getURL() + " had a status code: " + statusCode);
             }
+
+    	    
+    	    // Add the current parsed web page to the list
+    	    //listOfParsedPageSupportFiles.add(parsedPageSupportFiles);
         }
-        // Save the newly populated lists into the DTO
-        completeWebPageDTO.setListOfSupportFileBinaryData(listOfSupportFileBinaryData);
-        completeWebPageDTO.setListOfSupportFileTextData(listOfSupportFileTextData);
-        completeWebPageDTO.setListOfSupportFileUnknownType(listOfSupportFileUnknownType);
-        completeWebPageDTO.setListOfSupportFileDefaultCaseSwitchType(listOfSupportFileDefaultCaseSwitchType);
-        completeWebPageDTO.setListOfParsedPageSupportFiles(listOfParsedPageSupportFiles);
         
-        // Save the web page html file to the configured folder located on the file system
+	    // Create and populqte the support file data object here
+	    parsedPageSupportFiles = new ParsedPageSupportFiles(
+	    			 listOfSupportFileBinaryData, 
+					 listOfSupportFileTextData,  
+					 listOfSupportFileUnknownType, 
+					 listOfSupportFileDefaultCaseSwitchType
+					 );
+       
+        // Save the newly created support file data object into the DTO
+	    completeWebPageDTO.setParsedPageSupportFiles(parsedPageSupportFiles);
+        
+        // Save the web page html file to the configured folder located on the file system using the saveService
         saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName());
 
         logger.debug("=============");

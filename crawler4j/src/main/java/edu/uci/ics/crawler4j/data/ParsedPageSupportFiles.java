@@ -16,23 +16,23 @@ import edu.uci.ics.crawler4j.url.WebURL;
  *
  */
 public class ParsedPageSupportFiles {
-	
-    List<byte[]> listOfSupportFileBinaryData = new ArrayList<>(); 
-    List<String> listOfSupportFileTextData = new ArrayList<>();
-    List<String> listOfSupportFileUnknownType = new ArrayList<>();
-    List<byte[]> listOfSupportFileDefaultCaseSwitchType = new ArrayList<>();
-    WebURL webURL = null;
+
+
+
+	List<SupportFileWithURL<byte[], String>> listOfSupportFileBinaryData = new ArrayList<>(); 
+    List<SupportFileWithURL<String, String>> listOfSupportFileTextData = new ArrayList<>();
+    List<SupportFileWithURL<String, String>> listOfSupportFileUnknownType = new ArrayList<>();
+    List<SupportFileWithURL<String, String>> listOfSupportFileDefaultCaseSwitchType = new ArrayList<>();
     
-	public ParsedPageSupportFiles(List<byte[]> listOfSupportFileBinaryData, 
-								 List<String> listOfSupportFileTextData,  
-								 List<String> listOfSupportFileUnknownType, 
-								 List<byte[]> listOfSupportFileDefaultCaseSwitchType, 
-								 WebURL webURL) {		
+	public ParsedPageSupportFiles(List<SupportFileWithURL<byte[], String>> listOfSupportFileBinaryData, 
+								  List<SupportFileWithURL<String, String>> listOfSupportFileTextData,  
+								  List<SupportFileWithURL<String, String>> listOfSupportFileUnknownType, 
+								  List<SupportFileWithURL<String, String>> listOfSupportFileDefaultCaseSwitchType
+								  ) {		
 		this.listOfSupportFileBinaryData = listOfSupportFileBinaryData;
 		this.listOfSupportFileTextData = listOfSupportFileTextData;
 		this.listOfSupportFileUnknownType = listOfSupportFileUnknownType;
 		this.listOfSupportFileDefaultCaseSwitchType = listOfSupportFileDefaultCaseSwitchType;
-		this.webURL = webURL;
 	}
 	
 	public String ExtractFileExtensionFromFilename(WebURL webURL) {
@@ -41,44 +41,37 @@ public class ParsedPageSupportFiles {
 		String extension = path.substring(index);
 		return extension;		
 	}
-
-	public List<byte[]> getListOfSupportFileBinaryData() {
+	
+    public List<SupportFileWithURL<byte[], String>> getListOfSupportFileBinaryData() {
 		return listOfSupportFileBinaryData;
 	}
 
-	public void setListOfSupportFileBinaryData(List<byte[]> listOfSupportFileBinaryData) {
+	public void setListOfSupportFileBinaryData(List<SupportFileWithURL<byte[], String>> listOfSupportFileBinaryData) {
 		this.listOfSupportFileBinaryData = listOfSupportFileBinaryData;
 	}
 
-	public List<String> getListOfSupportFileTextData() {
+	public List<SupportFileWithURL<String, String>> getListOfSupportFileTextData() {
 		return listOfSupportFileTextData;
 	}
 
-	public void setListOfSupportFileTextData(List<String> listOfSupportFileTextData) {
+	public void setListOfSupportFileTextData(List<SupportFileWithURL<String, String>> listOfSupportFileTextData) {
 		this.listOfSupportFileTextData = listOfSupportFileTextData;
 	}
 
-	public List<String> getListOfSupportFileUnknownType() {
+	public List<SupportFileWithURL<String, String>> getListOfSupportFileUnknownType() {
 		return listOfSupportFileUnknownType;
 	}
 
-	public void setListOfSupportFileUnknownType(List<String> listOfSupportFileUnknownType) {
+	public void setListOfSupportFileUnknownType(List<SupportFileWithURL<String, String>> listOfSupportFileUnknownType) {
 		this.listOfSupportFileUnknownType = listOfSupportFileUnknownType;
 	}
 
-	public List<byte[]> getListOfSupportFileDefaultCaseSwitchType() {
+	public List<SupportFileWithURL<String, String>> getListOfSupportFileDefaultCaseSwitchType() {
 		return listOfSupportFileDefaultCaseSwitchType;
 	}
-
-	public void setListOfSupportFileDefaultCaseSwitchType(List<byte[]> listOfSupportFileDefaultCaseSwitchType) {
+	
+	public void setListOfSupportFileDefaultCaseSwitchType(
+			List<SupportFileWithURL<String, String>> listOfSupportFileDefaultCaseSwitchType) {
 		this.listOfSupportFileDefaultCaseSwitchType = listOfSupportFileDefaultCaseSwitchType;
-	}
-
-	public WebURL getWebURL() {
-		return webURL;
-	}
-
-	public void setWebURL(WebURL webURL) {
-		this.webURL = webURL;
 	}
 }

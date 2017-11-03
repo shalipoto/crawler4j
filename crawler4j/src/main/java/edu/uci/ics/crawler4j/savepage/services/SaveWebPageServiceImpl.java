@@ -16,10 +16,11 @@ import org.slf4j.LoggerFactory;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
 import edu.uci.ics.crawler4j.data.ParsedPageSupportFiles;
+import edu.uci.ics.crawler4j.data.SupportFileWithURL;
 
 /**
  * This implements the SaveWebPageService interface and 
- * is intended to save a web page (and support files) to the 
+ * is intended to save a single web page (and support files) to the 
  * local file system just as browser would when saving a 
  * complete web page.
  * 
@@ -38,10 +39,10 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		SaveHtmlOnly(pageDTO, location);	// delegate html page saving to existing method
 		
 		// Get the list of support files for the CompleteWebPage
-		List<byte[]> listOfSupportFileBinaryData = pageDTO.getListOfSupportFileBinaryData();
-		List<String> listOfSupportFileTextData = pageDTO.getListOfSupportFileTextData();
-		List<String> listOfSupportFileUnknownType = pageDTO.getListOfSupportFileUnknownType();
-		List<byte[]> listOfSupportFileDefaultCaseSwitchType = pageDTO.getListOfSupportFileDefaultCaseSwitchType();
+		List<SupportFileWithURL<byte[], String>> listOfSupportFileBinaryData = pageDTO.getParsedPageSupportFiles().getListOfSupportFileBinaryData();
+		List<SupportFileWithURL<String, String>> listOfSupportFileTextData = pageDTO.getParsedPageSupportFiles().getListOfSupportFileTextData();
+		List<SupportFileWithURL<String, String>> listOfSupportFileUnknownType = pageDTO.getParsedPageSupportFiles().getListOfSupportFileUnknownType();
+		List<SupportFileWithURL<String, String>> listOfSupportFileDefaultCaseSwitchType = pageDTO.getParsedPageSupportFiles().getListOfSupportFileDefaultCaseSwitchType();
 		
 		// Generate the folder name 
 		
@@ -70,15 +71,17 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		logger.debug("SaveWebPageServiceImpl has created a support file folder named: " + supportFileFolder);
 		logger.debug("The full path of the support file folder is: " + supportFileFolder.getAbsolutePath());
 		
-		for (ParsedPageSupportFiles sf : pageDTO.getListOfParsedPageSupportFiles()) {
+		// Process the list of BINARY contentType files for saving to the file system or data layer
+		for (SupportFileWithURL<byte[], String> sfWithUrl : listOfSupportFileBinaryData) {
 			
 			FileOutputStream fileOutputStream = null;
 			// Save the list of binary support files to the generated folder for support files
-			for (byte[] binaryArray : sf.getListOfSupportFileBinaryData()) {
-				
+			//for (SupportFileWithURL<byte[], String> sfWithUrl : sf.getListOfSupportFileBinaryData()) {
 				try {
-					StringBuffer binaryFileNamePath = new StringBuffer(sf.getWebURL().getPath());
+					// Extract and process the filename information
+					StringBuffer binaryFileNamePath = new StringBuffer(sfWithUrl.getUrlString());
 					String binaryFileName = binaryFileNamePath.substring(binaryFileNamePath.lastIndexOf("/"));
+					
 					// generate filename with directory as parent					
 					File saveBinaryFile = new File(supportFileFolder.getPath() + "/" + binaryFileName);
 					
@@ -90,7 +93,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			         * Writes a serializable object to a file
 			         */
 					//ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
-		            fileOutputStream.write(binaryArray);
+		            fileOutputStream.write(sfWithUrl.getDataFile());
 		            logger.debug("Saved html contents to file: " + saveBinaryFile.getPath());
 				} catch (IOException e) {
 					e.printStackTrace();			
@@ -102,7 +105,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 						e.printStackTrace();
 					}
 				}
-			}
+			
 		}
 		
 

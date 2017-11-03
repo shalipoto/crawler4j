@@ -24,23 +24,9 @@ public class CompleteWebPageDTO {
 	
 	String htmlFileName = null;	// the filename for the saved page html contents
 	
-	List<byte[]> listOfSupportFileBinaryData = null; // a list of support files containing binary data eg. jpeg/bmp/png etc
+	//List<ParsedPageSupportFiles> listOfParsedPageSupportFiles = null;
 	
-	List<String> listOfSupportFileTextData = null; // a list of support files containing text data eg. html/js/css
-	
-	List<String> listOfSupportFileUnknownType = null; // a list of support files containing text data but of unknown file extension
-	
-	List<byte[]> listOfSupportFileDefaultCaseSwitchType = null; // a list of support files not identified by FileContentType enum in the parser
-
-	List<ParsedPageSupportFiles> listOfParsedPageSupportFiles = null;
-	
-	public List<ParsedPageSupportFiles> getListOfParsedPageSupportFiles() {
-		return listOfParsedPageSupportFiles;
-	}
-
-	public void setListOfParsedPageSupportFiles(List<ParsedPageSupportFiles> listOfParsedPageSupportFiles) {
-		this.listOfParsedPageSupportFiles = listOfParsedPageSupportFiles;
-	}
+	ParsedPageSupportFiles parsedPageSupportFiles = null;
 
 	public String getWebPageSaveLocation() {
 		return webPageSaveLocation;
@@ -50,40 +36,36 @@ public class CompleteWebPageDTO {
 		this.webPageSaveLocation = webPageSaveLocation;
 	}
 
+	public String getWebPageName() {
+		return webPageName;
+	}
+
+	public void setWebPageName(String webPageName) {
+		this.webPageName = webPageName;
+	}
+
+	public String getWebPageHtmlContents() {
+		return webPageHtmlContents;
+	}
+
 	public void setWebPageHtmlContents(String webPageHtmlContents) {
 		this.webPageHtmlContents = webPageHtmlContents;
 	}
-	
-	public List<byte[]> getListOfSupportFileBinaryData() {
-		return listOfSupportFileBinaryData;
+
+	public List<String> getWebPageSupportFiles() {
+		return webPageSupportFiles;
 	}
 
-	public void setListOfSupportFileBinaryData(List<byte[]> listOfSupportFileBinaryData) {
-		this.listOfSupportFileBinaryData = listOfSupportFileBinaryData;
+	public ParsedPageSupportFiles getParsedPageSupportFiles() {
+		return parsedPageSupportFiles;
 	}
 
-	public List<String> getListOfSupportFileTextData() {
-		return listOfSupportFileTextData;
+	public void setParsedPageSupportFiles(ParsedPageSupportFiles parsedPageSupportFiles) {
+		this.parsedPageSupportFiles = parsedPageSupportFiles;
 	}
 
-	public void setListOfSupportFileTextData(List<String> listOfSupportFileTextData) {
-		this.listOfSupportFileTextData = listOfSupportFileTextData;
-	}
-
-	public List<String> getListOfSupportFileUnknownType() {
-		return listOfSupportFileUnknownType;
-	}
-
-	public void setListOfSupportFileUnknownType(List<String> listOfSupportFileUnknownType) {
-		this.listOfSupportFileUnknownType = listOfSupportFileUnknownType;
-	}
-
-	public List<byte[]> getListOfSupportFileDefaultCaseSwitchType() {
-		return listOfSupportFileDefaultCaseSwitchType;
-	}
-
-	public void setListOfSupportFileDefaultCaseSwitchType(List<byte[]> listOfSupportFileDefaultCaseSwitchType) {
-		this.listOfSupportFileDefaultCaseSwitchType = listOfSupportFileDefaultCaseSwitchType;
+	public void setWebPageSupportFiles(List<String> webPageSupportFiles) {
+		this.webPageSupportFiles = webPageSupportFiles;
 	}
 
 	public String getWebPageFolder() {
@@ -100,31 +82,5 @@ public class CompleteWebPageDTO {
 
 	public void setHtmlFileName(String htmlFileName) {
 		this.htmlFileName = htmlFileName;
-	}
-
-	public String getWebPageName() {
-		return webPageName;
-	}
-
-	public void setWebPageName(String webPageName) {
-		this.webPageName = webPageName;
-	}
-
-	public String getWebPageHtmlContents() {
-		return webPageHtmlContents;
-	}
-
-	public void setHtmlContents(String htmlContents) {
-		this.webPageHtmlContents = htmlContents;
-	}
-
-	public List<String> getWebPageSupportFiles() {
-		return webPageSupportFiles;
-	}
-
-	public void setWebPageSupportFiles(List<String> webPageFiles) {
-		this.webPageSupportFiles = webPageFiles;
-	}
-	
-	
+	}	
 }
