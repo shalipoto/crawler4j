@@ -71,6 +71,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		logger.debug("SaveWebPageServiceImpl has created a support file folder named: " + supportFileFolder);
 		logger.debug("The full path of the support file folder is: " + supportFileFolder.getAbsolutePath());
 		
+		//************************************************************************************************************
 		// Process the list of BINARY contentType files for saving to the file system or data layer
 		for (SupportFileWithURL<byte[], String> sfWithUrl : listOfSupportFileBinaryData) {
 			
@@ -90,7 +91,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		            logger.debug("Created empty file: " + saveBinaryFile.getPath());
 		            
 			        /*
-			         * Writes a serializable object to a file
+			         * Writes a byte object to a file
 			         */
 					//ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 		            fileOutputStream.write(sfWithUrl.getDataFile());
@@ -105,10 +106,47 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 						e.printStackTrace();
 					}
 				}
-			
 		}
+		//************************************************************************************************************
 		
-
+		
+		//************************************************************************************************************
+		// Process the list of TEXT contentType files for saving to the file system or data layer
+		for (SupportFileWithURL<String, String> sfWithUrl : listOfSupportFileTextData) {
+			
+			FileOutputStream fileOutputStream = null;
+			// Save the list of binary support files to the generated folder for support files
+			//for (SupportFileWithURL<byte[], String> sfWithUrl : sf.getListOfSupportFileBinaryData()) {
+				try {
+					// Extract and process the filename information
+					StringBuffer binaryFileNamePath = new StringBuffer(sfWithUrl.getUrlString());
+					String binaryFileName = binaryFileNamePath.substring(binaryFileNamePath.lastIndexOf("/"));
+					
+					// generate filename with directory as parent					
+					File saveBinaryFile = new File(supportFileFolder.getPath() + "/" + binaryFileName);
+					
+					// Create the empty file with filename generated as above
+					fileOutputStream = new FileOutputStream(new File(saveBinaryFile.getPath()));
+		            logger.debug("Created empty file: " + saveBinaryFile.getPath());
+		            
+			        /*
+			         * Writes a serializable object to a file
+			         */
+					ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
+					objStream.writeObject(sfWithUrl.getDataFile());
+		            logger.debug("Saved html contents to file: " + saveBinaryFile.getPath());
+				} catch (IOException e) {
+					e.printStackTrace();			
+				} finally {
+					try {
+						fileOutputStream.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+		}
+		//************************************************************************************************************
 		
 		System.out.print(""); // A line just to have a valid statement for debugging
 	}
