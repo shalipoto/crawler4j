@@ -45,9 +45,14 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		// Generate the folder name for the list of support files
 		
 		// generate folder name and create it at the named location
+		
+		// Trim the file extension from the htmlfilename
+		StringBuilder sb = new StringBuilder(pageDTO.getHtmlFileName());
+		String fileNameWithoutExtension = new String(sb.substring(0, sb.lastIndexOf(".")));
+				
 		//File supportFileFolder = new File(folder.getPath() + "/" + pageDTO.getHtmlFileName());
-		File supportFileFolder = new File(location + "/" + pageDTO.getHtmlFileName() + "_files");
-		logger.debug("SaveWebPageServiceImpl has created a folder named: " + pageDTO.getHtmlFileName());
+		File supportFileFolder = new File(location + "/" + fileNameWithoutExtension + "_files");
+		logger.debug("SaveWebPageServiceImpl has created a support folder named: " + supportFileFolder);
 		logger.debug("The full path of the support file folder is: " + supportFileFolder.getAbsolutePath());
 		// Save the list of support files to the generated folder for support files
 		System.out.print(""); // A line just to have a valid statement for debugging
