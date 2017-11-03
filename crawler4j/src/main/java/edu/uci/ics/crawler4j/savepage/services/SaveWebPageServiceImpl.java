@@ -42,19 +42,38 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		List<String> listOfSupportFileUnknownType = pageDTO.getListOfSupportFileUnknownType();
 		List<byte[]> listOfSupportFileDefaultCaseSwitchType = pageDTO.getListOfSupportFileDefaultCaseSwitchType();
 		
-		// Generate the folder name for the list of support files
+		// Generate the folder name 
 		
-		// generate folder name and create it at the named location
+
 		
 		// Trim the file extension from the htmlfilename
 		StringBuilder sb = new StringBuilder(pageDTO.getHtmlFileName());
 		String fileNameWithoutExtension = new String(sb.substring(0, sb.lastIndexOf(".")));
 				
-		//File supportFileFolder = new File(folder.getPath() + "/" + pageDTO.getHtmlFileName());
+		// generate folder name for the list of support files and create it at the named location
 		File supportFileFolder = new File(location + "/" + fileNameWithoutExtension + "_files");
-		logger.debug("SaveWebPageServiceImpl has created a support folder named: " + supportFileFolder);
+		
+		// Create the folder on the file system
+        if (!supportFileFolder.exists()) {
+            if (supportFileFolder.mkdirs())
+                logger.debug("Created folder: " + supportFileFolder.getPath());
+            else {
+            	File testFolder = new File(location + "/" + "test" + "_files");
+            	testFolder.mkdir();
+            	logger.debug("Service had no choice but to make a test folder instead");
+            }
+        } else {
+        	logger.debug("Folder already exists at path: " + supportFileFolder.getAbsolutePath());
+        }
+		
+		logger.debug("SaveWebPageServiceImpl has created a support file folder named: " + supportFileFolder);
 		logger.debug("The full path of the support file folder is: " + supportFileFolder.getAbsolutePath());
+		
 		// Save the list of support files to the generated folder for support files
+		for (byte[] binaryArray : listOfSupportFileBinaryData) {
+			
+		}
+		
 		System.out.print(""); // A line just to have a valid statement for debugging
 	}
 
@@ -64,7 +83,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	@Override
 	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location) {		
         File folder = new File(location);	// relative to crawler project root
-        
+
         if (!folder.exists()) {
             if (folder.mkdirs())
                 logger.debug("Created folder: " + folder.getPath());
