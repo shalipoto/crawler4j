@@ -32,6 +32,16 @@ public class CompleteWebPageDTO {
 	
 	List<byte[]> listOfSupportFileDefaultCaseSwitchType = null; // a list of support files not identified by FileContentType enum in the parser
 
+	List<ParsedPageSupportFiles> listOfParsedPageSupportFiles = null;
+	
+	public List<ParsedPageSupportFiles> getListOfParsedPageSupportFiles() {
+		return listOfParsedPageSupportFiles;
+	}
+
+	public void setListOfParsedPageSupportFiles(List<ParsedPageSupportFiles> listOfParsedPageSupportFiles) {
+		this.listOfParsedPageSupportFiles = listOfParsedPageSupportFiles;
+	}
+
 	public String getWebPageSaveLocation() {
 		return webPageSaveLocation;
 	}

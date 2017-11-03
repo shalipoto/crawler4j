@@ -39,6 +39,7 @@ import edu.uci.ics.crawler4j.crawler.exceptions.ContentFetchException;
 import edu.uci.ics.crawler4j.crawler.exceptions.PageBiggerThanMaxSizeException;
 import edu.uci.ics.crawler4j.crawler.exceptions.ParseException;
 import edu.uci.ics.crawler4j.data.DTO.CompleteWebPageDTO;
+import edu.uci.ics.crawler4j.data.DTO.ParsedPageSupportFiles;
 import edu.uci.ics.crawler4j.fetcher.PageFetchResult;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.parser.NotAllowedContentException;
@@ -205,6 +206,8 @@ public class SavePageWebCrawler extends WebCrawler {
         List<String> listOfSupportFileTextData = new ArrayList<>();
         List<String> listOfSupportFileUnknownType = new ArrayList<>();
         List<byte[]> listOfSupportFileDefaultCaseSwitchType = new ArrayList<>();
+        List<ParsedPageSupportFiles> listOfParsedPageSupportFiles = new ArrayList<>();
+        
         for (WebURL webURL : listOfPageSupportFileURLs) {
             PageFetchResult fetchResult = null;
 			try {
@@ -250,6 +253,16 @@ public class SavePageWebCrawler extends WebCrawler {
 	        	    						logger.debug("switch statement placed this file into the listOfSupportFileDefaultCaseSwitchType list");  
 	        	    }
 	        	  }	        	
+	        	    // Create and populqte the support file data object here
+	        	    ParsedPageSupportFiles parsedPageSupportFiles = new ParsedPageSupportFiles(
+	        	    			 listOfSupportFileBinaryData, 
+								 listOfSupportFileTextData,  
+								 listOfSupportFileUnknownType, 
+								 listOfSupportFileDefaultCaseSwitchType, 
+								 webURL);
+	        	    
+	        	    // Now add it to the a list
+	        	    listOfParsedPageSupportFiles.add(parsedPageSupportFiles);
             } else { // handle non successful statuses here
             	logger.debug("The support file URL: " + webURL.getURL() + " had a status code: " + statusCode);
             }
@@ -259,6 +272,7 @@ public class SavePageWebCrawler extends WebCrawler {
         completeWebPageDTO.setListOfSupportFileTextData(listOfSupportFileTextData);
         completeWebPageDTO.setListOfSupportFileUnknownType(listOfSupportFileUnknownType);
         completeWebPageDTO.setListOfSupportFileDefaultCaseSwitchType(listOfSupportFileDefaultCaseSwitchType);
+        completeWebPageDTO.setListOfParsedPageSupportFiles(listOfParsedPageSupportFiles);
         
         // Save the web page html file to the configured folder located on the file system
         saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName());
