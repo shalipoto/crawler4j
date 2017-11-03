@@ -13,18 +13,6 @@ import java.util.List;
 public class CompleteWebPageDTO {
 	
 	String webPageSaveLocation = null;
-	
-	public String getWebPageSaveLocation() {
-		return webPageSaveLocation;
-	}
-
-	public void setWebPageSaveLocation(String webPageSaveLocation) {
-		this.webPageSaveLocation = webPageSaveLocation;
-	}
-
-	public void setWebPageHtmlContents(String webPageHtmlContents) {
-		this.webPageHtmlContents = webPageHtmlContents;
-	}
 
 	String webPageName = null; // the page name as expressed in the original html file
 	
@@ -43,7 +31,51 @@ public class CompleteWebPageDTO {
 	List<String> listOfSupportFileUnknownType = null; // a list of support files containing text data but of unknown file extension
 	
 	List<byte[]> listOfSupportFileDefaultCaseSwitchType = null; // a list of support files not identified by FileContentType enum in the parser
+
+	public String getWebPageSaveLocation() {
+		return webPageSaveLocation;
+	}
+
+	public void setWebPageSaveLocation(String webPageSaveLocation) {
+		this.webPageSaveLocation = webPageSaveLocation;
+	}
+
+	public void setWebPageHtmlContents(String webPageHtmlContents) {
+		this.webPageHtmlContents = webPageHtmlContents;
+	}
 	
+	public List<byte[]> getListOfSupportFileBinaryData() {
+		return listOfSupportFileBinaryData;
+	}
+
+	public void setListOfSupportFileBinaryData(List<byte[]> listOfSupportFileBinaryData) {
+		this.listOfSupportFileBinaryData = listOfSupportFileBinaryData;
+	}
+
+	public List<String> getListOfSupportFileTextData() {
+		return listOfSupportFileTextData;
+	}
+
+	public void setListOfSupportFileTextData(List<String> listOfSupportFileTextData) {
+		this.listOfSupportFileTextData = listOfSupportFileTextData;
+	}
+
+	public List<String> getListOfSupportFileUnknownType() {
+		return listOfSupportFileUnknownType;
+	}
+
+	public void setListOfSupportFileUnknownType(List<String> listOfSupportFileUnknownType) {
+		this.listOfSupportFileUnknownType = listOfSupportFileUnknownType;
+	}
+
+	public List<byte[]> getListOfSupportFileDefaultCaseSwitchType() {
+		return listOfSupportFileDefaultCaseSwitchType;
+	}
+
+	public void setListOfSupportFileDefaultCaseSwitchType(List<byte[]> listOfSupportFileDefaultCaseSwitchType) {
+		this.listOfSupportFileDefaultCaseSwitchType = listOfSupportFileDefaultCaseSwitchType;
+	}
+
 	public String getWebPageFolder() {
 		return webPageFolder;
 	}
