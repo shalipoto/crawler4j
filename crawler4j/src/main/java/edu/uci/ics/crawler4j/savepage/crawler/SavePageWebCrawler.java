@@ -204,6 +204,7 @@ public class SavePageWebCrawler extends WebCrawler {
         List<byte[]> listOfSupportFileBinaryData = new ArrayList<>(); 
         List<String> listOfSupportFileTextData = new ArrayList<>();
         List<String> listOfSupportFileUnknownType = new ArrayList<>();
+        List<byte[]> listOfSupportFileDefaultCaseSwitchType = new ArrayList<>();
         for (WebURL webURL : listOfPageSupportFileURLs) {
             PageFetchResult fetchResult = null;
 			try {
@@ -229,7 +230,7 @@ public class SavePageWebCrawler extends WebCrawler {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-	        	// Load the file contents into an object in memory
+	        	// Load the file contents into a List<> object in memory
 	        	  switch(contentType){  
 	        	    case BINARY		: {
 											logger.debug("The URL " + webURL.getURL() + " was found to be a BINARY");
@@ -242,9 +243,12 @@ public class SavePageWebCrawler extends WebCrawler {
 	        	    case UNKNOWN	: {
 											logger.debug("The URL " + webURL.getURL() + " was found to be an UNKNOWN");
 	        	    						listOfSupportFileUnknownType.add(new String(supportFilePage.getContentData()));
-	        	    						logger.debug("The parser did not assign the content type for this file");
-	        	    				  };break;
-	        	    default			: logger.debug("switch statement in saveWebPageCrawler.visit() failed to find a contentType match");  
+	        	    						logger.debug("The parser did not assign the content type for this file"); break;
+	        	    }
+	        	    default			: {
+	        	    						listOfSupportFileDefaultCaseSwitchType.add(supportFilePage.getContentData());
+	        	    						logger.debug("switch statement placed this file into the listOfSupportFileDefaultCaseSwitchType list");  
+	        	    }
 	        	  }	        	
             } else { // handle non successful statuses here
             	logger.debug("The support file URL: " + webURL.getURL() + " had a status code: " + statusCode);
