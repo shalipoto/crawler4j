@@ -14,7 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.crawler4j.crawler.CrawlController;
-import edu.uci.ics.crawler4j.data.DTO.CompleteWebPageDTO;
+import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
+import edu.uci.ics.crawler4j.data.ParsedPageSupportFiles;
 
 /**
  * This implements the SaveWebPageService interface and 
@@ -69,10 +70,42 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		logger.debug("SaveWebPageServiceImpl has created a support file folder named: " + supportFileFolder);
 		logger.debug("The full path of the support file folder is: " + supportFileFolder.getAbsolutePath());
 		
-		// Save the list of support files to the generated folder for support files
-		for (byte[] binaryArray : listOfSupportFileBinaryData) {
+		for (ParsedPageSupportFiles sf : pageDTO.getListOfParsedPageSupportFiles()) {
 			
+			FileOutputStream fileOutputStream = null;
+			// Save the list of binary support files to the generated folder for support files
+			for (byte[] binaryArray : sf.getListOfSupportFileBinaryData()) {
+				
+				try {
+					StringBuffer binaryFileNamePath = new StringBuffer(sf.getWebURL().getPath());
+					String binaryFileName = binaryFileNamePath.substring(binaryFileNamePath.lastIndexOf("/"));
+					// generate filename with directory as parent					
+					File saveBinaryFile = new File(supportFileFolder.getPath() + "/" + binaryFileName);
+					
+					// Create the empty file with filename generated as above
+					fileOutputStream = new FileOutputStream(new File(saveBinaryFile.getPath()));
+		            logger.debug("Created empty file: " + saveBinaryFile.getPath());
+		            
+			        /*
+			         * Writes a serializable object to a file
+			         */
+					//ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
+		            fileOutputStream.write(binaryArray);
+		            logger.debug("Saved html contents to file: " + saveBinaryFile.getPath());
+				} catch (IOException e) {
+					e.printStackTrace();			
+				} finally {
+					try {
+						fileOutputStream.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 		}
+		
+
 		
 		System.out.print(""); // A line just to have a valid statement for debugging
 	}

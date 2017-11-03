@@ -38,8 +38,9 @@ import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.crawler.exceptions.ContentFetchException;
 import edu.uci.ics.crawler4j.crawler.exceptions.PageBiggerThanMaxSizeException;
 import edu.uci.ics.crawler4j.crawler.exceptions.ParseException;
-import edu.uci.ics.crawler4j.data.DTO.CompleteWebPageDTO;
-import edu.uci.ics.crawler4j.data.DTO.ParsedPageSupportFiles;
+import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
+import edu.uci.ics.crawler4j.data.ParsedPageSupportFiles;
+import edu.uci.ics.crawler4j.data.SupportFileWithURL;
 import edu.uci.ics.crawler4j.fetcher.PageFetchResult;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.parser.NotAllowedContentException;
@@ -202,10 +203,11 @@ public class SavePageWebCrawler extends WebCrawler {
         String htmlContents = new String(page.getContentData());
         completeWebPageDTO.setHtmlContents(htmlContents);
         
-        List<byte[]> listOfSupportFileBinaryData = new ArrayList<>(); 
-        List<String> listOfSupportFileTextData = new ArrayList<>();
-        List<String> listOfSupportFileUnknownType = new ArrayList<>();
-        List<byte[]> listOfSupportFileDefaultCaseSwitchType = new ArrayList<>();
+        List<SupportFileWithURL<byte[], String>> listOfSupportFileBinaryData = new ArrayList<>(); 
+        List<SupportFileWithURL<String, String>> listOfSupportFileTextData = new ArrayList<>();
+        List<SupportFileWithURL<String, String>> listOfSupportFileUnknownType = new ArrayList<>();
+        List<SupportFileWithURL<byte[], String>> listOfSupportFileDefaultCaseSwitchType = new ArrayList<>();
+        List<SupportFileWithURL<String, String>> listOfUrls = new ArrayList<>();
         List<ParsedPageSupportFiles> listOfParsedPageSupportFiles = new ArrayList<>();
         
         for (WebURL webURL : listOfPageSupportFileURLs) {
@@ -237,20 +239,26 @@ public class SavePageWebCrawler extends WebCrawler {
 	        	  switch(contentType){  
 	        	    case BINARY		: {
 											logger.debug("The URL " + webURL.getURL() + " was found to be a BINARY");
-	        	    						listOfSupportFileBinaryData.add(supportFilePage.getContentData()); break;  
+	        	    						SupportFileWithURL<byte[], String> sfUrl = new SupportFileWithURL<>();
+	        	    						sfUrl.setDataFile(supportFilePage.getContentData());
+	        	    						sfUrl.setUrlString(webURL.getURL());
+	        	    						listOfSupportFileBinaryData.add(sfUrl); break;
 	        	    }
 	        	    case TEXT		: {
 											logger.debug("The URL " + webURL.getURL() + " was found to be a TEXT");
-											listOfSupportFileTextData.add(new String(supportFilePage.getContentData())); break;  
+											listOfSupportFileTextData.add(new String(supportFilePage.getContentData()));
+	        	    						listOfUrls.add(webURL.getURL()); break;
 	        	    }
 	        	    case UNKNOWN	: {
 											logger.debug("The URL " + webURL.getURL() + " was found to be an UNKNOWN");
 	        	    						listOfSupportFileUnknownType.add(new String(supportFilePage.getContentData()));
-	        	    						logger.debug("The parser did not assign the content type for this file"); break;
+	        	    						logger.debug("The parser did not assign the content type for this file");
+	        	    						listOfUrls.add(webURL.getURL()); break;
 	        	    }
 	        	    default			: {
 	        	    						listOfSupportFileDefaultCaseSwitchType.add(supportFilePage.getContentData());
-	        	    						logger.debug("switch statement placed this file into the listOfSupportFileDefaultCaseSwitchType list");  
+	        	    						logger.debug("switch statement placed this file into the listOfSupportFileDefaultCaseSwitchType list");
+	        	    						listOfUrls.add(webURL.getURL());
 	        	    }
 	        	  }	        	
 	        	    // Create and populqte the support file data object here

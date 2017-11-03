@@ -10,20 +10,20 @@ package edu.uci.ics.crawler4j.data;
  *
  */
 public class SupportFileWithURL <R, S> {
-	private R r;
-	private S s;
+	private R dataFile;
+	private S urlString;
 	
-	public R getR() {
-		return r;
+	public R getDataFile() {
+		return dataFile;
 	}
-	public void setR(R r) {
-		this.r = r;
+	public void setDataFile(R dataFile) {
+		this.dataFile = dataFile;
 	}
-	public S getS() {
-		return s;
+	public S getUrlString() {
+		return urlString;
 	}
-	public void setS(S s) {
-		this.s = s;
+	public void setUrlString(S urlString) {
+		this.urlString = urlString;
 	}
 	
 }
