@@ -36,6 +36,14 @@ public class CompleteWebPageDTO {
 	
 	String htmlFileName = null;	// the filename for the saved page html contents
 	
+	List<byte[]> listOfSupportFileBinaryData = null; // a list of support files containing binary data eg. jpeg/bmp/png etc
+	
+	List<String> listOfSupportFileTextData = null; // a list of support files containing text data eg. html/js/css
+	
+	List<String> listOfSupportFileUnknownType = null; // a list of support files containing text data but of unknown file extension
+	
+	List<byte[]> listOfSupportFileDefaultCaseSwitchType = null; // a list of support files not identified by FileContentType enum in the parser
+	
 	public String getWebPageFolder() {
 		return webPageFolder;
 	}
