@@ -117,7 +117,7 @@ public class SavePageWebCrawler extends WebCrawler {
      * 
      * Here if a URL matches the IMAGE_EXTENSIONS pattern then it is also
      * added to a list of URLs for support files of the parent page.
-     * @param listOfPageSupportFileURLs2 
+     * @param listOfPageSupportFileURLs
      */
     public boolean shouldVisit(Page referringPage, WebURL url, List<WebURL> listOfPageSupportFileURLs) {
         String href = url.getURL().toLowerCase();
@@ -139,7 +139,7 @@ public class SavePageWebCrawler extends WebCrawler {
      * by your program. This is an overload of the superclass visit() method
      * @param listOfPageSupportFileURLs2 
      */
-    public void visit(Page page, List<WebURL> listOfPageSupportFileURLs2) {
+    public void visit(Page page, List<WebURL> listOfPageSupportFileURLs) {
         int docid = page.getWebURL().getDocid();
         String url = page.getWebURL().getURL();
         String domain = page.getWebURL().getDomain();
@@ -201,7 +201,56 @@ public class SavePageWebCrawler extends WebCrawler {
         String htmlContents = new String(page.getContentData());
         completeWebPageDTO.setHtmlContents(htmlContents);
         
-        // Save the web page html file to the configured folder onto the file system
+        List<byte[]> listOfSupportFileBinaryData = new ArrayList<>(); 
+        List<String> listOfSupportFileTextData = new ArrayList<>();
+        List<String> listOfSupportFileUnknownType = new ArrayList<>();
+        for (WebURL webURL : listOfPageSupportFileURLs) {
+            PageFetchResult fetchResult = null;
+			try {
+				fetchResult = pageFetcher.fetchPage(webURL);
+			} catch (InterruptedException | IOException | PageBiggerThanMaxSizeException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            int statusCode = fetchResult.getStatusCode();
+            FileContentType contentType = FileContentType.UNKNOWN;
+        	// If statusCode is success, parse the url
+            if (statusCode == 200) {       	
+            	Page supportFilePage = new Page(webURL);
+	        	try {
+	                if (!fetchResult.fetchContent(supportFilePage,
+                            myController.getConfig().getMaxDownloadSize())) {
+	                		throw new ContentFetchException();
+	                }
+	        		// Populates the supportFilePage object with data from the URL
+	        		contentType = saveWebPageParser.parse(supportFilePage, webURL.getURL(), FileContentType.UNKNOWN);
+	        		logger.debug("Parsed the support file URL: "+ webURL.getURL());
+				} catch (NotAllowedContentException | ParseException | ContentFetchException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        	// Load the file contents into an object in memory
+	        	  switch(contentType){  
+	        	    case BINARY		: {
+											logger.debug("The URL " + webURL.getURL() + " was found to be a BINARY");
+	        	    						listOfSupportFileBinaryData.add(supportFilePage.getContentData()); break;  
+	        	    }
+	        	    case TEXT		: {
+											logger.debug("The URL " + webURL.getURL() + " was found to be a TEXT");
+											listOfSupportFileTextData.add(new String(supportFilePage.getContentData())); break;  
+	        	    }
+	        	    case UNKNOWN	: {
+											logger.debug("The URL " + webURL.getURL() + " was found to be an UNKNOWN");
+	        	    						listOfSupportFileUnknownType.add(new String(supportFilePage.getContentData()));
+	        	    						logger.debug("The parser did not assign the content type for this file");
+	        	    				  };break;
+	        	    default			: logger.debug("switch statement in saveWebPageCrawler.visit() failed to find a contentType match");  
+	        	  }	        	
+            } else { // handle non successful statuses here
+            	logger.debug("The support file URL: " + webURL.getURL() + " had a status code: " + statusCode);
+            }
+        }      
+        // Save the web page html file to the configured folder located on the file system
         saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName());
 
         logger.debug("=============");
@@ -220,6 +269,9 @@ public class SavePageWebCrawler extends WebCrawler {
             if (curURL == null) {
                 return;
             }
+	        // To hold the list of page support files (css, js ...)
+            final List<WebURL> listOfPageSupportFileURLs = new ArrayList<>();
+            
             fetchResult = pageFetcher.fetchPage(curURL);
             int statusCode = fetchResult.getStatusCode();
             handlePageStatusCode(curURL, statusCode,
@@ -228,8 +280,6 @@ public class SavePageWebCrawler extends WebCrawler {
             // Finds the status reason for all known statuses
 
             Page page = new Page(curURL);
-	        // To hold the list of page support files (css, js ...)
-            final List<WebURL> listOfPageSupportFileURLs = new ArrayList<>();
             page.setFetchResponseHeaders(fetchResult.getResponseHeaders());
             page.setStatusCode(statusCode);
             if (statusCode < 200 ||
@@ -320,7 +370,7 @@ public class SavePageWebCrawler extends WebCrawler {
                              
                 if (shouldFollowLinksIn(page.getWebURL())) {
                     ParseData parseData = page.getParseData();
-                    List<WebURL> toSchedule = new ArrayList<>();
+                    List<WebURL> toSchedule = new ArrayList<>();                    
                     int maxCrawlDepth = myController.getConfig().getMaxDepthOfCrawling();
                     for (WebURL webURL : parseData.getOutgoingUrls()) { // OutgoingUrls includes links, css/js/png files etc
                         webURL.setParentDocid(curURL.getDocid());
@@ -396,11 +446,12 @@ public class SavePageWebCrawler extends WebCrawler {
         }
     }
     
-/*    public Parser getSaveWebPageParser() {
-		return saveWebPageParser;
-	}
-
-	public void setSaveWebPageParser(Parser saveWebPageParser) {
-		this.saveWebPageParser = saveWebPageParser;
-	}*/
+    protected void processSupportFiles(List<WebURL> listOfPageSupportFileURLs) {
+    	// Say Hi!u
+/*    	for (webURL : listOfPageSupportFiles) {
+    		// Create a new List object to hold file content
+    		// Parse the file
+    		//
+    	}*/
+    }
 }

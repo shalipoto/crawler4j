@@ -74,8 +74,8 @@ public class SaveWebPageParser extends Parser {
 	 * 
 	 * @param page
 	 * @param contextURL
-	 * @param contentType
-	 * @return the enum value representing the page's data type
+	 * @param contentType not used, only needed to change method signature for overloading
+	 * @return the enum value representing the page's content type
 	 * @throws NotAllowedContentException
 	 * @throws ParseException
 	 */
@@ -83,8 +83,8 @@ public class SaveWebPageParser extends Parser {
         throws NotAllowedContentException, ParseException {
         if (Util.hasBinaryContent(page.getContentType())) { // BINARY
             BinaryParseData parseData = new BinaryParseData();
-            if (config.isIncludeBinaryContentInCrawling()) {
-                if (config.isProcessBinaryContentInCrawling()) {
+            if (saveWebPageCrawlConfig.isIncludeBinaryContentInCrawling()) {
+                if (saveWebPageCrawlConfig.isProcessBinaryContentInCrawling()) {
                     parseData.setBinaryContent(page.getContentData());
                 } else {
                     parseData.setHtml("<html></html>");
@@ -163,6 +163,7 @@ public class SaveWebPageParser extends Parser {
                         webURL.setAnchor(urlAnchorPair.getAnchor());
                         webURL.setAttributes(urlAnchorPair.getAttributes());
                         outgoingUrls.add(webURL);
+                        logger.debug("Added the URL: " + webURL + "to the list outgoingUrls");
                         urlCount++;
                         if (urlCount > config.getMaxOutgoingLinksToFollow()) {
                             break;

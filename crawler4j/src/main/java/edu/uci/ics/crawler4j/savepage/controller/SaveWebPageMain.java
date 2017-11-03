@@ -116,7 +116,7 @@ public class SaveWebPageMain {
          * Do you want crawler4j to crawl also binary data ?
          * example: the contents of pdf, or the metadata of images etc
          */
-        config.setIncludeBinaryContentInCrawling(false);
+        config.setIncludeBinaryContentInCrawling(true);
 
     /*
      * Do you need to set a proxy? If so, you can use:
