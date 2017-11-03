@@ -230,7 +230,7 @@ public class SavePageWebCrawler extends WebCrawler {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-	        	// Load the file contents into a List<> object in memory
+	        	// Select the file by contentType and store into a List<> object in memory
 	        	  switch(contentType){  
 	        	    case BINARY		: {
 											logger.debug("The URL " + webURL.getURL() + " was found to be a BINARY");
@@ -253,7 +253,13 @@ public class SavePageWebCrawler extends WebCrawler {
             } else { // handle non successful statuses here
             	logger.debug("The support file URL: " + webURL.getURL() + " had a status code: " + statusCode);
             }
-        }      
+        }
+        // Save the newly populated lists into the DTO
+        completeWebPageDTO.setListOfSupportFileBinaryData(listOfSupportFileBinaryData);
+        completeWebPageDTO.setListOfSupportFileTextData(listOfSupportFileTextData);
+        completeWebPageDTO.setListOfSupportFileUnknownType(listOfSupportFileUnknownType);
+        completeWebPageDTO.setListOfSupportFileDefaultCaseSwitchType(listOfSupportFileDefaultCaseSwitchType);
+        
         // Save the web page html file to the configured folder located on the file system
         saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName());
 
