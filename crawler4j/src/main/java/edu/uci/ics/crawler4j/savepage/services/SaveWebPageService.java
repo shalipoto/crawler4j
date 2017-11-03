@@ -1,6 +1,6 @@
 package edu.uci.ics.crawler4j.savepage.services;
 
-import edu.uci.ics.crawler4j.DTO.CompleteWebPageDTO;
+import edu.uci.ics.crawler4j.data.DTO.CompleteWebPageDTO;
 
 /**
  * This interface provides the services for 

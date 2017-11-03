@@ -8,12 +8,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.uci.ics.crawler4j.DTO.CompleteWebPageDTO;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
+import edu.uci.ics.crawler4j.data.DTO.CompleteWebPageDTO;
 
 /**
  * This implements the SaveWebPageService interface and 
@@ -36,8 +37,20 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		SaveHtmlOnly(pageDTO, location);	// delegate html page saving to existing method
 		
 		// Get the list of support files for the CompleteWebPage
+		List<byte[]> listOfSupportFileBinaryData = pageDTO.getListOfSupportFileBinaryData();
+		List<String> listOfSupportFileTextData = pageDTO.getListOfSupportFileTextData();
+		List<String> listOfSupportFileUnknownType = pageDTO.getListOfSupportFileUnknownType();
+		List<byte[]> listOfSupportFileDefaultCaseSwitchType = pageDTO.getListOfSupportFileDefaultCaseSwitchType();
 		
-		// Save the list of support files to the local file system
+		// Generate the folder name for the list of support files
+		
+		// generate folder name and create it at the named location
+		//File supportFileFolder = new File(folder.getPath() + "/" + pageDTO.getHtmlFileName());
+		File supportFileFolder = new File(location + "/" + pageDTO.getHtmlFileName() + "_files");
+		logger.debug("SaveWebPageServiceImpl has created a folder named: " + pageDTO.getHtmlFileName());
+		logger.debug("The full path of the support file folder is: " + supportFileFolder.getAbsolutePath());
+		// Save the list of support files to the generated folder for support files
+		System.out.print(""); // A line just to have a valid statement for debugging
 	}
 
 	/**

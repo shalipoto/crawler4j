@@ -1,4 +1,4 @@
-package edu.uci.ics.crawler4j.DTO;
+package edu.uci.ics.crawler4j.data.DTO;
 
 import java.util.List;
 
