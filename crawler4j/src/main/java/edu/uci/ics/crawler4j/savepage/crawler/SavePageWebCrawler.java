@@ -68,6 +68,8 @@ import edu.uci.ics.crawler4j.util.Util.FileContentType;
 public class SavePageWebCrawler extends WebCrawler {	
 	
 	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png|css|svg)$");
+	private static final Pattern HTML_EXTENSIONS = Pattern.compile(".*\\.(htm|html)$");
+
     SaveWebPageParser saveWebPageParser = null;
     SaveWebPageServiceImpl saveService = null;
 	
@@ -127,13 +129,23 @@ public class SavePageWebCrawler extends WebCrawler {
         // Ignore the url if it has an extension that matches our defined set of image extensions.
         if (IMAGE_EXTENSIONS.matcher(href).matches()) {
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
-        	//logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href + referringPage.getWebURL().getPath());
+        	logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href);
+            return false;
+        } else if (HTML_EXTENSIONS.matcher(href).matches()) {
+        	logger.debug("This url is included in \"should visit\": " + href);
+        	
+            // Only accept the url if it is in the "www.scifigeeks.com/" domain and protocol is "https".
+            return href.startsWith("http://shop.storiedthreads.com/");
+        } else if (href.contains(".htm") | href.contains(".html")) {
+        	logger.debug("This url is included in \"should visit\": " + href);
+        	
+            // Only accept the url if it is in the "www.scifigeeks.com/" domain and protocol is "https".
+            return href.startsWith("http://shop.storiedthreads.com");
+        } else { // Catches all non-matching URLs  be treated as support files
+        	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href);
             return false;
         }
-
-        // Only accept the url if it is in the "www.scifigeeks.com/" domain and protocol is "https".
-        return href.startsWith("https://www.scifigeeks.com/");
     }
 
     /**

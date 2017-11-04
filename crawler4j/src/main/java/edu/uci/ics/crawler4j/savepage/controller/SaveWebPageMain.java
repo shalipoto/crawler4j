@@ -150,10 +150,13 @@ public class SaveWebPageMain {
      * which are found in these pages
      */
         
-        controller.addSeed("https://www.scifigeeks.com/");
+        //controller.addSeed("https://www.scifigeeks.com/");
         //controller.addSeed("http://www.ics.uci.edu/");
         //controller.addSeed("http://www.ics.uci.edu/~lopes/");
-        //controller.addSeed("http://www.ics.uci.edu/~welling/");
+	    //controller.addSeed("http://www.ics.uci.edu/~welling/");
+	    controller.addSeed("http://shop.storiedthreads.com/main.sc");
+        
+        
 
     /*
      * Start the crawl. This is a blocking operation, meaning that your code
