@@ -154,8 +154,8 @@ public class SaveWebPageMain {
         //controller.addSeed("http://www.ics.uci.edu/");
         //controller.addSeed("http://www.ics.uci.edu/~lopes/");
 	    //controller.addSeed("http://www.ics.uci.edu/~welling/");
-	    controller.addSeed("http://shop.storiedthreads.com/main.sc");
-        
+	    //controller.addSeed("http://shop.storiedthreads.com/main.sc");
+	    controller.addSeed("https://www.etsy.com/market/gamer_patches");    
         
 
     /*

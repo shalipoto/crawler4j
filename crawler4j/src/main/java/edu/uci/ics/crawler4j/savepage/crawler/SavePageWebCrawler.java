@@ -125,25 +125,26 @@ public class SavePageWebCrawler extends WebCrawler {
      */
     public boolean shouldVisit(Page referringPage, WebURL url, List<WebURL> listOfPageSupportFileURLs) {
         String href = url.getURL().toLowerCase();
+        String charSet = referringPage.getContentCharset(); // Needed to identify html pages not using .html or .htm extensions
         
         // Ignore the url if it has an extension that matches our defined set of image extensions.
         if (IMAGE_EXTENSIONS.matcher(href).matches()) {
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href);
             return false;
-        } else if (HTML_EXTENSIONS.matcher(href).matches()) {
+        } else if (HTML_EXTENSIONS.matcher(href).matches() | charSet.contains("html")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
             // Only accept the url if it is in the "www.scifigeeks.com/" domain and protocol is "https".
-            return href.startsWith("http://shop.storiedthreads.com/");
+            return href.startsWith("https://www.etsy.com/");
         } else if (href.contains(".htm") | href.contains(".html")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
             // Only accept the url if it is in the "www.scifigeeks.com/" domain and protocol is "https".
-            return href.startsWith("http://shop.storiedthreads.com");
-        } else { // Catches all non-matching URLs  be treated as support files
+            return href.startsWith("https://www.etsy.com/");
+        } else { // Catches all non-matching URLs and will be treated as support files
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
-        	logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href);
+        	logger.debug("Not matching any existing criteria, adding this URL to the listOfPageSupportFileURLs anyway: " + href);
             return false;
         }
     }

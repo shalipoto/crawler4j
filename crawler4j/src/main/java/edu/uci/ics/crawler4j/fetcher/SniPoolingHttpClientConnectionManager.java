@@ -2,6 +2,7 @@ package edu.uci.ics.crawler4j.fetcher;
 
 import java.io.IOException;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLProtocolException;
 
 import org.apache.http.HttpClientConnection;
@@ -59,6 +60,8 @@ public class SniPoolingHttpClientConnectionManager extends PoolingHttpClientConn
             } else {
                 throw e;
             }
+        } catch (SSLHandshakeException e) {
+        	logger.warn("Not sure what to do at this point...");
         }
     }
 }
