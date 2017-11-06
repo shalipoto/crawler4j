@@ -132,21 +132,25 @@ public class SavePageWebCrawler extends WebCrawler {
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href);
             return false;
-        } else if (HTML_EXTENSIONS.matcher(href).matches() | charSet.contains("html")) {
+        } else if (HTML_EXTENSIONS.matcher(href).matches() | charSet.contains("html") | charSet.contains("HTML")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
-            // Only accept the url if it is in the "www.scifigeeks.com/" domain and protocol is "https".
-            return href.startsWith("https://www.etsy.com/");
-        } else if (href.contains(".htm") | href.contains(".html")) {
+            // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
+            return href.startsWith("https://docs.docker.com");
+        } else if (href.contains(".htm") | href.contains(".html") | referringPage.getContentData().toString().contains("pagination")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
-            // Only accept the url if it is in the "www.scifigeeks.com/" domain and protocol is "https".
-            return href.startsWith("https://www.etsy.com/");
-        } else { // Catches all non-matching URLs and will be treated as support files
+            // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
+            return href.startsWith("https://docs.docker.com");
+        } else { // Catches all non-matching URLs and will be treated as pages to visit
+        	//listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
+        	logger.debug("Not matching any existing criteria, considering this url to visit anyway: " + href);
+            return href.startsWith("https://docs.docker.com");        }
+/*        } else { // Catches all non-matching URLs and will be treated as support files
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Not matching any existing criteria, adding this URL to the listOfPageSupportFileURLs anyway: " + href);
             return false;
-        }
+        }*/
     }
 
     /**
@@ -198,6 +202,7 @@ public class SavePageWebCrawler extends WebCrawler {
 
         logger.debug("The pagestoragelocation property is: " + saveWebPageCrawlConfig.getSavePageFolderName());
         System.out.println("The CompleteWebPageDTO now has the location member set to : " + completeWebPageDTO.getWebPageSaveLocation());
+
 
         // Get the web page parse data
         HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
@@ -267,6 +272,8 @@ public class SavePageWebCrawler extends WebCrawler {
 											logger.debug("The URL " + webURL.getURL() + " was found to be an UNKNOWN");
 	        	    						logger.debug("The parser did not assign the content type for this file");
 	        	    						SupportFileWithURL<String, String> sfUrl = new SupportFileWithURL<String, String>();
+	        	    						if (supportFilePage.getContentType().contains("html")) 
+	        	    							logger.debug("This file at URL: " + webURL.getURL() + "is an html file but not recognized");
 											sfUrl.setDataFile(new String(supportFilePage.getContentData()));
 	        	    						sfUrl.setUrlString(webURL.getURL());
 											listOfSupportFileUnknownType.add(sfUrl); break;

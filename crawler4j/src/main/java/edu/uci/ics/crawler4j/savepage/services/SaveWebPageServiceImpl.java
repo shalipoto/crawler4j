@@ -148,6 +148,24 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		}
 		//************************************************************************************************************
 		
+		//************************************************************************************************************		
+		// Process the list of TEXT contentType files for saving to the file system or data layer
+		logger.debug("In the SaveWebPageServiceImpl, printing out the listOfSupportFileUnknownType");
+		for (SupportFileWithURL<String, String> sfWithUrl : listOfSupportFileUnknownType) {
+			logger.debug(sfWithUrl.getUrlString());
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		//************************************************************************************************************
+		
 		System.out.print(""); // A line just to have a valid statement for debugging
 	}
 

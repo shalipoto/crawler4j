@@ -146,8 +146,9 @@ public class SaveWebPageParser extends Parser {
 
             int urlCount = 0;
             for (ExtractedUrlAnchorPair urlAnchorPair : contentHandler.getOutgoingUrls()) {
-
+            	logger.debug("Showing the outgoingUrls for the url: " + page.getWebURL().getPath());
                 String href = urlAnchorPair.getHref();
+            	logger.debug(href);
                 if ((href == null) || href.trim().isEmpty()) {
                     continue;
                 }

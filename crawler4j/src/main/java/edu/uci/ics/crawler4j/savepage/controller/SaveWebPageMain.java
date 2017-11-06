@@ -104,7 +104,7 @@ public class SaveWebPageMain {
      * You can set the maximum crawl depth here. The default value is -1 for
      * unlimited depth
      */
-        config.setMaxDepthOfCrawling(2);
+        config.setMaxDepthOfCrawling(4);
 
     /*
      * You can set the maximum number of pages to crawl. The default value
@@ -155,7 +155,10 @@ public class SaveWebPageMain {
         //controller.addSeed("http://www.ics.uci.edu/~lopes/");
 	    //controller.addSeed("http://www.ics.uci.edu/~welling/");
 	    //controller.addSeed("http://shop.storiedthreads.com/main.sc");
-	    controller.addSeed("https://www.etsy.com/market/gamer_patches");    
+	    //controller.addSeed("https://www.etsy.com/market/iron_on_patch");   
+	    controller.addSeed("https://docs.docker.com/get-started/");   
+ 
+	    
         
 
     /*

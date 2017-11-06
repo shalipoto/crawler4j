@@ -22,13 +22,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import ch.qos.logback.classic.Logger;
+
 public class HtmlContentHandler extends DefaultHandler {
 
     private static final int MAX_ANCHOR_LENGTH = 100;
+    protected static final Logger logger = (Logger) LoggerFactory.getLogger(HtmlContentHandler.class);
 
     private enum Element {
         A,
@@ -89,6 +93,7 @@ public class HtmlContentHandler extends DefaultHandler {
             if (href != null) {
                 anchorFlag = true;
                 addToOutgoingUrls(href, localName, attributes);
+                logger.debug("Added " + href + " to the list of outgoing Urls from HTML content handler");
             }
         } else if (element == Element.IMG) {
             String imgSrc = attributes.getValue("src");

@@ -44,7 +44,7 @@ public class SaveWebPageCrawlConfig extends CrawlConfig {
      * user-agent string that is used for representing your crawler to web
      * servers. See http://en.wikipedia.org/wiki/User_agent for more details
      */
-    private String userAgentString = "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0";
+    private String userAgentString = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:10.0) Gecko/20100101 Firefox/10.0";
 
     /**
      * Default request header values.
