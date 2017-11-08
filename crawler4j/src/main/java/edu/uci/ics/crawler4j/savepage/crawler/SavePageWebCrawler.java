@@ -137,7 +137,7 @@ public class SavePageWebCrawler extends WebCrawler {
         	
             // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
             return href.startsWith("https://docs.docker.com");
-        } else if (href.contains(".htm") | href.contains(".html") | referringPage.getContentData().toString().contains("pagination")) {
+        } else if (href.contains(".htm") | href.contains(".html")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
             // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
@@ -145,12 +145,8 @@ public class SavePageWebCrawler extends WebCrawler {
         } else { // Catches all non-matching URLs and will be treated as pages to visit
         	//listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Not matching any existing criteria, considering this url to visit anyway: " + href);
-            return href.startsWith("https://docs.docker.com");        }
-/*        } else { // Catches all non-matching URLs and will be treated as support files
-        	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
-        	logger.debug("Not matching any existing criteria, adding this URL to the listOfPageSupportFileURLs anyway: " + href);
-            return false;
-        }*/
+            return href.startsWith("https://docs.docker.com");
+        }
     }
 
     /**
