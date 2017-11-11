@@ -17,6 +17,7 @@
 
 package edu.uci.ics.crawler4j.savepage.controller;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -93,6 +94,38 @@ public class SaveWebPageMain {
     		}
     	}
     	config.setSavePageFolderName(prop.getProperty("pagestoragelocation"));
+    	
+    /*
+     * 
+     * 
+     */
+        File folder = new File(config.getSavePageFolderName());	// relative to crawler project root
+
+        if (!folder.exists()) {
+            if (folder.mkdirs())
+                logger.debug("Created folder: " + folder.getPath());
+            else logger.error("Error in creating the page storage folder");
+        } else {
+        	logger.debug("Folder already exists at path: " + folder.getAbsolutePath());
+        }  	
+    	
+    /*
+     * Create a properties file to hold a list of 
+     * key value pairs associating a url's with 
+     * local filenames. 
+     */
+		File filenameAssociationsPropFile = new File(config.getSavePageFolderName() + "/" + "urltofilenamelookup.properties");
+		
+		// Create the folder on the file system
+        if (!filenameAssociationsPropFile.exists()) {
+            if (filenameAssociationsPropFile.createNewFile())
+                logger.debug("Created properties file: " + filenameAssociationsPropFile.getPath());
+            else {
+            	logger.error("Could not create properties file: ", filenameAssociationsPropFile.getName());
+            }
+        } else {
+        	logger.debug("Properties file already exists at path: " + filenameAssociationsPropFile.getAbsolutePath());
+        }
 
     /*
      * Be polite: Make sure that we don't send more than 1 request per
@@ -156,10 +189,11 @@ public class SaveWebPageMain {
 	    //controller.addSeed("http://www.ics.uci.edu/~welling/");
 	    //controller.addSeed("http://shop.storiedthreads.com/main.sc");
 	    //controller.addSeed("https://www.etsy.com/market/iron_on_patch");   
-	    controller.addSeed("https://docs.docker.com/get-started/");   
- 
-	    
-        
+	    //controller.addSeed("https://docs.docker.com/get-started/");   
+	    //controller.addSeed("https://www.popularpatch.com/");
+	    //controller.addSeed("https://www.heropatches.com/");	    
+	    controller.addSeed("http://www.robewares.com/");		  
+	            
 
     /*
      * Start the crawl. This is a blocking operation, meaning that your code

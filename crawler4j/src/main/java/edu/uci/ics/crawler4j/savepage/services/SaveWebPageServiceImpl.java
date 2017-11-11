@@ -44,10 +44,6 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		List<SupportFileWithURL<String, String>> listOfSupportFileUnknownType = pageDTO.getParsedPageSupportFiles().getListOfSupportFileUnknownType();
 		List<SupportFileWithURL<String, String>> listOfSupportFileDefaultCaseSwitchType = pageDTO.getParsedPageSupportFiles().getListOfSupportFileDefaultCaseSwitchType();
 		
-		// Generate the folder name 
-		
-
-		
 		// Trim the file extension from the htmlfilename
 		StringBuilder sb = new StringBuilder(pageDTO.getHtmlFileName());
 		String fileNameWithoutExtension = new String(sb.substring(0, sb.lastIndexOf(".")));
@@ -135,6 +131,9 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 					ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 					objStream.writeObject(sfWithUrl.getDataFile());
 		            logger.debug("Saved html contents to file: " + saveBinaryFile.getPath());
+		            
+		            //Util.associateUrlWithFilename(sfWithUrl.getUrlString(), binaryFileName);
+		            
 				} catch (IOException e) {
 					e.printStackTrace();			
 				} finally {
@@ -175,13 +174,6 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	@Override
 	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location) {		
         File folder = new File(location);	// relative to crawler project root
-
-        if (!folder.exists()) {
-            if (folder.mkdirs())
-                logger.debug("Created folder: " + folder.getPath());
-        } else {
-        	logger.debug("Folder already exists at path: " + folder.getAbsolutePath());
-        }
 		try {
 			// generate filename with directory as parent
 			File saveHtmlOnlyFile = new File(folder.getPath() + "/" + pageDTO.getHtmlFileName());
