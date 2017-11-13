@@ -193,6 +193,14 @@ public class SaveWebPageCrawlConfig extends CrawlConfig {
      */
     private String savePageFolderName = null;
     
+    /**
+     * This is the name of the properties file that
+     * holds the relationship between a web page's
+     * links and their finenames on the local file
+     * system
+     */
+    private String filenameAssociationsPropFile_name;
+    
     public String getSavePageFolderName() {
 		return savePageFolderName;
 	}
@@ -637,4 +645,12 @@ public class SaveWebPageCrawlConfig extends CrawlConfig {
         sb.append("Respect noindex: " + isRespectNoIndex() + "\n");
         return sb.toString();
     }
+
+	public String getFilenameAssociationsPropFile_name() {
+		return filenameAssociationsPropFile_name;
+	}
+
+	public void setFilenameAssociationsPropFile_name(String filenameAssociationsPropFile_name) {
+		this.filenameAssociationsPropFile_name = filenameAssociationsPropFile_name;
+	}
 }

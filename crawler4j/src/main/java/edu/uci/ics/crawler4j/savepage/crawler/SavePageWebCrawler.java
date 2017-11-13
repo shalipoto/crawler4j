@@ -20,6 +20,7 @@ package edu.uci.ics.crawler4j.savepage.crawler;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -39,6 +40,7 @@ import edu.uci.ics.crawler4j.crawler.exceptions.ContentFetchException;
 import edu.uci.ics.crawler4j.crawler.exceptions.PageBiggerThanMaxSizeException;
 import edu.uci.ics.crawler4j.crawler.exceptions.ParseException;
 import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
+import edu.uci.ics.crawler4j.data.HtmlUrlWithFilename;
 import edu.uci.ics.crawler4j.data.ParsedPageSupportFiles;
 import edu.uci.ics.crawler4j.data.SupportFileWithURL;
 import edu.uci.ics.crawler4j.fetcher.PageFetchResult;
@@ -82,6 +84,13 @@ public class SavePageWebCrawler extends WebCrawler {
 	 * eg. css, js, png, bmp etc
 	 */
 	List <WebURL> listOfPageSupportFileURLs = null;
+	
+	/**
+	 * This variable member will hold all the html files with their
+	 * original urls collected within a crawling session for processing
+	 * later on where all hyperlinks will point to local files
+	 */
+	HashSet<HtmlUrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls = new HashSet<HtmlUrlWithFilename<String, String>>();
 			
     /**
      * Initializes the current instance of the crawler
@@ -105,16 +114,16 @@ public class SavePageWebCrawler extends WebCrawler {
         setWaitingForNewURLs(false);
 
         /* 
-         * Bring in the crawlconfig subclass and 
-         * set the parser to the SaveWebPageParser subclass
+         * Bring in the crawlconfig's subclass, namely 
+         * saveWebPageCrawlConfig and set the 
+         * parser to the SaveWebPageParser
          */
     	saveWebPageCrawlConfig = (SaveWebPageCrawlConfig) crawlController.getConfig();        
         setParser(new SaveWebPageParser(saveWebPageCrawlConfig));
-        saveWebPageParser = (SaveWebPageParser) getParser();
-        
+        saveWebPageParser = (SaveWebPageParser) getParser();       
         saveService = new SaveWebPageServiceImpl();
-
     }   
+	
     /**
      * You should implement this function to specify whether the given url
      * should be crawled or not (based on your crawling logic).
@@ -306,8 +315,8 @@ public class SavePageWebCrawler extends WebCrawler {
         // Save the newly created support file data object into the DTO
 	    completeWebPageDTO.setParsedPageSupportFiles(parsedPageSupportFiles);
         
-        // Save the web page html file to the configured folder located on the file system using the saveService
-        saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName());
+        // Invoke the saveWebPageService
+        saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName(), setOfAllHtmlFilesWithUrls);
 
         logger.debug("=============");
     }

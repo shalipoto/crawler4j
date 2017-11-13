@@ -1,29 +1,32 @@
 package edu.uci.ics.crawler4j.data;
 
 /**
- * This generic class pairs the content of 
- * a page support file (jpg/js/css etc) with
- * its URL to enable saving the file using a
- * naming similar to the original
+ * This generic class pairs an html file's 
+ * original url with its local filename
+ * enabling future processing to enable
+ * all hyperlinks across a given 
+ * seed url to work properly. Its scope
+ * will be for an entire crawling session
+ * for a given seed url
  * 
- * @author saleemhalipoto
+ * @author saleem halipoto
  *
  */
-public class HtmlUrlWithFilename <R, S> {
-	private R dataFile;
-	private S urlString;
+public class HtmlUrlWithFilename<R, S> {
+	private R originalUrl;
+	private S localFilename;
 	
-	public R getDataFile() {
-		return dataFile;
+	public R getOriginalUrl() {
+		return originalUrl;
 	}
-	public void setDataFile(R dataFile) {
-		this.dataFile = dataFile;
+	public void setOriginalUrl(R originalUrl) {
+		this.originalUrl = originalUrl;
 	}
 	public S getUrlString() {
-		return urlString;
+		return localFilename;
 	}
-	public void setUrlString(S urlString) {
-		this.urlString = urlString;
+	public void setLocalFilename(S localFilename) {
+		this.localFilename = localFilename;
 	}
 	
 }

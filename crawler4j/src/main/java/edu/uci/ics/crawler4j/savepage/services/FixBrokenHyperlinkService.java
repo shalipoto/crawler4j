@@ -9,7 +9,7 @@ package edu.uci.ics.crawler4j.savepage.services;
  * @author saleemhalipoto
  *
  */
-public interface EditHtmlService {
+public interface FixBrokenHyperlinkService {
 
 	/**
 	 * Adds a comment to top of html

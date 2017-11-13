@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashSet;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
+import edu.uci.ics.crawler4j.data.HtmlUrlWithFilename;
 import edu.uci.ics.crawler4j.data.ParsedPageSupportFiles;
 import edu.uci.ics.crawler4j.data.SupportFileWithURL;
 
@@ -33,10 +35,11 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	/**
 	 * @param pageDTO the DTO instantiated and populated by the WebCrawler instance
 	 * @param location the crawlStorageFolder named by an argument to main()
+	 * @param setOfAllHtmlFilesWithUrls 
 	 */
 	@Override
-	public void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location) {	
-		SaveHtmlOnly(pageDTO, location);	// delegate html page saving to existing method
+	public void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location, HashSet<HtmlUrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls) {	
+		SaveHtmlOnly(pageDTO, location, setOfAllHtmlFilesWithUrls);	// delegate html page saving to existing method
 		
 		// Get the list of support files for the CompleteWebPage
 		List<SupportFileWithURL<byte[], String>> listOfSupportFileBinaryData = pageDTO.getParsedPageSupportFiles().getListOfSupportFileBinaryData();
@@ -172,7 +175,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	 * Saves the html file to the local file system
 	 */
 	@Override
-	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location) {		
+	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<HtmlUrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls) {		
         File folder = new File(location);	// relative to crawler project root
 		try {
 			// generate filename with directory as parent
@@ -191,5 +194,11 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		} catch (IOException e) {
 			e.printStackTrace();			
 		}		
+	}
+
+	@Override
+	public void addFileToUrlFilenameSet() {
+		// TODO Auto-generated method stub
+		
 	}
 }

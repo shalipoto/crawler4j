@@ -1,6 +1,9 @@
 package edu.uci.ics.crawler4j.savepage.services;
 
+import java.util.HashSet;
+
 import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
+import edu.uci.ics.crawler4j.data.HtmlUrlWithFilename;
 
 /**
  * This interface provides the services for 
@@ -12,7 +15,15 @@ import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
  */
 public interface SaveWebPageService {
 
-	void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location);
+	void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location, HashSet<HtmlUrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls);
 	
-	void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location);
+	void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<HtmlUrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls);
+	
+	/**
+	 * Add a file to the set of all urls
+	 * associated with a crawling session
+	 * for processing of the hyperlinks
+	 */
+	void addFileToUrlFilenameSet ();
+
 }

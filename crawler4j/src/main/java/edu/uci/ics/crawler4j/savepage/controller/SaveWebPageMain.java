@@ -112,14 +112,17 @@ public class SaveWebPageMain {
     /*
      * Create a properties file to hold a list of 
      * key value pairs associating a url's with 
-     * local filenames. 
+     * local filenames. Save its name in the 
+     * config file.
      */
 		File filenameAssociationsPropFile = new File(config.getSavePageFolderName() + "/" + "urltofilenamelookup.properties");
 		
-		// Create the folder on the file system
+		// Create the properties file on the file system
         if (!filenameAssociationsPropFile.exists()) {
-            if (filenameAssociationsPropFile.createNewFile())
+            if (filenameAssociationsPropFile.createNewFile()) {
+                config.setFilenameAssociationsPropFile_name("urltofilenamelookup");
                 logger.debug("Created properties file: " + filenameAssociationsPropFile.getPath());
+            }
             else {
             	logger.error("Could not create properties file: ", filenameAssociationsPropFile.getName());
             }
@@ -201,4 +204,7 @@ public class SaveWebPageMain {
      */
         controller.start(SavePageWebCrawler.class, numberOfCrawlers);
     }
+    // Call the services needed to get all hyperlinks in all the saved
+    // web pages working correctly
+    
 }
