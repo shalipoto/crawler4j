@@ -100,6 +100,8 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		            // Add the file to the global list of urls paired with filenames to fix broken links
 		            addFileToUrlFilenameSet(sfWithUrl.getUrlString(), saveBinaryFile.getPath(), setOfAllFilesWithUrls);
 				} catch (IOException e) {
+		            logger.debug("Error saving html contents to file: " + sfWithUrl.getUrlString());
+		            logger.debug("This file also was not added to the global set: setOfAllFilesWithUrls");
 					e.printStackTrace();			
 				} finally {
 					try {
@@ -147,6 +149,8 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 					try {
 						fileOutputStream.close();
 					} catch (IOException e) {
+			            logger.debug("Error saving html contents to file: " + sfWithUrl.getUrlString());
+			            logger.debug("This file also was not added to the global set: setOfAllFilesWithUrls");
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -194,7 +198,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	         */
 			ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
-            logger.debug("Saved html contents to file: " + saveHtmlOnlyFile.getPath());
+            logger.debug("Saved contents to file: " + saveHtmlOnlyFile.getPath());
             
             // Add the file to the global list of urls paired with filenames to fix broken links
             addFileToUrlFilenameSet(page.getWebURL().getURL(), pageDTO.getHtmlFileName(), setOfAllFilesWithUrls);
@@ -212,6 +216,6 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		urlWithFilename.setLocalFilename(filename);
 		// Not synchronized
 		setOfAllFilesWithUrls.add(urlWithFilename);
-        logger.debug("Saved file: " + filename + "having url: " + url + " to global set: " + setOfAllFilesWithUrls );
+        logger.debug("Saved file: " + filename + " having url: " + url + " to global set: " + setOfAllFilesWithUrls );
 	}
 }
