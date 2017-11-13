@@ -15,8 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.crawler4j.crawler.CrawlController;
+import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
-import edu.uci.ics.crawler4j.data.HtmlUrlWithFilename;
+import edu.uci.ics.crawler4j.data.UrlWithFilename;
 import edu.uci.ics.crawler4j.data.ParsedPageSupportFiles;
 import edu.uci.ics.crawler4j.data.SupportFileWithURL;
 
@@ -38,8 +39,8 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	 * @param setOfAllHtmlFilesWithUrls 
 	 */
 	@Override
-	public void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location, HashSet<HtmlUrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls) {	
-		SaveHtmlOnly(pageDTO, location, setOfAllHtmlFilesWithUrls);	// delegate html page saving to existing method
+	public void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllFilesWithUrls, Page page) {	
+		SaveHtmlOnly(pageDTO, location, setOfAllFilesWithUrls, page);	// delegate html page saving to existing method
 		
 		// Get the list of support files for the CompleteWebPage
 		List<SupportFileWithURL<byte[], String>> listOfSupportFileBinaryData = pageDTO.getParsedPageSupportFiles().getListOfSupportFileBinaryData();
@@ -95,6 +96,9 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 					//ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 		            fileOutputStream.write(sfWithUrl.getDataFile());
 		            logger.debug("Saved html contents to file: " + saveBinaryFile.getPath());
+		            
+		            // Add the file to the global list of urls paired with filenames to fix broken links
+		            addFileToUrlFilenameSet(sfWithUrl.getUrlString(), saveBinaryFile.getPath(), setOfAllFilesWithUrls);
 				} catch (IOException e) {
 					e.printStackTrace();			
 				} finally {
@@ -118,25 +122,25 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			//for (SupportFileWithURL<byte[], String> sfWithUrl : sf.getListOfSupportFileBinaryData()) {
 				try {
 					// Extract and process the filename information
-					StringBuffer binaryFileNamePath = new StringBuffer(sfWithUrl.getUrlString());
-					String binaryFileName = binaryFileNamePath.substring(binaryFileNamePath.lastIndexOf("/"));
+					StringBuffer textFileNamePath = new StringBuffer(sfWithUrl.getUrlString());
+					String textFileName = textFileNamePath.substring(textFileNamePath.lastIndexOf("/"));
 					
 					// generate filename with directory as parent					
-					File saveBinaryFile = new File(supportFileFolder.getPath() + "/" + binaryFileName);
+					File saveTextFile = new File(supportFileFolder.getPath() + "/" + textFileName);
 					
 					// Create the empty file with filename generated as above
-					fileOutputStream = new FileOutputStream(new File(saveBinaryFile.getPath()));
-		            logger.debug("Created empty file: " + saveBinaryFile.getPath());
+					fileOutputStream = new FileOutputStream(new File(saveTextFile.getPath()));
+		            logger.debug("Created empty file: " + saveTextFile.getPath());
 		            
 			        /*
 			         * Writes a serializable object to a file
 			         */
 					ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 					objStream.writeObject(sfWithUrl.getDataFile());
-		            logger.debug("Saved html contents to file: " + saveBinaryFile.getPath());
+		            logger.debug("Saved html contents to file: " + saveTextFile.getPath());
 		            
-		            //Util.associateUrlWithFilename(sfWithUrl.getUrlString(), binaryFileName);
-		            
+		            // Add the file to the global list of urls paired with filenames to fix broken links
+		            addFileToUrlFilenameSet(sfWithUrl.getUrlString(), saveTextFile.getPath(), setOfAllFilesWithUrls);	            
 				} catch (IOException e) {
 					e.printStackTrace();			
 				} finally {
@@ -175,7 +179,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	 * Saves the html file to the local file system
 	 */
 	@Override
-	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<HtmlUrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls) {		
+	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllFilesWithUrls, Page page) {		
         File folder = new File(location);	// relative to crawler project root
 		try {
 			// generate filename with directory as parent
@@ -191,14 +195,23 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
             logger.debug("Saved html contents to file: " + saveHtmlOnlyFile.getPath());
+            
+            // Add the file to the global list of urls paired with filenames to fix broken links
+            addFileToUrlFilenameSet(page.getWebURL().getURL(), pageDTO.getHtmlFileName(), setOfAllFilesWithUrls);
 		} catch (IOException e) {
+            logger.debug("Error saving html contents to file: " + pageDTO.getHtmlFileName());
+            logger.debug("This file also was not added to the global set: setOfAllFilesWithUrls");
 			e.printStackTrace();			
 		}		
 	}
 
 	@Override
-	public void addFileToUrlFilenameSet() {
-		// TODO Auto-generated method stub
-		
+	public void addFileToUrlFilenameSet(String url, String filename, HashSet<UrlWithFilename<String, String>> setOfAllFilesWithUrls) {
+		UrlWithFilename<String, String> urlWithFilename = new UrlWithFilename<String, String>();
+		urlWithFilename.setOriginalUrl(url);
+		urlWithFilename.setLocalFilename(filename);
+		// Not synchronized
+		setOfAllFilesWithUrls.add(urlWithFilename);
+        logger.debug("Saved file: " + filename + "having url: " + url + " to global set: " + setOfAllFilesWithUrls );
 	}
 }

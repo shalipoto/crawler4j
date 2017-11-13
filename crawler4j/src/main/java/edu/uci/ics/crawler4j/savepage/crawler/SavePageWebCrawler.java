@@ -40,7 +40,7 @@ import edu.uci.ics.crawler4j.crawler.exceptions.ContentFetchException;
 import edu.uci.ics.crawler4j.crawler.exceptions.PageBiggerThanMaxSizeException;
 import edu.uci.ics.crawler4j.crawler.exceptions.ParseException;
 import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
-import edu.uci.ics.crawler4j.data.HtmlUrlWithFilename;
+import edu.uci.ics.crawler4j.data.UrlWithFilename;
 import edu.uci.ics.crawler4j.data.ParsedPageSupportFiles;
 import edu.uci.ics.crawler4j.data.SupportFileWithURL;
 import edu.uci.ics.crawler4j.fetcher.PageFetchResult;
@@ -90,7 +90,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	 * original urls collected within a crawling session for processing
 	 * later on where all hyperlinks will point to local files
 	 */
-	HashSet<HtmlUrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls = new HashSet<HtmlUrlWithFilename<String, String>>();
+	HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls = new HashSet<UrlWithFilename<String, String>>();
 			
     /**
      * Initializes the current instance of the crawler
@@ -291,17 +291,9 @@ public class SavePageWebCrawler extends WebCrawler {
 											listOfSupportFileUnknownType.add(sfUrl);
 	        	    }
 	        	  }	        	
-
-	        	    
-	        	    // Now add it to the a list
-	        	    //listOfParsedPageSupportFiles.add(parsedPageSupportFiles);
             } else { // handle non successful statuses here
             	logger.debug("The support file URL: " + webURL.getURL() + " had a status code: " + statusCode);
             }
-
-    	    
-    	    // Add the current parsed web page to the list
-    	    //listOfParsedPageSupportFiles.add(parsedPageSupportFiles);
         }
         
 	    // Create and populqte the support file data object here
@@ -316,7 +308,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	    completeWebPageDTO.setParsedPageSupportFiles(parsedPageSupportFiles);
         
         // Invoke the saveWebPageService
-        saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName(), setOfAllHtmlFilesWithUrls);
+        saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName(), setOfAllHtmlFilesWithUrls, page);
 
         logger.debug("=============");
     }

@@ -12,7 +12,7 @@ package edu.uci.ics.crawler4j.data;
  * @author saleem halipoto
  *
  */
-public class HtmlUrlWithFilename<R, S> {
+public class UrlWithFilename<R, S> {
 	private R originalUrl;
 	private S localFilename;
 	
