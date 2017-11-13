@@ -22,7 +22,7 @@ public class UrlWithFilename<R, S> {
 	public void setOriginalUrl(R originalUrl) {
 		this.originalUrl = originalUrl;
 	}
-	public S getUrlString() {
+	public S getLocalFilename() {
 		return localFilename;
 	}
 	public void setLocalFilename(S localFilename) {

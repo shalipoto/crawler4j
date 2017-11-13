@@ -18,6 +18,7 @@
 package edu.uci.ics.crawler4j.savepage.crawler;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -510,5 +511,44 @@ public class SavePageWebCrawler extends WebCrawler {
      */
 	public void onBeforeExit() {
     	logger.debug("The onBeforeExit() method has executed");
+    	
+    	
+    	
+    	/**
+    	 * Open stream to properties file urltofilenamelookup.properties
+    	 * and populate the file with the global set of urls
+    	 */
+        Properties prop = new Properties();
+        FileOutputStream output = null;
+    	try {
+    		output = new FileOutputStream("urltofilenamelookup.properties"); // Overwrites exiting file
+    		
+        	// Populate the properties object with the global set of urls
+        	// and associated local filenames
+        	for (UrlWithFilename<String, String> urlWithFilename: setOfAllHtmlFilesWithUrls) {
+        		prop.put(urlWithFilename.getOriginalUrl(), urlWithFilename.getLocalFilename());
+        	}
+
+    		// load a properties file
+    		prop.store(output, null);
+        	logger.debug("The urltofilenamelookup.properties file has stored the url/filename information");
+    	} catch (IOException ex) {
+           	logger.error("There was an error saving url information to urltofilenamelookup.properties file");
+    		ex.printStackTrace();
+    	} finally {
+    		if (output != null) {
+    			try {
+    				output.close();
+    			} catch (IOException e) {
+    				e.printStackTrace();
+    			}
+    		}
+    	}
+    	
+    	
+
+    	
+    	
+
     }
 }
