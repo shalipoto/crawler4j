@@ -280,7 +280,8 @@ public class WebCrawler implements Runnable {
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
-                    logger.error("Error occurred", e);
+                    logger.error("Crawler [" + getMyId() + "] was interrupted", e);
+                    onBeforeExit();
                 }
             } else {
                 for (WebURL curURL : assignedURLs) {

@@ -194,8 +194,8 @@ public class SaveWebPageMain {
 	    //controller.addSeed("https://www.etsy.com/market/iron_on_patch");   
 	    //controller.addSeed("https://docs.docker.com/get-started/");   
 	    //controller.addSeed("https://www.popularpatch.com/");
-	    //controller.addSeed("https://www.heropatches.com/");	    
-	    controller.addSeed("http://www.robewares.com/");		  
+	    controller.addSeed("https://www.heropatches.com/");	    
+	    //controller.addSeed("http://www.robewares.com/");		  
 	            
 
     /*

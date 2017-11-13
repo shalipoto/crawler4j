@@ -309,7 +309,7 @@ public class SavePageWebCrawler extends WebCrawler {
         
         // Invoke the saveWebPageService
         saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName(), setOfAllHtmlFilesWithUrls, page);
-
+        
         logger.debug("=============");
     }
     /*
@@ -503,12 +503,12 @@ public class SavePageWebCrawler extends WebCrawler {
         }
     }
     
-    protected void processSupportFiles(List<WebURL> listOfPageSupportFileURLs) {
-    	// Say Hi!u
-/*    	for (webURL : listOfPageSupportFiles) {
-    		// Create a new List object to hold file content
-    		// Parse the file
-    		//
-    	}*/
+    /**
+     * This method saves the global set of filenames
+     * and associated urls collected during a crawling
+     * session, to the loca file system
+     */
+	public void onBeforeExit() {
+    	logger.debug("The onBeforeExit() method has executed");
     }
 }
