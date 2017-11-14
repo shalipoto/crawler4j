@@ -25,6 +25,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 
@@ -312,7 +313,11 @@ public class PageFetcher extends Configurable {
                         throw new PageBiggerThanMaxSizeException(size);
                     }
                 }
-            } else ;//connectionManager.releaseConnection(CPoolProxy, null, 15, "MILLISECONDS");
+            } else if (statusCode == 404) {
+            	response.close(); // 
+                logger.debug("URL has status 404, closing request");
+                connectionManager.closeIdleConnections(10000l, TimeUnit.MILLISECONDS);
+            }
 
             fetchResult.setStatusCode(statusCode);
             return fetchResult;
