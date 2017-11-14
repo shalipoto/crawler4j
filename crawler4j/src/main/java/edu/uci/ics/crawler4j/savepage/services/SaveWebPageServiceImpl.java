@@ -214,8 +214,17 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		UrlWithFilename<String, String> urlWithFilename = new UrlWithFilename<String, String>();
 		urlWithFilename.setOriginalUrl(url);
 		urlWithFilename.setLocalFilename(filename);
-		// Not synchronized
-		setOfAllFilesWithUrls.add(urlWithFilename);
-        logger.debug("Saved file: " + filename + " having url: " + url + " to global set: " + setOfAllFilesWithUrls );
+		
+		// hashSet object Not synchronized
+		if (!setOfAllFilesWithUrls.contains(urlWithFilename)) {
+			setOfAllFilesWithUrls.add(urlWithFilename);
+	        logger.debug("Saved file: " + 
+	        					filename + 
+	        					" having url: " + 
+	        					url + 
+	        					" to global set: " + 
+	        					setOfAllFilesWithUrls );
+		}
+		else logger.debug("The setOfAllFilesWithUrls has found a duplicate url: " + url);
 	}
 }

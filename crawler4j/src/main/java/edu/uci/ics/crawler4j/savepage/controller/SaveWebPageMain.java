@@ -195,7 +195,9 @@ public class SaveWebPageMain {
 	    //controller.addSeed("https://docs.docker.com/get-started/");   
 	    //controller.addSeed("https://www.popularpatch.com/");
 	    //controller.addSeed("https://www.heropatches.com/");	    
-	    controller.addSeed("http://www.robewares.com/");		  
+	    //controller.addSeed("http://www.robewares.com/");
+	    controller.addSeed("http://www.trs-80.com/wordpress/trs-80-computer-line/coco/");
+        
 	            
 
     /*

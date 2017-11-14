@@ -146,16 +146,16 @@ public class SavePageWebCrawler extends WebCrawler {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
             // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
-            return href.startsWith("http://www.robewares.com/");
+            return href.startsWith("http://www.trs-80.com");
         } else if (href.contains(".htm") | href.contains(".html")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
             // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
-            return href.startsWith("http://www.robewares.com/");
+            return href.startsWith("http://www.trs-80.com");
         } else { // Catches all non-matching URLs and will be treated as pages to visit
         	//listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Not matching any existing criteria, considering this url to visit anyway: " + href);
-            return href.startsWith("http://www.robewares.com/");
+            return href.startsWith("http://www.trs-80.com");
         }
     }
 
@@ -512,8 +512,6 @@ public class SavePageWebCrawler extends WebCrawler {
 	public void onBeforeExit() {
     	logger.debug("The onBeforeExit() method has executed");
     	
-    	
-    	
     	/**
     	 * Open stream to properties file urltofilenamelookup.properties
     	 * and populate the file with the global set of urls
@@ -521,7 +519,9 @@ public class SavePageWebCrawler extends WebCrawler {
         Properties prop = new Properties();
         FileOutputStream output = null;
     	try {
-    		output = new FileOutputStream("urltofilenamelookup.properties"); // Overwrites exiting file
+    		output = new FileOutputStream(saveWebPageCrawlConfig.getSavePageFolderName() + 
+    				"/" + 
+    				"urltofilenamelookup.properties"); // Overwrites exiting file
     		
         	// Populate the properties object with the global set of urls
         	// and associated local filenames
@@ -529,7 +529,7 @@ public class SavePageWebCrawler extends WebCrawler {
         		prop.put(urlWithFilename.getOriginalUrl(), urlWithFilename.getLocalFilename());
         	}
 
-    		// load a properties file
+    		// Save data to the properties file
     		prop.store(output, null);
         	logger.debug("The urltofilenamelookup.properties file has stored the url/filename information");
     	} catch (IOException ex) {
@@ -544,11 +544,5 @@ public class SavePageWebCrawler extends WebCrawler {
     			}
     		}
     	}
-    	
-    	
-
-    	
-    	
-
     }
 }

@@ -312,7 +312,7 @@ public class PageFetcher extends Configurable {
                         throw new PageBiggerThanMaxSizeException(size);
                     }
                 }
-            }
+            } else ;//connectionManager.releaseConnection(CPoolProxy, null, 15, "MILLISECONDS");
 
             fetchResult.setStatusCode(statusCode);
             return fetchResult;
