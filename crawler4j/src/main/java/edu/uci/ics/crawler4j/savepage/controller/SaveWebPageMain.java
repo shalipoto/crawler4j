@@ -197,6 +197,8 @@ public class SaveWebPageMain {
 	    //controller.addSeed("https://www.heropatches.com/");	    
 	    //controller.addSeed("http://www.robewares.com/");
 	    controller.addSeed("http://www.trs-80.com/wordpress/trs-80-computer-line/coco/");
+	    //controller.addSeed("https://archive.org/details/computermagazines?sort=&and[]=collection%3A%22rainbowmagazine%22");  
+        
         
 	            
 

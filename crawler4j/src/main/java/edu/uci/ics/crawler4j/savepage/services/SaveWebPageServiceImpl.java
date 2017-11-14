@@ -191,14 +191,14 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			
 			// Create the empty file with filename generated as above
 			FileOutputStream fileOutputStream = new FileOutputStream(new File(saveHtmlOnlyFile.getPath()));
-            logger.debug("Created file: " + saveHtmlOnlyFile.getPath());
+            logger.debug("Created html file: " + saveHtmlOnlyFile.getPath());
             
 	        /*
 	         * Writes a serializable object to a file
 	         */
 			ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
-            logger.debug("Saved contents to file: " + saveHtmlOnlyFile.getPath());
+            logger.debug("Saved html contents to file: " + saveHtmlOnlyFile.getPath());
             
             // Add the file to the global list of urls paired with filenames to fix broken links
             addFileToUrlFilenameSet(page.getWebURL().getURL(), pageDTO.getHtmlFileName(), setOfAllFilesWithUrls);

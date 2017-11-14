@@ -314,9 +314,16 @@ public class PageFetcher extends Configurable {
                     }
                 }
             } else if (statusCode == 404) {
-            	response.close(); // 
-                logger.debug("URL has status 404, closing request");
+            	response.close(); // Has no effect in reducing idle connections
                 connectionManager.closeIdleConnections(10000l, TimeUnit.MILLISECONDS);
+                
+                /**
+                 * Needed as a workaround to reduce excessive
+                 * idle connections caused by http responses 
+                 * returning status 404
+                 */
+                logger.debug("URL has status 404, closing request, and closing idle connections");
+
             }
 
             fetchResult.setStatusCode(statusCode);
