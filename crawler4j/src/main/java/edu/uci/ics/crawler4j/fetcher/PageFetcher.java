@@ -286,6 +286,9 @@ public class PageFetcher extends Configurable {
                         URLCanonicalizer.getCanonicalURL(header.getValue(), toFetchURL);
                     fetchResult.setMovedToUrl(movedToUrl);
                 }
+                // Close the idle connection left open after a redirect
+                connectionManager.closeIdleConnections(10000l, TimeUnit.MILLISECONDS);
+                logger.debug("A status redirect ( 3xx ) has returned while fetching a URL , closing idle connections");
             } else if (statusCode >= 200 && statusCode <= 299) { // is 2XX, everything looks ok
                 fetchResult.setFetchedUrl(toFetchURL);
                 String uri = request.getURI().toString();
