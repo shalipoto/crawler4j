@@ -91,7 +91,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	 * original urls collected within a crawling session for processing
 	 * later on where all hyperlinks will point to local files
 	 */
-	HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls = new HashSet<UrlWithFilename<String, String>>();
+	HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames = new HashSet<UrlWithFilename<String, String>>();
 			
     /**
      * Initializes the current instance of the crawler
@@ -122,7 +122,7 @@ public class SavePageWebCrawler extends WebCrawler {
     	saveWebPageCrawlConfig = (SaveWebPageCrawlConfig) crawlController.getConfig();        
         setParser(new SaveWebPageParser(saveWebPageCrawlConfig));
         saveWebPageParser = (SaveWebPageParser) getParser();       
-        saveService = new SaveWebPageServiceImpl();
+        saveService = new SaveWebPageServiceImpl(saveWebPageCrawlConfig, setOfAllUrlsWithFilenames);
     }   
 	
     /**
@@ -309,7 +309,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	    completeWebPageDTO.setParsedPageSupportFiles(parsedPageSupportFiles);
         
         // Invoke the saveWebPageService
-        saveService.SaveCompleteWebPage(completeWebPageDTO, saveWebPageCrawlConfig.getSavePageFolderName(), setOfAllHtmlFilesWithUrls, page);
+        saveService.saveCompleteWebPage(completeWebPageDTO, setOfAllUrlsWithFilenames, page);
         
         logger.debug("=============");
     }
@@ -525,7 +525,7 @@ public class SavePageWebCrawler extends WebCrawler {
     		
         	// Populate the properties object with the global set of urls
         	// and associated local filenames
-        	for (UrlWithFilename<String, String> urlWithFilename: setOfAllHtmlFilesWithUrls) {
+        	for (UrlWithFilename<String, String> urlWithFilename: setOfAllUrlsWithFilenames) {
         		prop.put(urlWithFilename.getOriginalUrl(), urlWithFilename.getLocalFilename());
         	}
 

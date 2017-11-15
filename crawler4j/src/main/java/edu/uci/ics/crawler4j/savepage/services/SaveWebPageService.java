@@ -5,6 +5,7 @@ import java.util.HashSet;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.data.CompleteWebPageDTO;
 import edu.uci.ics.crawler4j.data.UrlWithFilename;
+import edu.uci.ics.crawler4j.savepage.crawlconfig.SaveWebPageCrawlConfig;
 
 /**
  * This interface provides the services for 
@@ -16,9 +17,9 @@ import edu.uci.ics.crawler4j.data.UrlWithFilename;
  */
 public interface SaveWebPageService {
 
-	void SaveCompleteWebPage(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls, Page page);
+	void saveCompleteWebPage(CompleteWebPageDTO pageDTO, HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls, Page page);
 	
-	void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls, Page page);
+	void saveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls, Page page);
 	
 	/**
 	 * Add a file to the set of all urls
@@ -26,5 +27,7 @@ public interface SaveWebPageService {
 	 * for processing of the hyperlinks
 	 */
 	void addFileToUrlFilenameSet (String url, String filename, HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls);
+	
+	void saveUrlsToPropFile ();
 
 }
