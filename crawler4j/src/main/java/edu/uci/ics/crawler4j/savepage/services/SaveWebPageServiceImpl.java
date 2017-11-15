@@ -75,6 +75,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		// Process the list of BINARY contentType files for saving to the file system or data layer
 		for (SupportFileWithURL<byte[], String> sfWithUrl : listOfSupportFileBinaryData) {
 			
+			File saveBinaryFile = null;
 			FileOutputStream fileOutputStream = null;
 			// Save the list of binary support files to the generated folder for support files
 			//for (SupportFileWithURL<byte[], String> sfWithUrl : sf.getListOfSupportFileBinaryData()) {
@@ -84,7 +85,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 					String binaryFileName = binaryFileNamePath.substring(binaryFileNamePath.lastIndexOf("/"));
 					
 					// generate filename with directory as parent					
-					File saveBinaryFile = new File(supportFileFolder.getPath() + "/" + binaryFileName);
+					saveBinaryFile = new File(supportFileFolder.getPath() + "/" + binaryFileName);
 					
 					// Create the empty file with filename generated as above
 					fileOutputStream = new FileOutputStream(new File(saveBinaryFile.getPath()));
@@ -105,9 +106,8 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 					e.printStackTrace();			
 				} finally {
 					try {
-						fileOutputStream.close();
+						if (fileOutputStream != null) fileOutputStream.close();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -120,6 +120,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		for (SupportFileWithURL<String, String> sfWithUrl : listOfSupportFileTextData) {
 			
 			FileOutputStream fileOutputStream = null;
+			ObjectOutputStream objStream = null;
 			// Save the list of binary support files to the generated folder for support files
 			//for (SupportFileWithURL<byte[], String> sfWithUrl : sf.getListOfSupportFileBinaryData()) {
 				try {
@@ -137,7 +138,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			        /*
 			         * Writes a serializable object to a file
 			         */
-					ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
+					objStream = new ObjectOutputStream(fileOutputStream); 
 					objStream.writeObject(sfWithUrl.getDataFile());
 		            logger.debug("Saved html contents to file: " + saveTextFile.getPath());
 		            
@@ -147,7 +148,8 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 					e.printStackTrace();			
 				} finally {
 					try {
-						fileOutputStream.close();
+						if (fileOutputStream != null) fileOutputStream.close();
+						if (objStream != null) objStream.close();
 					} catch (IOException e) {
 			            logger.debug("Error saving html contents to file: " + sfWithUrl.getUrlString());
 			            logger.debug("This file also was not added to the global set: setOfAllFilesWithUrls");
@@ -164,16 +166,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		for (SupportFileWithURL<String, String> sfWithUrl : listOfSupportFileUnknownType) {
 			logger.debug(sfWithUrl.getUrlString());
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	
 		//************************************************************************************************************
 		
 		System.out.print(""); // A line just to have a valid statement for debugging
@@ -185,18 +178,20 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	@Override
 	public void SaveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllFilesWithUrls, Page page) {		
         File folder = new File(location);	// relative to crawler project root
+        ObjectOutputStream objStream = null;
+        FileOutputStream fileOutputStream = null;
 		try {
 			// generate filename with directory as parent
 			File saveHtmlOnlyFile = new File(folder.getPath() + "/" + pageDTO.getHtmlFileName());
 			
 			// Create the empty file with filename generated as above
-			FileOutputStream fileOutputStream = new FileOutputStream(new File(saveHtmlOnlyFile.getPath()));
+			fileOutputStream = new FileOutputStream(new File(saveHtmlOnlyFile.getPath()));
             logger.debug("Created html file: " + saveHtmlOnlyFile.getPath());
             
 	        /*
 	         * Writes a serializable object to a file
 	         */
-			ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
+			objStream = new ObjectOutputStream(fileOutputStream); 
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
             logger.debug("Saved html contents to file: " + saveHtmlOnlyFile.getPath());
             
@@ -206,9 +201,14 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
             logger.debug("Error saving html contents to file: " + pageDTO.getHtmlFileName());
             logger.debug("This file also was not added to the global set: setOfAllFilesWithUrls");
 			e.printStackTrace();			
-		}		
+		} finally {
+			try {
+				if (objStream != null) objStream.close();
+				if (fileOutputStream != null) fileOutputStream.close();
+			} catch (IOException e) {e.printStackTrace(); }
+		}
 	}
-
+	 
 	@Override
 	public void addFileToUrlFilenameSet(String url, String filename, HashSet<UrlWithFilename<String, String>> setOfAllFilesWithUrls) {
 		UrlWithFilename<String, String> urlWithFilename = new UrlWithFilename<String, String>();
