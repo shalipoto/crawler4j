@@ -36,10 +36,11 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 
     static final Logger logger = LoggerFactory.getLogger(SaveWebPageServiceImpl.class);
     SaveWebPageCrawlConfig config = null;
-    HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames = new HashSet<UrlWithFilename<String, String>>();
+    HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames = null;
     
     public SaveWebPageServiceImpl(SaveWebPageCrawlConfig config, HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames) {
 		this.config = config;
+		this.setOfAllUrlsWithFilenames = setOfAllUrlsWithFilenames;
     }
 	/**
 	 * @param pageDTO the DTO instantiated and populated by the WebCrawler instance
@@ -195,7 +196,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		 * and now can be used to point all 
 		 * hyperlinks to the local file system
 		 */
-		saveUrlsToPropFile();
+		//saveUrlsToPropFile();
 		
 		System.out.print(""); // A line just to have a valid statement for debugging
 		}
@@ -246,17 +247,19 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		urlWithFilename.setLocalFilename(filename);
 		
 		// hashSet object Not synchronized
-		if (setOfAllUrlsWithFilenames.add(urlWithFilename)) {
-        logger.debug("Saved file: " + 
-        					filename + 
-        					" having url: " + 
-        					url + 
-        					" to global set: setOfAllUrlsWithFilenames");
+		if (!setOfAllUrlsWithFilenames.contains(urlWithFilename)) {
+			if (setOfAllUrlsWithFilenames.add(urlWithFilename))
+		        logger.debug("Saved file: " + 
+    					filename + 
+    					" having url: " +
+    					url + 
+    					" to global set: setOfAllUrlsWithFilenames");
 		} else {
 	        logger.debug("file: " + 
 					filename + 
 					" having url: " + 
 					url + 
+					"is a duplicate, " +
 					" not added to global set setOfAllUrlsWithFilenames");
 		}
 	}
