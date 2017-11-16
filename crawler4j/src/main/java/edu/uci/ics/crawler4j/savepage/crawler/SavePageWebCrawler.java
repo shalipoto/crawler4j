@@ -214,14 +214,38 @@ public class SavePageWebCrawler extends WebCrawler {
         HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
         
         /* 
+         * Capture files with no title information and generate title
+         * with will be used for the filename for saving to local file system
+         */
+        String str = new String((Util.NormalizeStringForFilename(htmlParseData.getTitle())));
+    	StringBuilder sb = new StringBuilder(str);
+        if (str.toLowerCase().contains("untitled")) {
+            logger.debug(" ** This html file at url, " +
+            		page.getWebURL().getURL() +
+            		" is untitled and must be handled properly");
+            int endIndex = sb.length() - 1;
+        	sb.replace(0, endIndex, page.getWebURL().getDomain());
+        	sb.append(page.getWebURL().getPath());
+        	htmlParseData.setTitle(sb.toString());
+            logger.debug("** HTML page title is now: " + htmlParseData.getTitle());
+            completeWebPageDTO.setHtmlFileName(Util.NormalizeStringForFilename(sb.toString()));
+            logger.debug("** HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
+            logger.debug(""); // Needed to place a debugger breakpoint here
+
+        } else {
+            sb.append(".html");	// adds the file extension
+            completeWebPageDTO.setHtmlFileName(sb.toString());
+            logger.debug("** HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
+        }
+        
+        /* 
          * Generate the filename for the html file.
          * Process and pass it to the DTO.
          * A Util method filters bad characters from the title string 
          */
-        StringBuilder sb = new StringBuilder(Util.NormalizeStringForFilename(htmlParseData.getTitle()));
-        sb.append(".html");	// adds the file extension
-        completeWebPageDTO.setHtmlFileName(sb.toString());
-        logger.debug("HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
+        //StringBuilder sb = new StringBuilder(Util.NormalizeStringForFilename(htmlParseData.getTitle()));
+        //sb.append(".html");	// adds the file extension
+
         
         // Save the HTML contents of the web page to the DTO
         String htmlContents = new String(page.getContentData());
