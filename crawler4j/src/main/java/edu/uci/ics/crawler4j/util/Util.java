@@ -121,6 +121,7 @@ public class Util {
     	    if (ch < ' ' || ch >= 0x7F || ch == fileSep   // add other illegal chars right here
     	        || (ch == '.' && i == 0) // we don't want to collide with "." or ".."!
     	        || ch == '\\'	//  the backslash character has to be escaped
+    	        || (ch == '\\' && ch == stringNotGoodForFileName.charAt(i+1))
     	        || ch == '*'
     	        || ch == '"'
     	        || ch == '?'
