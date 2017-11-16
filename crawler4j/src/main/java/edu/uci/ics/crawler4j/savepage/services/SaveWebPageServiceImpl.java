@@ -36,11 +36,10 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 
     static final Logger logger = LoggerFactory.getLogger(SaveWebPageServiceImpl.class);
     SaveWebPageCrawlConfig config = null;
-    HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames = null;
+    HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames = new HashSet<UrlWithFilename<String, String>>();
     
     public SaveWebPageServiceImpl(SaveWebPageCrawlConfig config, HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames) {
 		this.config = config;
-		this.setOfAllUrlsWithFilenames = setOfAllUrlsWithFilenames;
     }
 	/**
 	 * @param pageDTO the DTO instantiated and populated by the WebCrawler instance
@@ -48,9 +47,9 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	 * @param setOfAllHtmlFilesWithUrls 
 	 */
 	@Override
-	public void saveCompleteWebPage(CompleteWebPageDTO pageDTO, HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames, Page page) {	
+	public void saveCompleteWebPage(CompleteWebPageDTO pageDTO, Page page) {	
 		String location = config.getSavePageFolderName();
-		saveHtmlOnly(pageDTO, location, setOfAllUrlsWithFilenames, page);	// delegate html page saving to existing method
+		saveHtmlOnly(pageDTO, location, page);	// delegate html page saving to existing method
 		
 		// Get the list of support files for the CompleteWebPage
 		List<SupportFileWithURL<byte[], String>> listOfSupportFileBinaryData = pageDTO.getParsedPageSupportFiles().getListOfSupportFileBinaryData();
@@ -111,7 +110,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		            logger.debug("Saved binary contents to file: " + saveBinaryFile.getPath());
 		            
 		            // Add the file to the global list of urls paired with filenames to fix broken links
-		            addFileToUrlFilenameSet(sfWithUrl.getUrlString(), saveBinaryFile.getPath(), setOfAllUrlsWithFilenames);
+		            addFileToUrlFilenameSet(sfWithUrl.getUrlString(), saveBinaryFile.getPath());
 				} catch (IOException e) {
 		            logger.debug("Error saving binary contents to file: " + sfWithUrl.getUrlString());
 		            logger.debug("This file also was not added to the global set: setOfAllFilesWithUrls");
@@ -159,7 +158,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		            logger.debug("Saved text contents to file: " + saveTextFile.getPath());
 		            
 		            // Add the file to the global list of urls paired with filenames to fix broken links
-		            addFileToUrlFilenameSet(sfWithUrl.getUrlString(), saveTextFile.getPath(), setOfAllUrlsWithFilenames);	            
+		            addFileToUrlFilenameSet(sfWithUrl.getUrlString(), saveTextFile.getPath());	            
 				} catch (IOException e) {
 					e.printStackTrace();			
 				} finally {
@@ -206,7 +205,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	 * Saves the html file to the local file system
 	 */
 	@Override
-	public void saveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames, Page page) {		
+	public void saveHtmlOnly(CompleteWebPageDTO pageDTO, String location, Page page) {		
         File folder = new File(location);	// relative to crawler project root
         ObjectOutputStream objStream = null;
         FileOutputStream fileOutputStream = null;
@@ -226,7 +225,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
             logger.debug("Saved html contents to html file: " + saveHtmlOnlyFile.getPath());
             
             // Add the file to the global list of urls paired with filenames to fix broken links
-            addFileToUrlFilenameSet(page.getWebURL().getURL(), pageDTO.getHtmlFileName(), setOfAllUrlsWithFilenames);
+            addFileToUrlFilenameSet(page.getWebURL().getURL(), pageDTO.getHtmlFileName());
             logger.debug("Saved html file with url to addFileToUrlFilenameSet ");
 		} catch (IOException e) {
             logger.debug("Error saving html contents to file: " + pageDTO.getHtmlFileName());
@@ -241,21 +240,25 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	}
 	 
 	@Override
-	public void addFileToUrlFilenameSet(String url, String filename, HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames) {
+	public void addFileToUrlFilenameSet(String url, String filename) {
 		UrlWithFilename<String, String> urlWithFilename = new UrlWithFilename<String, String>();
 		urlWithFilename.setOriginalUrl(url);
 		urlWithFilename.setLocalFilename(filename);
 		
 		// hashSet object Not synchronized
-		if (!setOfAllUrlsWithFilenames.contains(urlWithFilename)) {
-			setOfAllUrlsWithFilenames.add(urlWithFilename);
-	        logger.debug("Saved file: " + 
-	        					filename + 
-	        					" having url: " + 
-	        					url + 
-	        					" to global set: setOfAllUrlsWithFilenames");
+		if (setOfAllUrlsWithFilenames.add(urlWithFilename)) {
+        logger.debug("Saved file: " + 
+        					filename + 
+        					" having url: " + 
+        					url + 
+        					" to global set: setOfAllUrlsWithFilenames");
+		} else {
+	        logger.debug("file: " + 
+					filename + 
+					" having url: " + 
+					url + 
+					" not added to global set setOfAllUrlsWithFilenames");
 		}
-		else logger.debug("The setOfAllFilesWithUrls has found a duplicate url: " + url);
 	}
 
 	@Override
@@ -266,15 +269,14 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			fileOutputStream = new FileOutputStream(config.getFilenameAssociationsPropFile_name());
 			for (UrlWithFilename<String, String> urlWithFilename : setOfAllUrlsWithFilenames) {
 				prop.setProperty(urlWithFilename.getOriginalUrl(), urlWithFilename.getLocalFilename());
-				
-				// Save the property to the local prop file
-				prop.store(fileOutputStream, null);
 				logger.debug("");
 				logger.debug("url: " + urlWithFilename.getOriginalUrl());
 				logger.debug(" having filename: " + urlWithFilename.getLocalFilename());
 				logger.debug(" saved to prop file");
 				logger.debug("");
 			}
+			// Save the property to the local prop file
+			prop.store(fileOutputStream, null);
 		} catch (IOException e) {e.printStackTrace();
 		}	finally {
 			try {

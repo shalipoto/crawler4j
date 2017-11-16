@@ -309,7 +309,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	    completeWebPageDTO.setParsedPageSupportFiles(parsedPageSupportFiles);
         
         // Invoke the saveWebPageService
-        saveService.saveCompleteWebPage(completeWebPageDTO, setOfAllUrlsWithFilenames, page);
+        saveService.saveCompleteWebPage(completeWebPageDTO, page);
         
         logger.debug("=============");
     }
@@ -509,13 +509,13 @@ public class SavePageWebCrawler extends WebCrawler {
      * and associated urls collected during a crawling
      * session, to the loca file system
      */
-	public void onBeforeExit() {
+	/*public void onBeforeExit() {
     	logger.debug("The onBeforeExit() method has executed");
     	
-    	/**
+    	*//**
     	 * Open stream to properties file urltofilenamelookup.properties
     	 * and populate the file with the global set of urls
-    	 */
+    	 *//*
         Properties prop = new Properties();
         FileOutputStream output = null;
     	try {
@@ -544,5 +544,5 @@ public class SavePageWebCrawler extends WebCrawler {
     			}
     		}
     	}
-    }
+   } */
 }

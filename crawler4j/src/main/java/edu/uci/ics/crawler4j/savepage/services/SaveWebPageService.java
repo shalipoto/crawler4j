@@ -17,16 +17,16 @@ import edu.uci.ics.crawler4j.savepage.crawlconfig.SaveWebPageCrawlConfig;
  */
 public interface SaveWebPageService {
 
-	void saveCompleteWebPage(CompleteWebPageDTO pageDTO, HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls, Page page);
+	void saveCompleteWebPage(CompleteWebPageDTO pageDTO, Page page);
 	
-	void saveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls, Page page);
+	void saveHtmlOnly(CompleteWebPageDTO pageDTO, String location, Page page);
 	
 	/**
 	 * Add a file to the set of all urls
 	 * associated with a crawling session
 	 * for processing of the hyperlinks
 	 */
-	void addFileToUrlFilenameSet (String url, String filename, HashSet<UrlWithFilename<String, String>> setOfAllHtmlFilesWithUrls);
+	void addFileToUrlFilenameSet (String url, String filename);
 	
 	void saveUrlsToPropFile ();
 
