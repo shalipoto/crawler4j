@@ -83,7 +83,9 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		
 		//************************************************************************************************************
 		// Process the list of BINARY contentType files for saving to the file system or data layer
-		for (SupportFileWithURL<byte[], String> sfWithUrl : listOfSupportFileBinaryData) {
+		if (listOfSupportFileBinaryData!= null) { 
+			for (SupportFileWithURL<byte[], String> sfWithUrl : listOfSupportFileBinaryData) {
+		
 			
 			File saveBinaryFile = null;
 			FileOutputStream fileOutputStream = null;
@@ -106,12 +108,12 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			         */
 					//ObjectOutputStream objStream = new ObjectOutputStream(fileOutputStream); 
 		            fileOutputStream.write(sfWithUrl.getDataFile());
-		            logger.debug("Saved html contents to file: " + saveBinaryFile.getPath());
+		            logger.debug("Saved binary contents to file: " + saveBinaryFile.getPath());
 		            
 		            // Add the file to the global list of urls paired with filenames to fix broken links
 		            addFileToUrlFilenameSet(sfWithUrl.getUrlString(), saveBinaryFile.getPath(), setOfAllUrlsWithFilenames);
 				} catch (IOException e) {
-		            logger.debug("Error saving html contents to file: " + sfWithUrl.getUrlString());
+		            logger.debug("Error saving binary contents to file: " + sfWithUrl.getUrlString());
 		            logger.debug("This file also was not added to the global set: setOfAllFilesWithUrls");
 					e.printStackTrace();			
 				} finally {
@@ -121,13 +123,17 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 						e.printStackTrace();
 					}
 				}
+			}
+		} else {
+			logger.debug("The listOfSupportFileBinaryData list is empty");
 		}
 		//************************************************************************************************************
 		
 		
 		//************************************************************************************************************
 		// Process the list of TEXT contentType files for saving to the file system or data layer
-		for (SupportFileWithURL<String, String> sfWithUrl : listOfSupportFileTextData) {
+		if (listOfSupportFileTextData != null) {
+			for (SupportFileWithURL<String, String> sfWithUrl : listOfSupportFileTextData) {
 			
 			FileOutputStream fileOutputStream = null;
 			ObjectOutputStream objStream = null;
@@ -150,7 +156,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 			         */
 					objStream = new ObjectOutputStream(fileOutputStream); 
 					objStream.writeObject(sfWithUrl.getDataFile());
-		            logger.debug("Saved html contents to file: " + saveTextFile.getPath());
+		            logger.debug("Saved text contents to file: " + saveTextFile.getPath());
 		            
 		            // Add the file to the global list of urls paired with filenames to fix broken links
 		            addFileToUrlFilenameSet(sfWithUrl.getUrlString(), saveTextFile.getPath(), setOfAllUrlsWithFilenames);	            
@@ -161,20 +167,26 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 						if (fileOutputStream != null) fileOutputStream.close();
 						if (objStream != null) objStream.close();
 					} catch (IOException e) {
-			            logger.debug("Error saving html contents to file: " + sfWithUrl.getUrlString());
+			            logger.debug("Error saving text contents to file: " + sfWithUrl.getUrlString());
 			            logger.debug("This file also was not added to the global set: setOfAllFilesWithUrls");
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
+			}
+		} else {
+			logger.debug("The listOfSupportFileTextData list is empty");
 		}
 		//************************************************************************************************************
 		
 		//************************************************************************************************************		
-		// Process the list of TEXT contentType files for saving to the file system or data layer
-		logger.debug("In the SaveWebPageServiceImpl, printing out the listOfSupportFileUnknownType");
-		for (SupportFileWithURL<String, String> sfWithUrl : listOfSupportFileUnknownType) {
-			logger.debug(sfWithUrl.getUrlString());
+		// Process the list of UNKNOWN contentType files for saving to the file system or data layer
+		if (listOfSupportFileUnknownType == null) {
+			logger.debug("In the SaveWebPageServiceImpl, listOfSupportFileUnknownType is empty");
+		} else {
+			logger.debug("In the SaveWebPageServiceImpl, printing out the listOfSupportFileUnknownType");
+			for (SupportFileWithURL<String, String> sfWithUrl : listOfSupportFileUnknownType) {
+				logger.debug(sfWithUrl.getUrlString());
 		}
 	
 		//************************************************************************************************************
@@ -185,14 +197,16 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		 * hyperlinks to the local file system
 		 */
 		saveUrlsToPropFile();
+		
 		System.out.print(""); // A line just to have a valid statement for debugging
+		}
 	}
 
 	/**
 	 * Saves the html file to the local file system
 	 */
 	@Override
-	public void saveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllFilesWithUrls, Page page) {		
+	public void saveHtmlOnly(CompleteWebPageDTO pageDTO, String location, HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames, Page page) {		
         File folder = new File(location);	// relative to crawler project root
         ObjectOutputStream objStream = null;
         FileOutputStream fileOutputStream = null;
@@ -209,10 +223,11 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	         */
 			objStream = new ObjectOutputStream(fileOutputStream); 
 			objStream.writeObject(pageDTO.getWebPageHtmlContents());
-            logger.debug("Saved html contents to file: " + saveHtmlOnlyFile.getPath());
+            logger.debug("Saved html contents to html file: " + saveHtmlOnlyFile.getPath());
             
             // Add the file to the global list of urls paired with filenames to fix broken links
-            addFileToUrlFilenameSet(page.getWebURL().getURL(), pageDTO.getHtmlFileName(), setOfAllFilesWithUrls);
+            addFileToUrlFilenameSet(page.getWebURL().getURL(), pageDTO.getHtmlFileName(), setOfAllUrlsWithFilenames);
+            logger.debug("Saved html file with url to addFileToUrlFilenameSet ");
 		} catch (IOException e) {
             logger.debug("Error saving html contents to file: " + pageDTO.getHtmlFileName());
             logger.debug("This file also was not added to the global set: setOfAllFilesWithUrls");
@@ -226,20 +241,19 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 	}
 	 
 	@Override
-	public void addFileToUrlFilenameSet(String url, String filename, HashSet<UrlWithFilename<String, String>> setOfAllFilesWithUrls) {
+	public void addFileToUrlFilenameSet(String url, String filename, HashSet<UrlWithFilename<String, String>> setOfAllUrlsWithFilenames) {
 		UrlWithFilename<String, String> urlWithFilename = new UrlWithFilename<String, String>();
 		urlWithFilename.setOriginalUrl(url);
 		urlWithFilename.setLocalFilename(filename);
 		
 		// hashSet object Not synchronized
-		if (!setOfAllFilesWithUrls.contains(urlWithFilename)) {
-			setOfAllFilesWithUrls.add(urlWithFilename);
+		if (!setOfAllUrlsWithFilenames.contains(urlWithFilename)) {
+			setOfAllUrlsWithFilenames.add(urlWithFilename);
 	        logger.debug("Saved file: " + 
 	        					filename + 
 	        					" having url: " + 
 	        					url + 
-	        					" to global set: " + 
-	        					setOfAllFilesWithUrls );
+	        					" to global set: setOfAllUrlsWithFilenames");
 		}
 		else logger.debug("The setOfAllFilesWithUrls has found a duplicate url: " + url);
 	}
@@ -264,7 +278,8 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		} catch (IOException e) {e.printStackTrace();
 		}	finally {
 			try {
-				fileOutputStream.close();
+				if (fileOutputStream != null)
+					fileOutputStream.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -87,7 +87,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	List <WebURL> listOfPageSupportFileURLs = null;
 	
 	/**
-	 * This variable member will hold all the html files with their
+	 * This variable member will hold all the files with their
 	 * original urls collected within a crawling session for processing
 	 * later on where all hyperlinks will point to local files
 	 */

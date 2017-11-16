@@ -128,6 +128,7 @@ public class SaveWebPageMain {
             }
         } else {
         	logger.debug("Properties file already exists at path: " + filenameAssociationsPropFile.getAbsolutePath());
+        	config.setFilenameAssociationsPropFile_name("urltofilenamelookup");
         }
 
     /*
@@ -186,7 +187,7 @@ public class SaveWebPageMain {
      * which are found in these pages
      */
         
-        //controller.addSeed("https://www.scifigeeks.com/");
+        controller.addSeed("https://www.scifigeeks.com/");
         //controller.addSeed("http://www.ics.uci.edu/");
         //controller.addSeed("http://www.ics.uci.edu/~lopes/");
 	    //controller.addSeed("http://www.ics.uci.edu/~welling/");
@@ -196,7 +197,7 @@ public class SaveWebPageMain {
 	    //controller.addSeed("https://www.popularpatch.com/");
 	    //controller.addSeed("https://www.heropatches.com/");	    
 	    //controller.addSeed("http://www.robewares.com/");
-	    controller.addSeed("http://www.trs-80.com/");
+	    //controller.addSeed("http://www.trs-80.com/");
 	    //controller.addSeed("https://archive.org/details/computermagazines?sort=&and[]=collection%3A%22rainbowmagazine%22");  
         
         
