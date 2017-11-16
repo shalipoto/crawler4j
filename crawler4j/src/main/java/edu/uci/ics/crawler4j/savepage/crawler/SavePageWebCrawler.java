@@ -238,7 +238,7 @@ public class SavePageWebCrawler extends WebCrawler {
 
         } else {
             sb.append(".html");	// adds the file extension
-            completeWebPageDTO.setHtmlFileName(sb.toString());
+            completeWebPageDTO.setHtmlFileName(Util.NormalizeStringForFilename(sb.toString()));
             logger.debug("** HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
         }      
         // Save the HTML contents of the web page to the DTO
