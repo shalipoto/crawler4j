@@ -72,6 +72,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	
 	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png|css|svg)$");
 	private static final Pattern HTML_EXTENSIONS = Pattern.compile(".*\\.(htm|html)$");
+	private static final Pattern OTHER_FILE_EXTENSIONS = Pattern.compile(".*\\.(xml|thmx)$");
 
     SaveWebPageParser saveWebPageParser = null;
     SaveWebPageServiceImpl saveService = null;
@@ -137,8 +138,11 @@ public class SavePageWebCrawler extends WebCrawler {
         String href = url.getURL().toLowerCase();
         String charSet = referringPage.getContentCharset(); // Needed to identify html pages not using .html or .htm extensions
         
-        // Ignore the url if it has an extension that matches our defined set of image extensions.
-        if (IMAGE_EXTENSIONS.matcher(href).matches()) {
+        /*
+         * Ignore the url if it has an extension that matches our defined set of image extensions.
+         * Weed out undesirable files quickly
+         */
+        if (IMAGE_EXTENSIONS.matcher(href).matches() | OTHER_FILE_EXTENSIONS.matcher(href).matches()) {
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href);
             return false;
@@ -236,17 +240,7 @@ public class SavePageWebCrawler extends WebCrawler {
             sb.append(".html");	// adds the file extension
             completeWebPageDTO.setHtmlFileName(sb.toString());
             logger.debug("** HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
-        }
-        
-        /* 
-         * Generate the filename for the html file.
-         * Process and pass it to the DTO.
-         * A Util method filters bad characters from the title string 
-         */
-        //StringBuilder sb = new StringBuilder(Util.NormalizeStringForFilename(htmlParseData.getTitle()));
-        //sb.append(".html");	// adds the file extension
-
-        
+        }      
         // Save the HTML contents of the web page to the DTO
         String htmlContents = new String(page.getContentData());
         completeWebPageDTO.setWebPageHtmlContents(htmlContents);
