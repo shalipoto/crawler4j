@@ -530,7 +530,7 @@ public class SavePageWebCrawler extends WebCrawler {
 		Properties prop = new Properties();
 		FileOutputStream fileOutputStream = null;	
 		try {
-			fileOutputStream = new FileOutputStream(saveWebPageCrawlConfig.getFilenameAssociationsPropFile_name());
+			fileOutputStream = new FileOutputStream(saveWebPageCrawlConfig.getFilenameAssociationsPropFile_name()); // Name includes path
 			for (UrlWithFilename<String, String> urlWithFilename : setOfAllUrlsWithFilenames) {
 				prop.setProperty(urlWithFilename.getOriginalUrl(), urlWithFilename.getLocalFilename());
 				logger.debug("");

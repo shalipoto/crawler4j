@@ -120,7 +120,7 @@ public class SaveWebPageMain {
 		// Create the properties file on the file system
         if (!filenameAssociationsPropFile.exists()) {
             if (filenameAssociationsPropFile.createNewFile()) {
-                config.setFilenameAssociationsPropFile_name("urltofilenamelookup");
+                config.setFilenameAssociationsPropFile_name(filenameAssociationsPropFile.getPath());
                 logger.debug("Created properties file: " + filenameAssociationsPropFile.getPath());
             }
             else {
@@ -128,7 +128,7 @@ public class SaveWebPageMain {
             }
         } else {
         	logger.debug("Properties file already exists at path: " + filenameAssociationsPropFile.getAbsolutePath());
-        	config.setFilenameAssociationsPropFile_name("urltofilenamelookup");
+        	config.setFilenameAssociationsPropFile_name(filenameAssociationsPropFile.getPath());
         }
 
     /*
