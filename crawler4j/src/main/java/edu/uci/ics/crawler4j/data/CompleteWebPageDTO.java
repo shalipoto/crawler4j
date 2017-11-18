@@ -2,6 +2,8 @@ package edu.uci.ics.crawler4j.data;
 
 import java.util.List;
 
+import edu.uci.ics.crawler4j.crawler.Page;
+
 /**
  * This object holds the web page data, generated during
  * default crawler behavior, relevant to other processes 
@@ -11,6 +13,8 @@ import java.util.List;
  *
  */
 public class CompleteWebPageDTO {
+	
+	Page page = null;
 	
 	String webPageSaveLocation = null;
 
@@ -82,5 +86,14 @@ public class CompleteWebPageDTO {
 
 	public void setHtmlFileName(String htmlFileName) {
 		this.htmlFileName = htmlFileName;
-	}	
+	}
+	
+	public Page getPage() {
+		return page;
+	}
+
+	public void setPage(Page page) {
+		this.page = page;
+	}
+
 }

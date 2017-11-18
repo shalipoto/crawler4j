@@ -187,6 +187,12 @@ public class SavePageWebCrawler extends WebCrawler {
         logger.debug("Parent page: {}", parentUrl);
         logger.debug("Anchor text: {}", anchor);
         logger.debug("In the visit() method of the SavePageWebCrawler");
+        
+    	/* 
+    	 *  This DTO holds the information needed to save the
+         *  complete web page for persistence via the data layer.
+         */
+    	CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
 
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
@@ -207,12 +213,8 @@ public class SavePageWebCrawler extends WebCrawler {
 	                logger.debug("\t{}: {}", header.getName(), header.getValue());
 	            }
 	        }
+	        completeWebPageDTO.setPage(page); // Store the page information into the DTO
         }
-    	/* 
-    	 *  This DTO holds the information needed to save the
-         *  complete web page for persistence via the data layer.
-         */
-    	CompleteWebPageDTO completeWebPageDTO = new CompleteWebPageDTO();
 
         logger.debug("The pagestoragelocation property is: " + saveWebPageCrawlConfig.getSavePageFolderName());
         System.out.println("The CompleteWebPageDTO now has the location member set to : " + completeWebPageDTO.getWebPageSaveLocation());
