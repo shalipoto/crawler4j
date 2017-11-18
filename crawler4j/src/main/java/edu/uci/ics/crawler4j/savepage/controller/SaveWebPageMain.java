@@ -148,7 +148,7 @@ public class SaveWebPageMain {
      * You can set the maximum number of pages to crawl. The default value
      * is -1 for unlimited number of pages
      */
-        config.setMaxPagesToFetch(1000);
+        config.setMaxPagesToFetch(10);
 
         /**
          * Do you want crawler4j to crawl also binary data ?
@@ -188,7 +188,7 @@ public class SaveWebPageMain {
      * which are found in these pages
      */
         
-        //controller.addSeed("https://www.scifigeeks.com/");
+        controller.addSeed("https://www.scifigeeks.com/");
         //controller.addSeed("http://www.ics.uci.edu/");
         //controller.addSeed("http://www.ics.uci.edu/~lopes/");
 	    //controller.addSeed("http://www.ics.uci.edu/~welling/");
@@ -200,7 +200,7 @@ public class SaveWebPageMain {
 	    //controller.addSeed("http://www.robewares.com/");
 	    //controller.addSeed("http://www.trs-80.com/");
 	    //controller.addSeed("https://archive.org/details/computermagazines?sort=&and[]=collection%3A%22rainbowmagazine%22");  
-        controller.addSeed("https://www.jedi-robe.com/index.php");
+        //controller.addSeed("https://www.jedi-robe.com/index.php");
         
         
 	            
