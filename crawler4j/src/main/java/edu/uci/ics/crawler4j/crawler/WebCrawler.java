@@ -364,7 +364,7 @@ public class WebCrawler implements Runnable {
                 return;
             }
 
-            fetchResult = pageFetcher.fetchPage(curURL);
+            fetchResult = pageFetcher.fetchPage(curURL, false, 0); // Applying config politeness delay
             int statusCode = fetchResult.getStatusCode();
             handlePageStatusCode(curURL, statusCode,
                                  EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode,

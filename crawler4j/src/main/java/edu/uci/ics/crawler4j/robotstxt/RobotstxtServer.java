@@ -105,7 +105,7 @@ public class RobotstxtServer {
         PageFetchResult fetchResult = null;
         try {
             for (int redir = 0; redir < 3; ++redir) {
-                fetchResult = pageFetcher.fetchPage(robotsTxtUrl);
+                fetchResult = pageFetcher.fetchPage(robotsTxtUrl, false, 0); // Applying config politeness delay
                 int status = fetchResult.getStatusCode();
                 // Follow redirects up to 3 levels
                 if ((status == HttpStatus.SC_MULTIPLE_CHOICES ||

@@ -238,7 +238,7 @@ public class PageFetcher extends Configurable {
         }
     }
 
-    public PageFetchResult fetchPage(WebURL webUrl)
+    public PageFetchResult fetchPage(WebURL webUrl, boolean overrideDelay, int newDelay)
         throws InterruptedException, IOException, PageBiggerThanMaxSizeException, Exception {
         // Getting URL, setting headers & content
         PageFetchResult fetchResult = new PageFetchResult();
@@ -247,14 +247,23 @@ public class PageFetcher extends Configurable {
         try {
             request = newHttpUriRequest(toFetchURL);
             // Applying Politeness delay
-            synchronized (mutex) {
-                long now = (new Date()).getTime();
-                if ((now - lastFetchTime) < config.getPolitenessDelay()) {
-                    Thread.sleep(config.getPolitenessDelay() - (now - lastFetchTime));
-                }
-                lastFetchTime = (new Date()).getTime();
+            if (!overrideDelay) {
+	            synchronized (mutex) {
+	                long now = (new Date()).getTime();
+	                if ((now - lastFetchTime) < config.getPolitenessDelay()) {
+	                    Thread.sleep(config.getPolitenessDelay() - (now - lastFetchTime));
+	                }
+	                lastFetchTime = (new Date()).getTime();
+	            }
+            } else {
+	            synchronized (mutex) {
+	                long now = (new Date()).getTime();
+	                if ((now - lastFetchTime) < newDelay) {
+	                    Thread.sleep(newDelay - (now - lastFetchTime));
+	                }
+	                lastFetchTime = (new Date()).getTime();
+	            }
             }
-
             CloseableHttpResponse response = null;
             try {
             response = httpClient.execute(request);
