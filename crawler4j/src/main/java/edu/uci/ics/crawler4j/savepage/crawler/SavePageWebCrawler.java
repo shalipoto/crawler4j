@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -195,15 +196,17 @@ public class SavePageWebCrawler extends WebCrawler {
 
             logger.debug("Text length: {}", text.length());
             logger.debug("Html length: {}", html.length());
-            logger.debug("Number of outgoing links: {}", links.size());
-        }
-
-        Header[] responseHeaders = page.getFetchResponseHeaders();
-        if (responseHeaders != null) {
-            logger.debug("Response headers:");
-            for (Header header : responseHeaders) {
-                logger.debug("\t{}: {}", header.getName(), header.getValue());
+            logger.debug("Number of outgoing links: {} and they are: ", links.size());
+            for (Iterator<WebURL> iterator = links.iterator(); iterator.hasNext(); ) {
+            logger.debug(iterator.next().getURL());
             }
+	        Header[] responseHeaders = page.getFetchResponseHeaders();
+	        if (responseHeaders != null) {
+	            logger.debug("Response headers:");
+	            for (Header header : responseHeaders) {
+	                logger.debug("\t{}: {}", header.getName(), header.getValue());
+	            }
+	        }
         }
     	/* 
     	 *  This DTO holds the information needed to save the
