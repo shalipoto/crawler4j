@@ -20,6 +20,7 @@ package edu.uci.ics.crawler4j.savepage.crawler;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -150,16 +151,16 @@ public class SavePageWebCrawler extends WebCrawler {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
             // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
-            return href.startsWith("http://www.robewares.com/");
+            return href.startsWith("https://www.jedi-robe.com/index.php");
         } else if (href.contains(".htm") | href.contains(".html")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
             // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
-            return href.startsWith("http://www.robewares.com/");
+            return href.startsWith("https://www.jedi-robe.com/index.php");
         } else { // Catches all non-matching URLs and will be treated as pages to visit
         	//listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Not matching any existing criteria, considering this url to visit anyway: " + href);
-            return href.startsWith("http://www.robewares.com/");
+            return href.startsWith("https://www.jedi-robe.com/index.php");
         }
     }
 
@@ -218,12 +219,12 @@ public class SavePageWebCrawler extends WebCrawler {
         HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
         
         /* 
-         * Capture files with no title information and generate title
-         * with will be used for the filename for saving to local file system
+         * Determine if an html file has no title information and generate title
+         * to be used for the filename for saving to local file system
          */
-        String str = new String((Util.NormalizeStringForFilename(htmlParseData.getTitle())));
-    	StringBuilder sb = new StringBuilder(str);
-        if (str.toLowerCase().contains("untitled")) {
+        //String str = new String(page.getWebURL().getURL());
+
+/*        if (str.toLowerCase().contains("untitled")) {
             logger.debug(" ** This html file at url, " +
             		page.getWebURL().getURL() +
             		" is untitled and must be handled properly");
@@ -240,7 +241,21 @@ public class SavePageWebCrawler extends WebCrawler {
             sb.append(".html");	// adds the file extension
             completeWebPageDTO.setHtmlFileName(Util.NormalizeStringForFilename(sb.toString()));
             logger.debug("** HTML filename in the DTO is now set to :" + completeWebPageDTO.getHtmlFileName());
-        }      
+        }  */
+        String htmlFilename = Util.ExtractFilename(url);
+        if (!htmlFilename.contains("htm")) {
+            logger.debug(" ** This html file at url, " +
+            		page.getWebURL().getURL() +
+            		" is not named as an html file and must be handled properly");
+        	StringBuilder sb = new StringBuilder(htmlFilename);
+            int endIndex = sb.length() - 1;
+            String str = Util.NormalizeStringForFilename(sb.replace(0, endIndex, htmlParseData.getTitle()).toString());
+            sb = new StringBuilder(str);
+        	sb.append(".html");
+        	htmlFilename = sb.toString();
+            logger.debug(""); // Needed to place a debugger breakpoint here
+        }
+        completeWebPageDTO.setHtmlFileName(htmlFilename);
         // Save the HTML contents of the web page to the DTO
         String htmlContents = new String(page.getContentData());
         completeWebPageDTO.setWebPageHtmlContents(htmlContents);
@@ -255,9 +270,24 @@ public class SavePageWebCrawler extends WebCrawler {
             PageFetchResult fetchResult = null;
 			try {
 				fetchResult = pageFetcher.fetchPage(webURL);
-			} catch (InterruptedException | IOException | PageBiggerThanMaxSizeException e1) {
+			} catch (InterruptedException | PageBiggerThanMaxSizeException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
+			} catch (UnknownHostException e) {
+				super.onUnhandledException(webURL, e);
+				fetchResult.setStatusCode(404); // Site may be unavailable but setting 404 anyway
+			} catch (IOException e) {
+				e.printStackTrace();
+				fetchResult.setStatusCode(404);
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+				fetchResult = new PageFetchResult();
+				fetchResult.setStatusCode(404);
+			}
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				fetchResult.setStatusCode(404);
 			}
             int statusCode = fetchResult.getStatusCode();
             FileContentType contentType = FileContentType.UNKNOWN;

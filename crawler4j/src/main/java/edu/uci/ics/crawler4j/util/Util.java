@@ -139,6 +139,8 @@ public class Util {
     	        //sb.append(Integer.toHexString(ch));
     	    } else if (ch == ' '){
     	    	sb.append('_');
+    	    } else if (ch == '.' &&  (len-5 < i && i < len-1)){ // removing '.' from last 5 places
+    	    	sb.append('%');
     	    } else {
     	        sb.append(ch);
     	    }
@@ -152,5 +154,14 @@ public class Util {
     	filename.append(extension);	
     	logger.debug("The filename has the extension added: " + filename.toString());
 		return filename;
+    }
+    
+    public static String ExtractFilename(String str) {
+    	StringBuilder strb = new StringBuilder(str);
+    	int start = strb.lastIndexOf("/");
+    	int end = strb.lastIndexOf(".");
+		String filename = strb.substring(start);
+		return filename;
+    	
     }
 }

@@ -239,7 +239,7 @@ public class PageFetcher extends Configurable {
     }
 
     public PageFetchResult fetchPage(WebURL webUrl)
-        throws InterruptedException, IOException, PageBiggerThanMaxSizeException {
+        throws InterruptedException, IOException, PageBiggerThanMaxSizeException, Exception {
         // Getting URL, setting headers & content
         PageFetchResult fetchResult = new PageFetchResult();
         String toFetchURL = webUrl.getURL();
@@ -260,14 +260,15 @@ public class PageFetcher extends Configurable {
             response = httpClient.execute(request);
             } catch (UnknownHostException e) {
             	logger.debug("***************************************************************************************");
-            	logger.debug("Internet is not available, cannot proceed with crawling");
+            	logger.debug("There was a problem getting a file, contents will be empty.");
             	logger.debug("Stacktrace", e);
             	logger.debug("End of stacktrace");
             	logger.debug("***************************************************************************************");
             }
-            fetchResult.setEntity(response.getEntity());
-            fetchResult.setResponseHeaders(response.getAllHeaders());
-
+            finally {
+	            fetchResult.setEntity(response.getEntity());
+	            fetchResult.setResponseHeaders(response.getAllHeaders());
+            }
             // Setting HttpStatus
             int statusCode = response.getStatusLine().getStatusCode();
 

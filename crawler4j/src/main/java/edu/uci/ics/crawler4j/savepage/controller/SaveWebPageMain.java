@@ -32,6 +32,8 @@ import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import edu.uci.ics.crawler4j.savepage.crawlconfig.SaveWebPageCrawlConfig;
 import edu.uci.ics.crawler4j.savepage.crawler.SavePageWebCrawler;
+import edu.uci.ics.crawler4j.savepage.services.FixBrokenHyperlinkService;
+import edu.uci.ics.crawler4j.savepage.services.FixBrokenHyperlinkServiceImpl;
 
 /**
  * This is the main entry point for the crawler application
@@ -107,8 +109,7 @@ public class SaveWebPageMain {
             else logger.error("Error in creating the page storage folder");
         } else {
         	logger.debug("Folder already exists at path: " + folder.getAbsolutePath());
-        }  	
-    	
+        }
     /*
      * Create a properties file to hold a list of 
      * key value pairs associating a url's with 
@@ -196,9 +197,10 @@ public class SaveWebPageMain {
 	    //controller.addSeed("https://docs.docker.com/get-started/");   
 	    //controller.addSeed("https://www.popularpatch.com/");
 	    //controller.addSeed("https://www.heropatches.com/");	    
-	    controller.addSeed("http://www.robewares.com/");
+	    //controller.addSeed("http://www.robewares.com/");
 	    //controller.addSeed("http://www.trs-80.com/");
 	    //controller.addSeed("https://archive.org/details/computermagazines?sort=&and[]=collection%3A%22rainbowmagazine%22");  
+        controller.addSeed("https://www.jedi-robe.com/index.php");
         
         
 	            
@@ -208,8 +210,14 @@ public class SaveWebPageMain {
      * will reach the line after this only when crawling is finished.
      */
         controller.start(SavePageWebCrawler.class, numberOfCrawlers);
-    }
+
     // Call the services needed to get all hyperlinks in all the saved
     // web pages working correctly
     
+    /*
+     * Setup the hyperlink processing for this crawl's results.
+     */
+    	//FixBrokenHyperlinkService fixBrokenHyperlinkService = new FixBrokenHyperlinkServiceImpl(config);
+    	//fixBrokenHyperlinkService.PointHyperlinksToLocal();
+    }
 }
