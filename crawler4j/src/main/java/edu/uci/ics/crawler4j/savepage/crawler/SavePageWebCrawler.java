@@ -274,7 +274,7 @@ public class SavePageWebCrawler extends WebCrawler {
         for (WebURL webURL : listOfPageSupportFileURLs) { // Each URL here is a support file, not a complete page
             PageFetchResult fetchResult = null;
 			try {
-				fetchResult = pageFetcher.fetchPage(webURL, true, 50); // faster GETs for support files
+				fetchResult = pageFetcher.fetchPage(webURL, false, 0); // faster GETs for support files
 			} catch (InterruptedException | PageBiggerThanMaxSizeException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
