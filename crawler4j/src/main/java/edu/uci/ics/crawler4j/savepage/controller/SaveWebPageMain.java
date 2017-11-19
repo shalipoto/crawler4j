@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,29 +47,43 @@ public class SaveWebPageMain {
     private static final Logger logger = LoggerFactory.getLogger(SaveWebPageMain.class);
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
+        /*
+         * crawlStorageFolder is a folder where intermediate crawl data is
+         * stored.
+         */
+    	String crawlStorageFolder = null;
+    	
+        /*
+         * numberOfCrawlers shows the number of concurrent threads that should
+         * be initiated for crawling.
+         */
+    	int numberOfCrawlers = 0;
+    	
+    	if (args.length == 2) {
+                crawlStorageFolder = args[0];
+                numberOfCrawlers = Integer.parseInt(args[1]);                
+    	} else if (args.length ==0) {
+            Scanner sc = new Scanner(System.in);  
+            System.out.println("Please enter the folder name for intermediate crawl data: ");
+            crawlStorageFolder = sc.nextLine();
+            System.out.println("Please enter the number of crawlers: ");
+            numberOfCrawlers = sc.nextInt();
+    	} else if (args.length > 0 && args.length < 2) {
             logger.info("Needed parameters: ");
             logger.info("\t rootFolder (it will contain intermediate crawl data)");
-            logger.info("\t numberOfCralwers (number of concurrent threads)");
+            logger.info("\t numberOfCralwers (number of concurrent threads)");       
+            System.out.println("Please enter the folder for intermediate crawl data: ");      
+        	System.out.println("Error");
             return;
+        } else {
+        	System.out.println("Error");
+        	return;
         }
-
-    /*
-     * crawlStorageFolder is a folder where intermediate crawl data is
-     * stored.
-     */
-        String crawlStorageFolder = args[0];
-
-    /*
-     * numberOfCrawlers shows the number of concurrent threads that should
-     * be initiated for crawling.
-     */
-        int numberOfCrawlers = Integer.parseInt(args[1]);
+      
 
         SaveWebPageCrawlConfig config = new SaveWebPageCrawlConfig();
 
         config.setCrawlStorageFolder(crawlStorageFolder);
-        
     /* 
      * The savePageFolderName in the SaveWebPageCrawlConfig file
      * holds the folder name where saved web pages will be stored.
