@@ -2,6 +2,7 @@
 
     <property name="LOG_HOME" value="logs" />
     <property name="LOG_FILE_NAME" value="/crawler4j.log" />
+    <timestamp key="byDay" datePattern="yyyyMMdd'T'HHmmss"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -10,9 +11,11 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>${LOG_HOME}/${LOG_FILE_NAME}</file>
+        <file>${LOG_HOME}/${LOG_FILE_NAME}-${byDay}.txt</file>
+        <append>true</append>
         <encoder>
-            <pattern>%date %-5level [%thread] - [%logger] - %msg%n</pattern>
+			<pattern>%date{HH:mm:ss} %-5level [%thread] - [%logger{0}]- %msg%n</pattern>
+<!--             <pattern>%date %-5level [%thread] - [%logger] - %msg%n</pattern> -->
         </encoder>
     </appender>
 
@@ -21,6 +24,6 @@
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT" />
-        <!--<appender-ref ref="FILE" />-->
+        <appender-ref ref="FILE" />
     </root>
 </configuration>

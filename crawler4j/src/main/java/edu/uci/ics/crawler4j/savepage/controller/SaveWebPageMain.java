@@ -59,15 +59,38 @@ public class SaveWebPageMain {
          */
     	int numberOfCrawlers = 0;
     	
+        /* 
+         * The savePageFolderName in the SaveWebPageCrawlConfig file
+         * holds the folder name where saved web pages will be stored.
+         * The name is set in a properties file located at the project root
+         */
+            Properties prop = new Properties();
+            FileInputStream input = null;
+        	try {
+        		input = new FileInputStream("savewebpage.properties");
+
+        		// load a properties file
+        		prop.load(input);
+        		
+        	} catch (IOException ex) {
+        		ex.printStackTrace();
+        	} finally {
+        		if (input != null) {
+        			try {
+        				input.close();
+        			} catch (IOException e) {
+        				e.printStackTrace();
+        			}
+        		}
+        	}
+    	
     	if (args.length == 2) {
                 crawlStorageFolder = args[0];
                 numberOfCrawlers = Integer.parseInt(args[1]);                
-    	} else if (args.length ==0) {
-            Scanner sc = new Scanner(System.in);  
-            System.out.println("Please enter the folder name for intermediate crawl data: ");
-            crawlStorageFolder = sc.nextLine();
-            System.out.println("Please enter the number of crawlers: ");
-            numberOfCrawlers = sc.nextInt();
+    	} else if (args.length == 0) {
+            logger.info("Getting needed startup parameters from properties file");
+            crawlStorageFolder = prop.getProperty("crawlStorageFolder");
+            numberOfCrawlers = Integer.parseInt(prop.getProperty("numcrawlers"));
     	} else if (args.length > 0 && args.length < 2) {
             logger.info("Needed parameters: ");
             logger.info("\t rootFolder (it will contain intermediate crawl data)");
@@ -84,30 +107,6 @@ public class SaveWebPageMain {
         SaveWebPageCrawlConfig config = new SaveWebPageCrawlConfig();
 
         config.setCrawlStorageFolder(crawlStorageFolder);
-    /* 
-     * The savePageFolderName in the SaveWebPageCrawlConfig file
-     * holds the folder name where saved web pages will be stored.
-     * The name is set in a properties file located at the project root
-     */
-        Properties prop = new Properties();
-        FileInputStream input = null;
-    	try {
-    		input = new FileInputStream("savewebpage.properties");
-
-    		// load a properties file
-    		prop.load(input);
-    		
-    	} catch (IOException ex) {
-    		ex.printStackTrace();
-    	} finally {
-    		if (input != null) {
-    			try {
-    				input.close();
-    			} catch (IOException e) {
-    				e.printStackTrace();
-    			}
-    		}
-    	}
     	config.setSavePageFolderName(prop.getProperty("pagestoragelocation"));
     	
     /*
