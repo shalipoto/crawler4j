@@ -72,7 +72,7 @@ public class SavePageWebCrawler extends WebCrawler {
 	
 	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png|css|svg)$");
 	private static final Pattern HTML_EXTENSIONS = Pattern.compile(".*\\.(htm|html)$");
-	private static final Pattern OTHER_FILE_EXTENSIONS = Pattern.compile(".*\\.(xml|thmx)$");
+	private static final Pattern OTHER_FILE_EXTENSIONS = Pattern.compile(".*\\.(xml|thmx|md)$");
 
     SaveWebPageParser saveWebPageParser = null;
     SaveWebPageServiceImpl saveService = null;
