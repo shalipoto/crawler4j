@@ -327,8 +327,28 @@ public class PageFetcher extends Configurable {
                  */
                 logger.debug("URL has status 404, closing request, and closing idle connections");
 
-            }
-
+            } else if (statusCode >= 400 && statusCode < 500) {
+	        	response.close(); // Has no effect in reducing idle connections
+	            connectionManager.closeIdleConnections(10000l, TimeUnit.MILLISECONDS);
+	            
+	            /**
+	             * Needed as a workaround to reduce excessive
+	             * idle connections caused by http responses 
+	             * returning status 4xx or 5xx
+	             */
+	            logger.debug("URL has status: " +  statusCode + ", closing request, and closing idle connections");
+	
+	        } else if (statusCode > 500) {
+	        	response.close(); // Has no effect in reducing idle connections
+	            connectionManager.closeIdleConnections(10000l, TimeUnit.MILLISECONDS);
+	            
+	            /**
+	             * Needed as a workaround to reduce excessive
+	             * idle connections caused by http responses 
+	             * returning status 4xx or 5xx
+	             */
+	            logger.debug("URL has status: " +  statusCode + ", closing request, and closing idle connections");
+	        }
             fetchResult.setStatusCode(statusCode);
             return fetchResult;
 
