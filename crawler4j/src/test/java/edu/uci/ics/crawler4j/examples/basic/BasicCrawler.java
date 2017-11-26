@@ -76,8 +76,6 @@ public class BasicCrawler extends WebCrawler {
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
             String text = htmlParseData.getText();
-            logger.debug("****DEBUG html js problem ****");
-            logger.debug(text);
             String html = htmlParseData.getHtml();
             Set<WebURL> links = htmlParseData.getOutgoingUrls();
 
