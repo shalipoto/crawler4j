@@ -47,7 +47,8 @@ public class BasicCrawler extends WebCrawler {
         }
 
         // Only accept the url if it is in the "www.ics.uci.edu" domain and protocol is "http".
-        return href.startsWith("http://www.ics.uci.edu/");
+        return href.startsWith("https://www.migrosbank.ch/");
+        
     }
 
     /**
@@ -75,6 +76,8 @@ public class BasicCrawler extends WebCrawler {
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
             String text = htmlParseData.getText();
+            logger.debug("****DEBUG html js problem ****");
+            logger.debug(text);
             String html = htmlParseData.getHtml();
             Set<WebURL> links = htmlParseData.getOutgoingUrls();
 

@@ -55,8 +55,9 @@ public class Parser extends Configurable {
     public Parser(CrawlConfig config) throws InstantiationException, IllegalAccessException {
         super(config);
         htmlParser = new HtmlParser();
+        htmlParser.setExtractScripts(false);
         parseContext = new ParseContext();
-        parseContext.set(HtmlMapper.class, AllTagMapper.class.newInstance());
+        parseContext.set(HtmlMapper.class, IgnoreTagMapper.class.newInstance());
     }
 
     public void parse(Page page, String contextURL)
