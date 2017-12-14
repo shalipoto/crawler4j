@@ -28,7 +28,7 @@ import org.apache.tika.metadata.DublinCore;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.html.HtmlMapper;
-import org.apache.tika.parser.html.HtmlParser;
+import edu.uci.ics.crawler4j.parser.tagsoup.HtmlParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +114,7 @@ public class Parser extends Configurable {
             // Please note that identifying language takes less than 10 milliseconds
             LanguageIdentifier languageIdentifier = new LanguageIdentifier(parseData.getText());
             page.setLanguage(languageIdentifier.getLanguage());
+            logger.debug("The parser has identified html page language as: " + page.getLanguage());
 
             Set<WebURL> outgoingUrls = new HashSet<>();
 
