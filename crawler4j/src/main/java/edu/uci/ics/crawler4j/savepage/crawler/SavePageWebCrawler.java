@@ -137,6 +137,7 @@ public class SavePageWebCrawler extends WebCrawler {
     public boolean shouldVisit(Page referringPage, WebURL url, List<WebURL> listOfPageSupportFileURLs) {
         String href = url.getURL().toLowerCase();
         String charSet = referringPage.getContentCharset(); // Needed to identify html pages not using .html or .htm extensions
+        String seedURL = saveWebPageCrawlConfig.getSeedURL();
         
         /*
          * Ignore the url if it has an extension that matches our defined set of image extensions.
@@ -149,17 +150,17 @@ public class SavePageWebCrawler extends WebCrawler {
         } else if (HTML_EXTENSIONS.matcher(href).matches() | charSet.contains("html") | charSet.contains("HTML")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
-            // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
-            return href.startsWith("http://www.robewares.com/");
+            // Only accept the url if it is in the seedURL property of the saveWebPageCrawlConfig
+            return href.startsWith(seedURL);
         } else if (href.contains(".htm") | href.contains(".html")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
-            // Only accept the url if it is in the "https://docs.docker.com" domain and protocol is "https".
-            return href.startsWith("http://www.robewares.com/");
+        	// Only accept the url if it is in the seedURL property of the saveWebPageCrawlConfig
+            return href.startsWith(seedURL);
         } else { // Catches all non-matching URLs and will be treated as pages to visit
         	//listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Not matching any existing criteria, considering this url to visit anyway: " + href);
-            return href.startsWith("http://www.robewares.com/");
+            return href.startsWith(seedURL);
         }
     }
 

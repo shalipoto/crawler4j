@@ -96,7 +96,7 @@ public class SaveWebPageMain {
     	config.setSavePageFolderName(prop.getProperty("pagestoragelocation"));
     	
     /*
-     * Set the starting seed URL from the properties file
+     * Set the starting seed URL in the SaveWebPageCrawlConfig (config) from the properties file
      */
     	config.setSeedURL(prop.getProperty("seedURL"));
     	    	
@@ -162,7 +162,7 @@ public class SaveWebPageMain {
      * example: the contents of pdf, or the metadata of images etc
      */
         //config.setIncludeBinaryContentInCrawling(true);
-        config.setIncludeBinaryContentInCrawling(     Boolean.getBoolean(prop.getProperty("includeBinaryContentInCrawling"))    );
+        config.setIncludeBinaryContentInCrawling(     Boolean.valueOf(prop.getProperty("includeBinaryContentInCrawling"))    );
         
 
     /*
@@ -182,7 +182,7 @@ public class SaveWebPageMain {
      * rootFolder manually.
      */
         //config.setResumableCrawling(false);
-        config.setResumableCrawling(     Boolean.getBoolean(prop.getProperty("resumableCrawling"))    );
+        config.setResumableCrawling(	Boolean.valueOf(prop.getProperty("resumableCrawling"))	);
 
     /*
      * Instantiate the controller for this crawl.
@@ -197,6 +197,9 @@ public class SaveWebPageMain {
      * URLs that are fetched and then the crawler starts following links
      * which are found in these pages
      */
+        
+        // set the seedURL via the config object
+        controller.addSeed(config.getSeedURL());
         
         //controller.addSeed("https://www.scifigeeks.com/");
         //controller.addSeed("http://www.ics.uci.edu/");

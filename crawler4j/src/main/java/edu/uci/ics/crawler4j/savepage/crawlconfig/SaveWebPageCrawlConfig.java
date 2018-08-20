@@ -90,6 +90,7 @@ public class SaveWebPageCrawlConfig extends CrawlConfig {
         sb.append("Crawl storage folder: " + getCrawlStorageFolder() + "\n");       
         sb.append("savePageFileName: " + getSavePageFileName() + "\n");
         sb.append("savePageFolderName: " + getSavePageFolderName() + "\n");
+        sb.append("seedURL: " + getSeedURL() + "\n");
         sb.append("filenameAssociationsPropFile_name: " + getFilenameAssociationsPropFile_name() + "\n"); 
         sb.append("Resumable crawling: " + isResumableCrawling() + "\n");
         sb.append("Max depth of crawl: " + getMaxDepthOfCrawling() + "\n");
