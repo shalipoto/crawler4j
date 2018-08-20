@@ -42,7 +42,17 @@ public class SaveWebPageCrawlConfig extends CrawlConfig {
      */
     private String filenameAssociationsPropFile_name;
     
-    public String getUserAgentString() {
+    private String seedURL = null;
+    
+    public String getSeedURL() {
+		return seedURL;
+	}
+
+	public void setSeedURL(String seedURL) {
+		this.seedURL = seedURL;
+	}
+
+	public String getUserAgentString() {
 		return userAgentString;
 	}
 

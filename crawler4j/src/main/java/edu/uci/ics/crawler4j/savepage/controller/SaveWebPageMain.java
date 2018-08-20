@@ -96,6 +96,11 @@ public class SaveWebPageMain {
     	config.setSavePageFolderName(prop.getProperty("pagestoragelocation"));
     	
     /*
+     * Set the starting seed URL from the properties file
+     */
+    	config.setSeedURL(prop.getProperty("seedURL"));
+    	    	
+    /*
      * 
      * 
      */
@@ -135,25 +140,30 @@ public class SaveWebPageMain {
      * Be polite: Make sure that we don't send more than 1 request per
      * second (1000 milliseconds between requests).
      */
-        config.setPolitenessDelay(1000);
+        //config.setPolitenessDelay(1000);
+    	config.setPolitenessDelay(     Integer.parseInt(prop.getProperty("politenessDelay"))      );
 
     /*
      * You can set the maximum crawl depth here. The default value is -1 for
      * unlimited depth
      */
-        config.setMaxDepthOfCrawling(4);
+        //config.setMaxDepthOfCrawling(0);
+        config.setMaxDepthOfCrawling(     Integer.parseInt(prop.getProperty("maxDepthOfCrawling"))      );
 
     /*
      * You can set the maximum number of pages to crawl. The default value
      * is -1 for unlimited number of pages
      */
-        config.setMaxPagesToFetch(1000);
+        //config.setMaxPagesToFetch(1000);
+        config.setMaxPagesToFetch(     Integer.parseInt(prop.getProperty("maxPagesToFetch"))      );
 
-        /**
-         * Do you want crawler4j to crawl also binary data ?
-         * example: the contents of pdf, or the metadata of images etc
-         */
-        config.setIncludeBinaryContentInCrawling(true);
+    /*
+     * Do you want crawler4j to crawl also binary data ?
+     * example: the contents of pdf, or the metadata of images etc
+     */
+        //config.setIncludeBinaryContentInCrawling(true);
+        config.setIncludeBinaryContentInCrawling(     Boolean.getBoolean(prop.getProperty("includeBinaryContentInCrawling"))    );
+        
 
     /*
      * Do you need to set a proxy? If so, you can use:
@@ -171,7 +181,8 @@ public class SaveWebPageMain {
      * want to start a fresh crawl, you need to delete the contents of
      * rootFolder manually.
      */
-        config.setResumableCrawling(false);
+        //config.setResumableCrawling(false);
+        config.setResumableCrawling(     Boolean.getBoolean(prop.getProperty("resumableCrawling"))    );
 
     /*
      * Instantiate the controller for this crawl.
@@ -196,13 +207,15 @@ public class SaveWebPageMain {
 	    //controller.addSeed("https://docs.docker.com/get-started/");   
 	    //controller.addSeed("https://www.popularpatch.com/");
 	    //controller.addSeed("https://www.heropatches.com/");	    
-	    controller.addSeed("http://www.robewares.com/");
+	    //controller.addSeed("http://www.robewares.com/");
 	    //controller.addSeed("http://www.trs-80.com/");
 	    //controller.addSeed("https://archive.org/details/computermagazines?sort=&and[]=collection%3A%22rainbowmagazine%22");  
         
         
-	            
-
+	    System.out.println("**************** Crawl config **********************************");
+        System.out.println(config);
+        System.out.println("**************** Crawl config **********************************");
+        
     /*
      * Start the crawl. This is a blocking operation, meaning that your code
      * will reach the line after this only when crawling is finished.
