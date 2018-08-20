@@ -25,6 +25,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 
@@ -254,7 +255,16 @@ public class PageFetcher extends Configurable {
                 lastFetchTime = (new Date()).getTime();
             }
 
-            CloseableHttpResponse response = httpClient.execute(request);
+            CloseableHttpResponse response = null;
+            try {
+            response = httpClient.execute(request);
+            } catch (UnknownHostException e) {
+            	logger.debug("***************************************************************************************");
+            	logger.debug("Internet is not available, cannot proceed with crawling");
+            	logger.debug("Stacktrace", e);
+            	logger.debug("End of stacktrace");
+            	logger.debug("***************************************************************************************");
+            }
             fetchResult.setEntity(response.getEntity());
             fetchResult.setResponseHeaders(response.getAllHeaders());
 
@@ -276,6 +286,9 @@ public class PageFetcher extends Configurable {
                         URLCanonicalizer.getCanonicalURL(header.getValue(), toFetchURL);
                     fetchResult.setMovedToUrl(movedToUrl);
                 }
+                // Close the idle connection left open after a redirect
+                connectionManager.closeIdleConnections(10000l, TimeUnit.MILLISECONDS);
+                logger.debug("A status redirect ( 3xx ) has returned while fetching a URL , closing idle connections");
             } else if (statusCode >= 200 && statusCode <= 299) { // is 2XX, everything looks ok
                 fetchResult.setFetchedUrl(toFetchURL);
                 String uri = request.getURI().toString();
@@ -303,8 +316,39 @@ public class PageFetcher extends Configurable {
                         throw new PageBiggerThanMaxSizeException(size);
                     }
                 }
-            }
+            } else if (statusCode == 404) {
+            	response.close(); // Has no effect in reducing idle connections
+                connectionManager.closeIdleConnections(10000l, TimeUnit.MILLISECONDS);
+                
+                /**
+                 * Needed as a workaround to reduce excessive
+                 * idle connections caused by http responses 
+                 * returning status 404
+                 */
+                logger.debug("URL has status 404, closing request, and closing idle connections");
 
+            } else if (statusCode >= 400 && statusCode < 500) {
+	        	response.close(); // Has no effect in reducing idle connections
+	            connectionManager.closeIdleConnections(10000l, TimeUnit.MILLISECONDS);
+	            
+	            /**
+	             * Needed as a workaround to reduce excessive
+	             * idle connections caused by http responses 
+	             * returning status 4xx or 5xx
+	             */
+	            logger.debug("URL has status: " +  statusCode + ", closing request, and closing idle connections");
+	
+	        } else if (statusCode > 500) {
+	        	response.close(); // Has no effect in reducing idle connections
+	            connectionManager.closeIdleConnections(10000l, TimeUnit.MILLISECONDS);
+	            
+	            /**
+	             * Needed as a workaround to reduce excessive
+	             * idle connections caused by http responses 
+	             * returning status 4xx or 5xx
+	             */
+	            logger.debug("URL has status: " +  statusCode + ", closing request, and closing idle connections");
+	        }
             fetchResult.setStatusCode(statusCode);
             return fetchResult;
 
