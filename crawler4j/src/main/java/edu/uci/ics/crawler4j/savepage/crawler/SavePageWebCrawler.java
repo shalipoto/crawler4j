@@ -461,9 +461,9 @@ public class SavePageWebCrawler extends WebCrawler {
                         } else {
                             webURL.setDocid(-1);
                             webURL.setDepth((short) (curURL.getDepth() + 1));
-                            if ((maxCrawlDepth == -1) || (curURL.getDepth() < maxCrawlDepth)) {
+                            if ((maxCrawlDepth == -1) || (curURL.getDepth() <= maxCrawlDepth)) {
                                 if (shouldVisit(page, webURL, listOfPageSupportFileURLs)) {
-                                    if (getRobotstxtServer().allows(webURL)) {
+                                    if (getRobotstxtServer().allows(webURL) && !(curURL.getDepth() == maxCrawlDepth )) {
                                         webURL.setDocid(getDocIdServer().getNewDocID(webURL.getURL()));
                                         toSchedule.add(webURL);
                                         

@@ -147,6 +147,7 @@ public class SaveWebPageMain {
      * You can set the maximum crawl depth here. The default value is -1 for
      * unlimited depth
      */
+
         //config.setMaxDepthOfCrawling(0);
         config.setMaxDepthOfCrawling(     Integer.parseInt(prop.getProperty("maxDepthOfCrawling"))      );
 
