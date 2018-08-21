@@ -120,7 +120,7 @@ output.txt
 PracticeJava/*
 **/Eclipse_Console_Output.txt
 **/tempfolder/
-**/savedpagesfolder
+/**/savedpagesfolder*
 /BAD_internet_exception.txt
 **/saved_crawler_output
 **/saved_etsy_folder
