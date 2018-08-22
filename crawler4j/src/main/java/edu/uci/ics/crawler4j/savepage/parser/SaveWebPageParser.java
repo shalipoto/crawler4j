@@ -156,7 +156,11 @@ public class SaveWebPageParser extends Parser {
                 String hrefLoweredCase = href.trim().toLowerCase();
                 if (!hrefLoweredCase.contains("javascript:") &&
                     !hrefLoweredCase.contains("mailto:") && !hrefLoweredCase.contains("@")) {
+                	logger.debug("**************Debug URL Canonicalization*************************");
+                	logger.debug("The href before canonicalizaition: " + href);
                     String url = URLCanonicalizer.getCanonicalURL(href, contextURL);
+                    logger.debug("The href now as a url after canonicalizaition: " + url);
+                    logger.debug("**************Debug URL Canonicalization*************************");
                     if (url != null) {
                         WebURL webURL = new WebURL();
                         webURL.setURL(url);

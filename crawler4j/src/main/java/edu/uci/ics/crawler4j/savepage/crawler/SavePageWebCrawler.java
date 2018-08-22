@@ -70,8 +70,9 @@ import edu.uci.ics.crawler4j.util.Util.FileContentType;
  */
 public class SavePageWebCrawler extends WebCrawler {	
 	
-	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png|css|svg)$");
+	private static final Pattern IMAGE_EXTENSIONS = Pattern.compile(".*\\.(bmp|gif|jpg|png|svg)$");
 	private static final Pattern HTML_EXTENSIONS = Pattern.compile(".*\\.(htm|html)$");
+	private static final Pattern WEB_EXTENSIONS = Pattern.compile(".*\\.(css|js)$");
 	private static final Pattern OTHER_FILE_EXTENSIONS = Pattern.compile(".*\\.(xml|thmx|md)$");
 
     SaveWebPageParser saveWebPageParser = null;
@@ -143,7 +144,9 @@ public class SavePageWebCrawler extends WebCrawler {
          * Ignore the url if it has an extension that matches our defined set of image extensions.
          * Weed out undesirable files quickly
          */
-        if (IMAGE_EXTENSIONS.matcher(href).matches() | OTHER_FILE_EXTENSIONS.matcher(href).matches()) {
+        if (	IMAGE_EXTENSIONS.matcher(href).matches() | 
+        		OTHER_FILE_EXTENSIONS.matcher(href).matches() |
+        		WEB_EXTENSIONS.matcher(href).matches()) {
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href);
             return false;
