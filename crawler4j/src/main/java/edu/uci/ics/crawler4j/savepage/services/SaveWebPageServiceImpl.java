@@ -96,6 +96,13 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 					StringBuffer binaryFileNamePath = new StringBuffer(sfWithUrl.getUrlString());
 					String binaryFileName = binaryFileNamePath.substring(binaryFileNamePath.lastIndexOf("/"));
 					
+					// check for characters '?' and '=' in the filename and remove them
+					if (binaryFileName.contains("?") && binaryFileName.contains("=")) {
+						logger.debug("Removing url metadata from filename: " + binaryFileName);
+						binaryFileNamePath = new StringBuffer(binaryFileName);
+						binaryFileName = binaryFileNamePath.substring(0, binaryFileNamePath.lastIndexOf("?"));
+					}
+					
 					// generate filename with directory as parent					
 					saveBinaryFile = new File(supportFileFolder.getPath() + "/" + binaryFileName);
 					
@@ -144,6 +151,13 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 					StringBuffer textFileNamePath = new StringBuffer(sfWithUrl.getUrlString());
 					String textFileName = textFileNamePath.substring(textFileNamePath.lastIndexOf("/"));
 					
+					// check for characters '?' and '=' in the filename and remove them
+					if (textFileName.contains("?") && textFileName.contains("=")) {
+						logger.debug("Removing url metadata from filename: " + textFileName);
+						textFileNamePath = new StringBuffer(textFileName);
+						textFileName = textFileNamePath.substring(0, textFileNamePath.lastIndexOf("?"));
+					}
+					
 					// generate filename with directory as parent					
 					File saveTextFile = new File(supportFileFolder.getPath() + "/" + textFileName);
 					
@@ -184,6 +198,7 @@ public class SaveWebPageServiceImpl implements SaveWebPageService{
 		if (listOfSupportFileUnknownType == null) {
 			logger.debug("In the SaveWebPageServiceImpl, listOfSupportFileUnknownType is empty");
 		} else {
+			logger.debug("listOfSupportFileUnknownType is not empty and \n save feature may need_implementing");
 			logger.debug("In the SaveWebPageServiceImpl, printing out the listOfSupportFileUnknownType");
 			for (SupportFileWithURL<String, String> sfWithUrl : listOfSupportFileUnknownType) {
 				logger.debug(sfWithUrl.getUrlString());
