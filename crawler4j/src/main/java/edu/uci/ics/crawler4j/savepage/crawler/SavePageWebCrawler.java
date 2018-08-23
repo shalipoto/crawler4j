@@ -149,19 +149,27 @@ public class SavePageWebCrawler extends WebCrawler {
         		WEB_EXTENSIONS.matcher(href).matches()) {
         	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Added this URL to the listOfPageSupportFileURLs: " + href);
-            return false;
+            return false;       
+            
+        // needed to capture .js/.css files with query parameters and other metadata
+        } else if (href.contains("?") && href.contains("=")) {
+            	listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
+            	logger.debug("This URL may have metadata in it, added to listOfPageSupportFileURLs " + href);
+                return false;            
+           
         } else if (HTML_EXTENSIONS.matcher(href).matches() | charSet.contains("html") | charSet.contains("HTML")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
             // Only accept the url if it is in the seedURL property of the saveWebPageCrawlConfig
             return href.startsWith(seedURL);
+            
         } else if (href.contains(".htm") | href.contains(".html")) {
         	logger.debug("This url is included in \"should visit\": " + href);
         	
         	// Only accept the url if it is in the seedURL property of the saveWebPageCrawlConfig
             return href.startsWith(seedURL);
+                       
         } else { // Catches all non-matching URLs and will be treated as pages to visit
-        	//listOfPageSupportFileURLs.add(url);	// Add this URL to the list of support file urls
         	logger.debug("Not matching any existing criteria, considering this url to visit anyway: " + href);
             return href.startsWith(seedURL);
         }
@@ -257,6 +265,11 @@ public class SavePageWebCrawler extends WebCrawler {
         
         for (WebURL webURL : listOfPageSupportFileURLs) { // Each URL here is a support file, not a complete page
             PageFetchResult fetchResult = null;
+            
+            // check for null webURL
+            if (webURL == null) {
+            	logger.debug("listOfPageSupportFileURLs has a null URL, in SaveWebPageCrawler.visit() method");
+            }
 			try {
 				fetchResult = pageFetcher.fetchPage(webURL);
 			} catch (InterruptedException | IOException | PageBiggerThanMaxSizeException e1) {
