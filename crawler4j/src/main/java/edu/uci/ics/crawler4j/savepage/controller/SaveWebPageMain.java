@@ -170,10 +170,11 @@ public class SaveWebPageMain {
      * Do you need to set a proxy? If so, you can use:
      * config.setProxyHost("proxyserver.example.com");
      * config.setProxyPort(8080);
-     *
-     * If your proxy also needs authentication:
-     * config.setProxyUsername(username); config.getProxyPassword(password);
      */
+     //If your proxy also needs authentication:
+     //config.setProxyUsername(args[2]); 
+     //config.setProxyPassword(args[3]);
+
 
     /*
      * This config parameter can be used to set your crawl to be resumable
@@ -214,7 +215,7 @@ public class SaveWebPageMain {
 	    //controller.addSeed("http://www.robewares.com/");
 	    //controller.addSeed("http://www.trs-80.com/");
 	    //controller.addSeed("https://archive.org/details/computermagazines?sort=&and[]=collection%3A%22rainbowmagazine%22");  
-        
+        //controller.addSeed("https://auth-demo.aerobaticapp.com/protected-standard/");
         
 	    System.out.println("**************** Crawl config **********************************");
         System.out.println(config);

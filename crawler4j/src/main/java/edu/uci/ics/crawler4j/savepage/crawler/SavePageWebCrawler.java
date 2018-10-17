@@ -196,7 +196,10 @@ public class SavePageWebCrawler extends WebCrawler {
         logger.debug("Path: '{}'", path);
         logger.debug("Parent page: {}", parentUrl);
         logger.debug("Anchor text: {}", anchor);
-        logger.debug("In the visit() method of the SavePageWebCrawler");
+        logger.debug("In the visit() method of the SavePageWebCrawler: \n" + 
+        		getThread().getName() + "\n" + 
+        		"called by the controller: \n" + 
+        		myController.toString());
 
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
