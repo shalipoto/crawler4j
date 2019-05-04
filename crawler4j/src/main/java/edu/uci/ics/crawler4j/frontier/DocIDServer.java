@@ -27,7 +27,6 @@ import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.OperationStatus;
 
-import edu.uci.ics.crawler4j.crawler.Configurable;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.util.Util;
 
@@ -35,7 +34,7 @@ import edu.uci.ics.crawler4j.util.Util;
  * @author Yasser Ganjisaffar
  */
 
-public class DocIDServer extends Configurable {
+public class DocIDServer {
     private static final Logger logger = LoggerFactory.getLogger(DocIDServer.class);
 
     private final Database docIDsDB;
@@ -43,10 +42,11 @@ public class DocIDServer extends Configurable {
 
     private final Object mutex = new Object();
 
+    private CrawlConfig config;
     private int lastDocID;
 
     public DocIDServer(Environment env, CrawlConfig config) {
-        super(config);
+        this.config = config;
         DatabaseConfig dbConfig = new DatabaseConfig();
         dbConfig.setAllowCreate(true);
         dbConfig.setTransactional(config.isResumableCrawling());
@@ -76,9 +76,13 @@ public class DocIDServer extends Configurable {
                 DatabaseEntry key = new DatabaseEntry(url.getBytes());
                 result = docIDsDB.get(null, key, value, null);
 
-            } catch (Exception e) {
-                logger.error("Exception thrown while getting DocID", e);
-                return -1;
+            } catch (RuntimeException e) {
+                if (config.isHaltOnError()) {
+                    throw e;
+                } else {
+                    logger.error("Exception thrown while getting DocID", e);
+                    return -1;
+                }
             }
 
             if ((result == OperationStatus.SUCCESS) && (value.getData().length > 0)) {
@@ -102,17 +106,21 @@ public class DocIDServer extends Configurable {
                 docIDsDB.put(null, new DatabaseEntry(url.getBytes()),
                              new DatabaseEntry(Util.int2ByteArray(lastDocID)));
                 return lastDocID;
-            } catch (Exception e) {
-                logger.error("Exception thrown while getting new DocID", e);
-                return -1;
+            } catch (RuntimeException e) {
+                if (config.isHaltOnError()) {
+                    throw e;
+                } else {
+                    logger.error("Exception thrown while getting new DocID", e);
+                    return -1;
+                }
             }
         }
     }
 
-    public void addUrlAndDocId(String url, int docId) throws Exception {
+    public void addUrlAndDocId(String url, int docId) {
         synchronized (mutex) {
             if (docId <= lastDocID) {
-                throw new Exception(
+                throw new IllegalArgumentException(
                     "Requested doc id: " + docId + " is not larger than: " + lastDocID);
             }
 
@@ -122,7 +130,7 @@ public class DocIDServer extends Configurable {
                 if (prevDocid == docId) {
                     return;
                 }
-                throw new Exception("Doc id: " + prevDocid + " is already assigned to URL: " + url);
+                throw new IllegalArgumentException("Doc id: " + prevDocid + " is already assigned to URL: " + url);
             }
 
             docIDsDB.put(null, new DatabaseEntry(url.getBytes()),

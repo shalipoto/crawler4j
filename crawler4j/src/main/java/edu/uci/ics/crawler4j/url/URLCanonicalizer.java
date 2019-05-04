@@ -17,12 +17,15 @@
 
 package edu.uci.ics.crawler4j.url;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -35,11 +38,22 @@ import java.util.Objects;
  */
 public class URLCanonicalizer {
 
-    public static String getCanonicalURL(String url) {
+    private static boolean haltOnError = false;
+
+    public static void setHaltOnError(boolean haltOnError) {
+        URLCanonicalizer.haltOnError = haltOnError;
+    }
+
+    public static String getCanonicalURL(String url) throws UnsupportedEncodingException {
         return getCanonicalURL(url, null);
     }
 
-    public static String getCanonicalURL(String href, String context) {
+    public static String getCanonicalURL(String href, String context) throws UnsupportedEncodingException {
+        return getCanonicalURL(href, context, StandardCharsets.UTF_8);
+    }
+
+    public static String getCanonicalURL(String href, String context, Charset charset)
+            throws UnsupportedEncodingException {
 
         try {
             URL canonicalURL =
@@ -58,7 +72,9 @@ public class URLCanonicalizer {
        * ".", and no segments equal to ".." that are preceded by a segment
        * not equal to "..".
        */
-            path = new URI(path.replace("\\", "/")).normalize().toString();
+            path = new URI(path.replace("\\", "/")
+                    .replace(String.valueOf((char)12288), "%E3%80%80")
+                    .replace(String.valueOf((char)32), "%20")).normalize().toString();
 
             int idx = path.indexOf("//");
             while (idx >= 0) {
@@ -75,7 +91,7 @@ public class URLCanonicalizer {
             Map<String, String> params = createParameterMap(canonicalURL.getQuery());
             final String queryString;
             if ((params != null) && !params.isEmpty()) {
-                String canonicalParams = canonicalize(params);
+                String canonicalParams = canonicalize(params, charset);
                 queryString = (canonicalParams.isEmpty() ? "" : ("?" + canonicalParams));
             } else {
                 queryString = "";
@@ -143,9 +159,13 @@ public class URLCanonicalizer {
      *
      * @param paramsMap
      *            Parameter map whose name-value pairs are in order of insertion.
+     * @param charset
+     *            Charset of html page
      * @return Canonical form of query string.
+     * @throws UnsupportedEncodingException
      */
-    private static String canonicalize(Map<String, String> paramsMap) {
+    private static String canonicalize(Map<String, String> paramsMap, Charset charset)
+            throws UnsupportedEncodingException {
         if ((paramsMap == null) || paramsMap.isEmpty()) {
             return "";
         }
@@ -159,36 +179,31 @@ public class URLCanonicalizer {
             if (sb.length() > 0) {
                 sb.append('&');
             }
-            sb.append(percentEncodeRfc3986(pair.getKey()));
+            sb.append(percentEncodeRfc3986(pair.getKey(), charset));
             if (!pair.getValue().isEmpty()) {
                 sb.append('=');
-                sb.append(percentEncodeRfc3986(pair.getValue()));
+                sb.append(percentEncodeRfc3986(pair.getValue(), charset));
             }
         }
         return sb.toString();
     }
 
-    /**
-     * Percent-encode values according the RFC 3986. The built-in Java
-     * URLEncoder does not encode according to the RFC, so we make the extra
-     * replacements.
-     *
-     * @param string
-     *            Decoded string.
-     * @return Encoded string per RFC 3986.
-     */
-    private static String percentEncodeRfc3986(String string) {
+    private static String normalizePath(final String path) {
+        return path.replace("%7E", "~").replace(" ", "%20");
+    }
+
+    private static String percentEncodeRfc3986(String string, Charset charset) throws UnsupportedEncodingException {
         try {
             string = string.replace("+", "%2B");
             string = URLDecoder.decode(string, "UTF-8");
-            string = URLEncoder.encode(string, "UTF-8");
+            string = URLEncoder.encode(string, charset.name());
             return string.replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
-        } catch (Exception e) {
-            return string;
+        } catch (UnsupportedEncodingException | RuntimeException e) {
+            if (haltOnError) {
+                throw e;
+            } else {
+                return string;
+            }
         }
-    }
-
-    private static String normalizePath(final String path) {
-        return path.replace("%7E", "~").replace(" ", "%20");
     }
 }

@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.http.Header;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.conn.DnsResolver;
 import org.apache.http.impl.conn.SystemDefaultDnsResolver;
@@ -43,6 +44,11 @@ public class CrawlConfig {
      * stopped/crashed crawl. However, it makes crawling slightly slower
      */
     private boolean resumableCrawling = false;
+
+    /**
+     * The lock timeout for the underlying sleepycat DB, in milliseconds
+     */
+    private long dbLockTimeout = 500;
 
     /**
      * Maximum depth of crawling For unlimited depth this parameter should be
@@ -127,9 +133,13 @@ public class CrawlConfig {
     /**
      * Should the TLD list be updated automatically on each run? Alternatively,
      * it can be loaded from the embedded tld-names.zip file that was obtained from
-     * https://publicsuffix.org/list/effective_tld_names.dat
+     * https://publicsuffix.org/list/public_suffix_list.dat
      */
     private boolean onlineTldListUpdate = false;
+
+    private String publicSuffixSourceUrl = "https://publicsuffix.org/list/public_suffix_list.dat";
+
+    private String publicSuffixLocalFile = null;
 
     /**
      * Should the crawler stop running when the queue is empty?
@@ -198,7 +208,13 @@ public class CrawlConfig {
     private boolean respectNoIndex = true;
 
     /**
-     * DNS resolver to use, #{@link SystemDefaultDnsResolver()} is default.
+     * The {@link CookieStore} to use to store and retrieve cookies <br />
+     * useful for passing initial cookies to the crawler.
+     */
+    private CookieStore cookieStore;
+
+    /**
+     * DNS resolver to use, {@link SystemDefaultDnsResolver} is default.
      */
     public void setDnsResolver(final DnsResolver dnsResolver) {
         this.dnsResolver = dnsResolver;
@@ -209,6 +225,15 @@ public class CrawlConfig {
     }
 
     private DnsResolver dnsResolver = new SystemDefaultDnsResolver();
+
+    private boolean haltOnError = false;
+
+    private boolean allowSingleLevelDomain = false;
+
+    /*
+     * number of pages to fetch/process from the database in a single read
+     */
+    private int batchReadSize = 50;
 
     /**
      * Validates the configs specified by this instance.
@@ -237,10 +262,10 @@ public class CrawlConfig {
     }
 
     /**
-     * The folder which will be used by crawler for storing the intermediate
-     * crawl data. The content of this folder should not be modified manually.
-     *
-     * @param crawlStorageFolder The folder for the crawler's storage
+     * Sets the folder which will be used by crawler for storing the
+     * intermediate crawl data (e.g. list of urls that are extracted
+     * from previously fetched pages and need to be crawled later).
+     * Content of this folder should not be modified manually.
      */
     public void setCrawlStorageFolder(String crawlStorageFolder) {
         this.crawlStorageFolder = crawlStorageFolder;
@@ -258,6 +283,20 @@ public class CrawlConfig {
      */
     public void setResumableCrawling(boolean resumableCrawling) {
         this.resumableCrawling = resumableCrawling;
+    }
+
+    /**
+     * Set the lock timeout for the underlying sleepycat DB, in milliseconds. Default is 500.
+     *
+     * @see com.sleepycat.je.EnvironmentConfig#setLockTimeout(long, java.util.concurrent.TimeUnit)
+     * @param dbLockTimeout
+     */
+    public void setDbLockTimeout(long dbLockTimeout) {
+        this.dbLockTimeout = dbLockTimeout;
+    }
+
+    public long getDbLockTimeout() {
+        return this.dbLockTimeout;
     }
 
     public int getMaxDepthOfCrawling() {
@@ -469,10 +508,37 @@ public class CrawlConfig {
     /**
      * Should the TLD list be updated automatically on each run? Alternatively,
      * it can be loaded from the embedded tld-names.txt resource file that was
-     * obtained from https://publicsuffix.org/list/effective_tld_names.dat
+     * obtained from https://publicsuffix.org/list/public_suffix_list.dat
      */
     public void setOnlineTldListUpdate(boolean online) {
         onlineTldListUpdate = online;
+    }
+
+    public String getPublicSuffixSourceUrl() {
+        return publicSuffixSourceUrl;
+    }
+
+    /**
+     * URL from which the public suffix list is obtained.  By default
+     * this is https://publicsuffix.org/list/public_suffix_list.dat
+     */
+    public void setPublicSuffixSourceUrl(String publicSuffixSourceUrl) {
+        this.publicSuffixSourceUrl = publicSuffixSourceUrl;
+    }
+
+    public String getPublicSuffixLocalFile() {
+        return publicSuffixLocalFile;
+    }
+
+    /**
+     * Only used if {@link #setOnlineTldListUpdate(boolean)} is {@code true}. If
+     * this property is not null then it overrides
+     * {@link #setPublicSuffixSourceUrl(String)}
+     *
+     * @param publicSuffixLocalFile local filename of public suffix list
+     */
+    public void setPublicSuffixLocalFile(String publicSuffixLocalFile) {
+        this.publicSuffixLocalFile = publicSuffixLocalFile;
     }
 
     public String getProxyHost() {
@@ -580,6 +646,27 @@ public class CrawlConfig {
         this.cookiePolicy = cookiePolicy;
     }
 
+    /**
+     * Gets the configured {@link CookieStore} or null if none is set
+     * @return the {@link CookieStore}
+     */
+
+    public CookieStore getCookieStore() {
+        return cookieStore;
+    }
+
+    /**
+     * Sets the {@link CookieStore to be used}
+     * @param cookieStore the {@link CookieStore}
+     */
+    public void setCookieStore(CookieStore cookieStore) {
+        this.cookieStore = cookieStore;
+    }
+
+    /**
+     * Gets the current {@link CookieStore} used
+     * @return the {@link CookieStore}
+     */
     public boolean isRespectNoFollow() {
         return respectNoFollow;
     }
@@ -594,6 +681,55 @@ public class CrawlConfig {
 
     public void setRespectNoIndex(boolean respectNoIndex) {
         this.respectNoIndex = respectNoIndex;
+    }
+
+    /**
+     * Indicates if all crawling will stop if an unexpected error occurs.
+     */
+    public boolean isHaltOnError() {
+        return haltOnError;
+    }
+
+    /**
+     * Should all crawling stop if an unexpected error occurs? Default is
+     * {@code false}.
+     *
+     * @param haltOnError
+     *            {@code true} if all crawling should be halted
+     */
+    public void setHaltOnError(boolean haltOnError) {
+        this.haltOnError = haltOnError;
+    }
+
+    /**
+     * Are single level domains (e.g. http://localhost) considered valid?
+     */
+    public boolean isAllowSingleLevelDomain() {
+        return allowSingleLevelDomain;
+    }
+
+    /**
+     * Allow single level domains (e.g. http://localhost). This is very useful for
+     * testing especially when you may be using localhost.
+     *
+     * @param allowSingleLevelDomain
+     *            {@code true} if single level domain should be considered valid
+     */
+    public void setAllowSingleLevelDomain(boolean allowSingleLevelDomain) {
+        this.allowSingleLevelDomain = allowSingleLevelDomain;
+    }
+
+    /**
+     * Number of pages to fetch/process from the database in a single read transaction.
+     *
+     * @return the batch read size
+     */
+    public int getBatchReadSize() {
+        return batchReadSize;
+    }
+
+    public void setBatchReadSize(int batchReadSize) {
+        this.batchReadSize = batchReadSize;
     }
 
     @Override
@@ -616,13 +752,15 @@ public class CrawlConfig {
         sb.append("Proxy host: " + getProxyHost() + "\n");
         sb.append("Proxy port: " + getProxyPort() + "\n");
         sb.append("Proxy username: " + getProxyUsername() + "\n");
-        sb.append("Proxy password: " + getProxyPassword() + "\n");
         sb.append("Thread monitoring delay: " + getThreadMonitoringDelaySeconds() + "\n");
         sb.append("Thread shutdown delay: " + getThreadShutdownDelaySeconds() + "\n");
         sb.append("Cleanup delay: " + getCleanupDelaySeconds() + "\n");
         sb.append("Cookie policy: " + getCookiePolicy() + "\n");
         sb.append("Respect nofollow: " + isRespectNoFollow() + "\n");
         sb.append("Respect noindex: " + isRespectNoIndex() + "\n");
+        sb.append("Halt on error: " + isHaltOnError() + "\n");
+        sb.append("Allow single level domain:" + isAllowSingleLevelDomain() + "\n");
+        sb.append("Batch read size: " + getBatchReadSize() + "\n");
         return sb.toString();
     }
 }

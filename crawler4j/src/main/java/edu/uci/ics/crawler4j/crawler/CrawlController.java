@@ -18,8 +18,11 @@
 package edu.uci.ics.crawler4j.crawler;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,7 @@ import com.sleepycat.je.EnvironmentConfig;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.frontier.DocIDServer;
 import edu.uci.ics.crawler4j.frontier.Frontier;
+import edu.uci.ics.crawler4j.parser.Parser;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import edu.uci.ics.crawler4j.url.TLDList;
 import edu.uci.ics.crawler4j.url.URLCanonicalizer;
@@ -42,9 +46,10 @@ import edu.uci.ics.crawler4j.util.IO;
  *
  * @author Yasser Ganjisaffar
  */
-public class CrawlController extends Configurable {
+public class CrawlController {
 
     static final Logger logger = LoggerFactory.getLogger(CrawlController.class);
+    private final CrawlConfig config;
 
     /**
      * The 'customData' object can be used for passing custom crawl-related
@@ -62,6 +67,7 @@ public class CrawlController extends Configurable {
      * Is the crawling of this session finished?
      */
     protected boolean finished;
+    private Throwable error;
 
     /**
      * Is the crawling session set to 'shutdown'. Crawler threads monitor this
@@ -73,15 +79,28 @@ public class CrawlController extends Configurable {
     protected RobotstxtServer robotstxtServer;
     protected Frontier frontier;
     protected DocIDServer docIdServer;
+    protected TLDList tldList;
 
     protected final Object waitingLock = new Object();
     protected final Environment env;
 
+    protected Parser parser;
+
     public CrawlController(CrawlConfig config, PageFetcher pageFetcher,
                            RobotstxtServer robotstxtServer) throws Exception {
-        super(config);
+        this(config, pageFetcher, null, robotstxtServer, null);
+    }
 
+    public CrawlController(CrawlConfig config, PageFetcher pageFetcher,
+            RobotstxtServer robotstxtServer, TLDList tldList) throws Exception {
+        this(config, pageFetcher, null, robotstxtServer, tldList);
+    }
+
+    public CrawlController(CrawlConfig config, PageFetcher pageFetcher, Parser parser,
+                           RobotstxtServer robotstxtServer, TLDList tldList) throws Exception {
         config.validate();
+        this.config = config;
+
         File folder = new File(config.getCrawlStorageFolder());
         if (!folder.exists()) {
             if (folder.mkdirs()) {
@@ -93,7 +112,8 @@ public class CrawlController extends Configurable {
             }
         }
 
-        TLDList.setUseOnline(config.isOnlineTldListUpdate());
+        this.tldList = tldList == null ? new TLDList(config) : tldList;
+        URLCanonicalizer.setHaltOnError(config.isHaltOnError());
 
         boolean resumable = config.isResumableCrawling();
 
@@ -101,6 +121,7 @@ public class CrawlController extends Configurable {
         envConfig.setAllowCreate(true);
         envConfig.setTransactional(resumable);
         envConfig.setLocking(resumable);
+        envConfig.setLockTimeout(config.getDbLockTimeout(), TimeUnit.MILLISECONDS);
 
         File envHome = new File(config.getCrawlStorageFolder() + "/frontier");
         if (!envHome.exists()) {
@@ -123,14 +144,36 @@ public class CrawlController extends Configurable {
         frontier = new Frontier(env, config);
 
         this.pageFetcher = pageFetcher;
+        this.parser = parser == null ? new Parser(config, tldList) : parser;
         this.robotstxtServer = robotstxtServer;
 
         finished = false;
         shuttingDown = false;
+
+        robotstxtServer.setCrawlConfig(config);
+    }
+
+    public Parser getParser() {
+        return parser;
     }
 
     public interface WebCrawlerFactory<T extends WebCrawler> {
         T newInstance() throws Exception;
+    }
+
+    private static class SingleInstanceFactory<T extends WebCrawler>
+        implements WebCrawlerFactory<T> {
+
+        final T instance;
+
+        SingleInstanceFactory(T instance) {
+            this.instance = instance;
+        }
+
+        @Override
+        public T newInstance() throws Exception {
+            return this.instance;
+        }
     }
 
     private static class DefaultWebCrawlerFactory<T extends WebCrawler>
@@ -164,6 +207,18 @@ public class CrawlController extends Configurable {
      */
     public <T extends WebCrawler> void start(Class<T> clazz, int numberOfCrawlers) {
         this.start(new DefaultWebCrawlerFactory<>(clazz), numberOfCrawlers, true);
+    }
+
+    /**
+     * Start the crawling session and wait for it to finish.
+     * This method depends on a single instance of a crawler. Only that instance will be used for crawling.
+     *
+     * @param instance
+     *            the instance of a class that implements the logic for crawler threads
+     * @param <T> Your class extending WebCrawler
+     */
+    public <T extends WebCrawler> void start(T instance) {
+        this.start(new SingleInstanceFactory<>(instance), 1, true);
     }
 
     /**
@@ -215,6 +270,7 @@ public class CrawlController extends Configurable {
                                                 final int numberOfCrawlers, boolean isBlocking) {
         try {
             finished = false;
+            setError(null);
             crawlersLocalData.clear();
             final List<Thread> threads = new ArrayList<>();
             final List<T> crawlers = new ArrayList<>();
@@ -231,8 +287,6 @@ public class CrawlController extends Configurable {
             }
 
             final CrawlController controller = this;
-            final CrawlConfig config = this.getConfig();
-
             Thread monitorThread = new Thread(new Runnable() {
 
                 @Override
@@ -246,7 +300,7 @@ public class CrawlController extends Configurable {
                                 for (int i = 0; i < threads.size(); i++) {
                                     Thread thread = threads.get(i);
                                     if (!thread.isAlive()) {
-                                        if (!shuttingDown) {
+                                        if (!shuttingDown && !config.isHaltOnError()) {
                                             logger.info("Thread {} was dead, I'll recreate it", i);
                                             T crawler = crawlerFactory.newInstance();
                                             thread = new Thread(crawler, "Crawler " + (i + 1));
@@ -260,6 +314,11 @@ public class CrawlController extends Configurable {
                                         }
                                     } else if (crawlers.get(i).isNotWaitingForNewURLs()) {
                                         someoneIsWorking = true;
+                                    }
+                                    Throwable t = crawlers.get(i).getError();
+                                    if (t != null && config.isHaltOnError()) {
+                                        throw new RuntimeException(
+                                                "error on thread [" + threads.get(i).getName() + "]", t);
                                     }
                                 }
                                 boolean shutOnEmpty = config.isShutdownOnEmptyQueue();
@@ -328,10 +387,23 @@ public class CrawlController extends Configurable {
                                 }
                             }
                         }
-                    } catch (Exception e) {
-                        logger.error("Unexpected Error", e);
+                    } catch (Throwable e) {
+                        if (config.isHaltOnError()) {
+                            setError(e);
+                            synchronized (waitingLock) {
+                                frontier.finish();
+                                frontier.close();
+                                docIdServer.close();
+                                pageFetcher.shutDown();
+                                waitingLock.notifyAll();
+                                env.close();
+                            }
+                        } else {
+                            logger.error("Unexpected Error", e);
+                        }
                     }
                 }
+
             });
 
             monitorThread.start();
@@ -341,7 +413,15 @@ public class CrawlController extends Configurable {
             }
 
         } catch (Exception e) {
-            logger.error("Error happened", e);
+            if (config.isHaltOnError()) {
+                if (e instanceof RuntimeException) {
+                    throw (RuntimeException)e;
+                } else {
+                    throw new RuntimeException("error running the monitor thread", e);
+                }
+            } else {
+                logger.error("Error happened", e);
+            }
         }
     }
 
@@ -351,6 +431,18 @@ public class CrawlController extends Configurable {
     public void waitUntilFinish() {
         while (!finished) {
             synchronized (waitingLock) {
+                if (config.isHaltOnError()) {
+                    Throwable t = getError();
+                    if (t != null && config.isHaltOnError()) {
+                        if (t instanceof RuntimeException) {
+                            throw (RuntimeException)t;
+                        } else if (t instanceof Error) {
+                            throw (Error)t;
+                        } else {
+                            throw new RuntimeException("error on monitor thread", t);
+                        }
+                    }
+                }
                 if (finished) {
                     return;
                 }
@@ -389,8 +481,11 @@ public class CrawlController extends Configurable {
      *
      * @param pageUrl
      *            the URL of the seed
+     *
+     * @throws InterruptedException
+     * @throws IOException
      */
-    public void addSeed(String pageUrl) {
+    public void addSeed(String pageUrl) throws IOException, InterruptedException {
         addSeed(pageUrl, -1);
     }
 
@@ -412,8 +507,10 @@ public class CrawlController extends Configurable {
      * @param docId
      *            the document id that you want to be assigned to this seed URL.
      *
+     * @throws InterruptedException
+     * @throws IOException
      */
-    public void addSeed(String pageUrl, int docId) {
+    public void addSeed(String pageUrl, int docId) throws IOException, InterruptedException {
         String canonicalUrl = URLCanonicalizer.getCanonicalURL(pageUrl);
         if (canonicalUrl == null) {
             logger.error("Invalid seed URL: {}", pageUrl);
@@ -428,12 +525,17 @@ public class CrawlController extends Configurable {
             } else {
                 try {
                     docIdServer.addUrlAndDocId(canonicalUrl, docId);
-                } catch (Exception e) {
-                    logger.error("Could not add seed: {}", e.getMessage());
+                } catch (RuntimeException e) {
+                    if (config.isHaltOnError()) {
+                        throw e;
+                    } else {
+                        logger.error("Could not add seed: {}", e.getMessage());
+                    }
                 }
             }
 
             WebURL webUrl = new WebURL();
+            webUrl.setTldList(tldList);
             webUrl.setURL(canonicalUrl);
             webUrl.setDocid(docId);
             webUrl.setDepth((short) 0);
@@ -460,17 +562,22 @@ public class CrawlController extends Configurable {
      *            the URL of the page
      * @param docId
      *            the document id that you want to be assigned to this URL.
+     * @throws UnsupportedEncodingException
      *
      */
-    public void addSeenUrl(String url, int docId) {
+    public void addSeenUrl(String url, int docId) throws UnsupportedEncodingException {
         String canonicalUrl = URLCanonicalizer.getCanonicalURL(url);
         if (canonicalUrl == null) {
             logger.error("Invalid Url: {} (can't cannonicalize it!)", url);
         } else {
             try {
                 docIdServer.addUrlAndDocId(canonicalUrl, docId);
-            } catch (Exception e) {
-                logger.error("Could not add seen url: {}", e.getMessage());
+            } catch (RuntimeException e) {
+                if (config.isHaltOnError()) {
+                    throw e;
+                } else {
+                    logger.error("Could not add seen url: {}", e.getMessage());
+                }
             }
         }
     }
@@ -544,5 +651,21 @@ public class CrawlController extends Configurable {
         this.shuttingDown = true;
         pageFetcher.shutDown();
         frontier.finish();
+    }
+
+    public CrawlConfig getConfig() {
+        return config;
+    }
+
+    protected synchronized Throwable getError() {
+        return error;
+    }
+
+    private synchronized void setError(Throwable e) {
+        this.error = e;
+    }
+
+    public TLDList getTldList() {
+        return tldList;
     }
 }

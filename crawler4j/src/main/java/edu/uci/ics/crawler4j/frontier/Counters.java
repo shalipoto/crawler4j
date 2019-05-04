@@ -32,14 +32,13 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
-import edu.uci.ics.crawler4j.crawler.Configurable;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.util.Util;
 
 /**
  * @author Yasser Ganjisaffar
  */
-public class Counters extends Configurable {
+public class Counters {
     private static final Logger logger = LoggerFactory.getLogger(Counters.class);
 
     public static class ReservedCounterNames {
@@ -50,16 +49,16 @@ public class Counters extends Configurable {
     private static final String DATABASE_NAME = "Statistics";
     protected Database statisticsDB = null;
     protected Environment env;
+    private CrawlConfig config;
 
     protected final Object mutex = new Object();
 
     protected Map<String, Long> counterValues;
 
     public Counters(Environment env, CrawlConfig config) {
-        super(config);
-
         this.env = env;
         this.counterValues = new HashMap<>();
+        this.config = config;
 
     /*
      * When crawling is set to be resumable, we have to keep the statistics
@@ -113,8 +112,12 @@ public class Counters extends Configurable {
                                      new DatabaseEntry(Util.long2ByteArray(value)));
                     txn.commit();
                 }
-            } catch (Exception e) {
-                logger.error("Exception setting value", e);
+            } catch (RuntimeException e) {
+                if (config.isHaltOnError()) {
+                    throw e;
+                } else {
+                    logger.error("Exception setting value", e);
+                }
             }
         }
     }

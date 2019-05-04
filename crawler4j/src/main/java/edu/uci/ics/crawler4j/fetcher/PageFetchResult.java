@@ -18,6 +18,7 @@
 package edu.uci.ics.crawler4j.fetcher;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -34,11 +35,16 @@ public class PageFetchResult {
 
     protected static final Logger logger = LoggerFactory.getLogger(PageFetchResult.class);
 
+    private boolean haltOnError;
     protected int statusCode;
     protected HttpEntity entity = null;
     protected Header[] responseHeaders = null;
     protected String fetchedUrl = null;
     protected String movedToUrl = null;
+
+    public PageFetchResult(boolean haltOnError) {
+        this.haltOnError = haltOnError;
+    }
 
     public int getStatusCode() {
         return statusCode;
@@ -72,14 +78,20 @@ public class PageFetchResult {
         this.fetchedUrl = fetchedUrl;
     }
 
-    public boolean fetchContent(Page page, int maxBytes) {
+    public boolean fetchContent(Page page, int maxBytes) throws SocketTimeoutException, IOException {
         try {
-            page.load(entity, maxBytes);
             page.setFetchResponseHeaders(responseHeaders);
+            page.load(entity, maxBytes);
             return true;
-        } catch (Exception e) {
-            logger.info("Exception while fetching content for: {} [{}]", page.getWebURL().getURL(),
-                        e.getMessage());
+        } catch (SocketTimeoutException e) {
+            throw e;
+        } catch (IOException | RuntimeException e) {
+            if (haltOnError) {
+                throw e;
+            } else {
+                logger.info("Exception while fetching content for: {} [{}]", page.getWebURL().getURL(),
+                            e.getMessage());
+            }
         }
         return false;
     }
@@ -94,8 +106,12 @@ public class PageFetchResult {
             // streams which are not
             // repeatable
             // We can ignore this exception. It can happen if the stream is closed.
-        } catch (Exception e) {
-            logger.warn("Unexpected error occurred while trying to discard content", e);
+        } catch (RuntimeException e) {
+            if (haltOnError) {
+                throw e;
+            } else {
+                logger.warn("Unexpected error occurred while trying to discard content", e);
+            }
         }
     }
 

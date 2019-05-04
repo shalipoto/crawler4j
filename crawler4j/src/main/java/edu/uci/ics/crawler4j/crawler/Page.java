@@ -91,7 +91,7 @@ public class Page {
     /**
      * Headers which were present in the response of the fetch request
      */
-    protected Header[] fetchResponseHeaders;
+    protected Header[] fetchResponseHeaders = new Header[0];
 
     /**
      * The parsed data populated by parsers
@@ -158,9 +158,9 @@ public class Page {
      *
      * @param entity HttpEntity
      * @param maxBytes The maximum number of bytes to read
-     * @throws Exception when load fails
+     * @throws IOException when load fails
      */
-    public void load(HttpEntity entity, int maxBytes) throws Exception {
+    public void load(HttpEntity entity, int maxBytes) throws IOException {
 
         contentType = null;
         Header type = entity.getContentType();

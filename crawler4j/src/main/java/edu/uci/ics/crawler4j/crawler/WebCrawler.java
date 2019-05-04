@@ -17,6 +17,8 @@
 
 package edu.uci.ics.crawler4j.crawler;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -100,6 +102,10 @@ public class WebCrawler implements Runnable {
      */
     private boolean isWaitingForNewURLs;
 
+    private Throwable error;
+
+    private int batchReadSize;
+
     /**
      * Initializes the current instance of the crawler
      *
@@ -117,9 +123,10 @@ public class WebCrawler implements Runnable {
         this.robotstxtServer = crawlController.getRobotstxtServer();
         this.docIdServer = crawlController.getDocIdServer();
         this.frontier = crawlController.getFrontier();
-        this.parser = new Parser(crawlController.getConfig());
+        this.parser = crawlController.getParser();
         this.myController = crawlController;
         this.isWaitingForNewURLs = false;
+        this.batchReadSize = crawlController.getConfig().getBatchReadSize();
     }
 
     /**
@@ -201,6 +208,15 @@ public class WebCrawler implements Runnable {
     }
 
     /**
+     * Emitted when the crawler is redirected to an invalid Location.
+     * @param page
+     */
+    protected void onRedirectedToInvalidUrl(Page page) {
+        logger.warn("Unexpected error, URL: {} is redirected to NOTHING",
+            page.url.getURL());
+    }
+
+    /**
      * This function is called if the crawler encountered an unexpected http status code ( a
      * status code other than 3xx)
      *
@@ -221,9 +237,23 @@ public class WebCrawler implements Runnable {
      * This function is called if the content of a url could not be fetched.
      *
      * @param webUrl URL which content failed to be fetched
+     *
+     * @deprecated use {@link #onContentFetchError(Page)}
      */
+    @Deprecated
     protected void onContentFetchError(WebURL webUrl) {
         logger.warn("Can't fetch content of: {}", webUrl.getURL());
+        // Do nothing by default (except basic logging)
+        // Sub-classed can override this to add their custom functionality
+    }
+
+    /**
+     * This function is called if the content of a url could not be fetched.
+     *
+     * @param page Partial page object
+     */
+    protected void onContentFetchError(Page page) {
+        logger.warn("Can't fetch content of: {}", page.getWebURL().getURL());
         // Do nothing by default (except basic logging)
         // Sub-classed can override this to add their custom functionality
     }
@@ -234,11 +264,15 @@ public class WebCrawler implements Runnable {
      * @param webUrl URL where a unhandled exception occured
      */
     protected void onUnhandledException(WebURL webUrl, Throwable e) {
-        String urlStr = (webUrl == null ? "NULL" : webUrl.getURL());
-        logger.warn("Unhandled exception while fetching {}: {}", urlStr, e.getMessage());
-        logger.info("Stacktrace: ", e);
-        // Do nothing by default (except basic logging)
-        // Sub-classed can override this to add their custom functionality
+        if (myController.getConfig().isHaltOnError() && !(e instanceof IOException)) {
+            throw new RuntimeException("unhandled exception", e);
+        } else {
+            String urlStr = (webUrl == null ? "NULL" : webUrl.getURL());
+            logger.warn("Unhandled exception while fetching {}: {}", urlStr, e.getMessage());
+            logger.info("Stacktrace: ", e);
+            // Do nothing by default (except basic logging)
+            // Sub-classed can override this to add their custom functionality
+        }
     }
 
     /**
@@ -246,6 +280,16 @@ public class WebCrawler implements Runnable {
      *
      * @param webUrl URL which failed on parsing
      */
+    protected void onParseError(WebURL webUrl, ParseException e) throws ParseException {
+        onParseError(webUrl);
+    }
+
+    /**
+     * This function is called if there has been an error in parsing the content.
+     *
+     * @param webUrl URL which failed on parsing
+     */
+    @Deprecated
     protected void onParseError(WebURL webUrl) {
         logger.warn("Parsing error of: {}", webUrl.getURL());
         // Do nothing by default (Except logging)
@@ -267,34 +311,44 @@ public class WebCrawler implements Runnable {
 
     @Override
     public void run() {
-        onStart();
-        while (true) {
-            List<WebURL> assignedURLs = new ArrayList<>(50);
-            isWaitingForNewURLs = true;
-            frontier.getNextURLs(50, assignedURLs);
-            isWaitingForNewURLs = false;
-            if (assignedURLs.isEmpty()) {
-                if (frontier.isFinished()) {
-                    return;
-                }
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    logger.error("Error occurred", e);
-                }
-            } else {
-                for (WebURL curURL : assignedURLs) {
-                    if (myController.isShuttingDown()) {
-                        logger.info("Exiting because of controller shutdown.");
+        try {
+            onStart();
+            setError(null);
+            boolean halt = false;
+            while (!halt) {
+                List<WebURL> assignedURLs = new ArrayList<>(batchReadSize);
+                isWaitingForNewURLs = true;
+                frontier.getNextURLs(batchReadSize, assignedURLs);
+                isWaitingForNewURLs = false;
+                if (assignedURLs.isEmpty()) {
+                    if (frontier.isFinished()) {
                         return;
                     }
-                    if (curURL != null) {
-                        curURL = handleUrlBeforeProcess(curURL);
-                        processPage(curURL);
-                        frontier.setProcessed(curURL);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        logger.error("Error occurred", e);
+                    }
+                } else {
+                    for (WebURL curURL : assignedURLs) {
+                        if (myController.isShuttingDown()) {
+                            logger.info("Exiting because of controller shutdown.");
+                            return;
+                        }
+                        if (curURL != null) {
+                            curURL = handleUrlBeforeProcess(curURL);
+                            processPage(curURL);
+                            frontier.setProcessed(curURL);
+                        }
                     }
                 }
+                if (myController.getConfig().isHaltOnError() && myController.getError() != null) {
+                    halt = true;
+                    logger.info("halting because an error has occurred on another thread");
+                }
             }
+        } catch (Throwable t) {
+            setError(t);
         }
     }
 
@@ -356,8 +410,9 @@ public class WebCrawler implements Runnable {
         // Sub-classed should override this to add their custom functionality
     }
 
-    private void processPage(WebURL curURL) {
+    private void processPage(WebURL curURL) throws IOException, InterruptedException, ParseException {
         PageFetchResult fetchResult = null;
+        Page page = new Page(curURL);
         try {
             if (curURL == null) {
                 return;
@@ -370,7 +425,6 @@ public class WebCrawler implements Runnable {
                                                                                Locale.ENGLISH));
             // Finds the status reason for all known statuses
 
-            Page page = new Page(curURL);
             page.setFetchResponseHeaders(fetchResult.getResponseHeaders());
             page.setStatusCode(statusCode);
             if (statusCode < 200 ||
@@ -387,8 +441,7 @@ public class WebCrawler implements Runnable {
 
                     String movedToUrl = fetchResult.getMovedToUrl();
                     if (movedToUrl == null) {
-                        logger.warn("Unexpected error, URL: {} is redirected to NOTHING",
-                                    curURL);
+                        onRedirectedToInvalidUrl(page);
                         return;
                     }
                     page.setRedirectedToUrl(movedToUrl);
@@ -402,6 +455,7 @@ public class WebCrawler implements Runnable {
                         }
 
                         WebURL webURL = new WebURL();
+                        webURL.setTldList(myController.getTldList());
                         webURL.setURL(movedToUrl);
                         webURL.setParentDocid(curURL.getParentDocid());
                         webURL.setParentUrl(curURL.getParentUrl());
@@ -513,14 +567,15 @@ public class WebCrawler implements Runnable {
         } catch (PageBiggerThanMaxSizeException e) {
             onPageBiggerThanMaxSize(curURL.getURL(), e.getPageSize());
         } catch (ParseException pe) {
-            onParseError(curURL);
-        } catch (ContentFetchException cfe) {
+            onParseError(curURL, pe);
+        } catch (ContentFetchException | SocketTimeoutException cfe) {
             onContentFetchError(curURL);
+            onContentFetchError(page);
         } catch (NotAllowedContentException nace) {
             logger.debug(
                 "Skipping: {} as it contains binary content which you configured not to crawl",
                 curURL.getURL());
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException | RuntimeException e) {
             onUnhandledException(curURL, e);
         } finally {
             if (fetchResult != null) {
@@ -539,5 +594,13 @@ public class WebCrawler implements Runnable {
 
     public boolean isNotWaitingForNewURLs() {
         return !isWaitingForNewURLs;
+    }
+
+    protected synchronized Throwable getError() {
+        return error;
+    }
+
+    private synchronized void setError(Throwable error) {
+        this.error = error;
     }
 }
